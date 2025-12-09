@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>EchoAI WebRTC Test</title>
+</head>
+
+<body>
+    <h1>EchoAI WebRTC Test</h1>
+    <button onclick="start()">Start WebRTC</button>
+    <button onclick="stop()">Stop</button>
+    <div id="status">Status: Disconnected</div>
+    <video id="audio" autoplay playsinline></video>
+
+    <script>
+        var pc = null;
+
+        function negotiate() {
+            pc.addTransceiver('audio', { direction: 'sendrecv' });
+            return pc.createOffer().then(function (offer) {
+                return pc.setLocalDescription(offer);
+            }).then(function () {
+                // wait for ICE gathering to complete
+                return new Promise(function (resolve) {
+                    if (pc.iceGatheringState === 'complete') {
+                        resolve();
+                    } else {
+                        function checkState() {
+                            if (pc.iceGatheringState === 'complete') {
+                                pc.removeEventListener('icegatheringstatechange', checkState);
+                                resolve();
+                            }
+                        }
+                        pc.addEventListener('icegatheringstatechange', checkState);
+                    }
+                });
+            }).then(function () {
+                var offer = pc.localDescription;
+                return fetch('/offer', {
+                    body: JSON.stringify({
+                        sdp: offer.sdp,
+                        type: offer.type,
+                    }),
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    method: 'POST'
+                });
+            }).then(function (response) {
+                return response.json();
+            }).then(function (answer) {
+                return pc.setRemoteDescription(answer);
+            }).catch(function (e) {
+                alert(e);
+            });
+        }
+
+        function start() {
+            var config = {
+                sdpSemantics: 'unified-plan'
+            };
+
+            pc = new RTCPeerConnection(config);
+
+            pc.addEventListener('track', function (evt) {
+                if (evt.track.kind == 'audio') {
+                    document.getElementById('audio').srcObject = evt.streams[0];
+                }
+            });
+
+            document.getElementById('status').innerText = "Status: Connecting...";
+
+            navigator.mediaDevices.getUserMedia({
+                audio: true,
+                video: false
+            }).then(function (stream) {
+                stream.getTracks().forEach(function (track) {
+                    pc.addTrack(track, stream);
+                });
+                return negotiate();
+            }).then(function () {
+                document.getElementById('status').innerText = "Status: Connected";
+            }, function (err) {
+                alert('Could not acquire media: ' + err);
+            });
+        }
+
+        function stop() {
+            if (pc) {
+                pc.close();
+                pc = null;
+            }
+            document.getElementById('status').innerText = "Status: Disconnected";
+        }
+    </script>
+</body>
+
+</html>
