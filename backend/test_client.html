@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>EchoAI WebSocket Test</title>
+</head>
+<body>
+    <h1>EchoAI WebSocket Test</h1>
+    <button onclick="startRecording()">Start Recording</button>
+    <button onclick="stopRecording()">Stop Recording</button>
+    <div id="status">Status: Disconnected</div>
+    <div id="transcription"></div>
+
+    <script>
+        let ws = new WebSocket("ws://localhost:8000/ws/interview");
+        let mediaRecorder;
+        let audioChunks = [];
+
+        ws.onopen = () => {
+            document.getElementById("status").innerText = "Status: Connected";
+        };
+
+        ws.onmessage = (event) => {
+            // If it's JSON, it's transcription
+            // If it's blob, it's audio response
+            if (typeof event.data === "string") {
+                const data = JSON.parse(event.data);
+                if (data.type === "transcription") {
+                    document.getElementById("transcription").innerText = "You said: " + data.text;
+                }
+            } else {
+                // Play audio response
+                const audioBlob = event.data;
+                const audioUrl = URL.createObjectURL(audioBlob);
+                const audio = new Audio(audioUrl);
+                audio.play();
+            }
+        };
+
+        async function startRecording() {
+            const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+            mediaRecorder = new MediaRecorder(stream);
+            
+            mediaRecorder.ondataavailable = (event) => {
+                if (event.data.size > 0) {
+                    ws.send(event.data);
+                }
+            };
+
+            mediaRecorder.start(1000); // Send chunks every 1s
+            document.getElementById("status").innerText = "Status: Recording...";
+        }
+
+        function stopRecording() {
+            mediaRecorder.stop();
+            document.getElementById("status").innerText = "Status: Connected";
+        }
+    </script>
+</body>
+</html>
