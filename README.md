@@ -1,12 +1,12 @@
 # EchoAI
-```
+<pre>
 ___________      .__              _____  .___ 
 \_   _____/ ____ |  |__   ____   /  _  \ |   |
  |    __)__/ ___\|  |  \ /  _ \ /  /_\  \|   |
  |        \  \___|   Y  (  <_> )    |    \   |
 /_______  /\___  >___|  /\____/\____|__  /___|
         \/     \/     \/               \/      
-```
+ </pre>
 
 ![Stars](https://img.shields.io/github/stars/Prashidha0O1/EchoAI?style=social) ![Forks](https://img.shields.io/github/forks/Prashidha0O1/EchoAI?style=social)
 
