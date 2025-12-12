@@ -1,8 +1,10 @@
 <!DOCTYPE html>
 <html>
+
 <head>
     <title>EchoAI WebSocket Test</title>
 </head>
+
 <body>
     <h1>EchoAI WebSocket Test</h1>
     <button onclick="startRecording()">Start Recording</button>
@@ -37,23 +39,46 @@
         };
 
         async function startRecording() {
+            audioChunks = []; // Clear previous chunks
             const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-            mediaRecorder = new MediaRecorder(stream);
-            
+
+            // Try to use WAV format for better compatibility
+            const mimeType = 'audio/webm;codecs=opus'; // Most browsers support this
+            mediaRecorder = new MediaRecorder(stream, { mimeType: mimeType });
+
             mediaRecorder.ondataavailable = (event) => {
                 if (event.data.size > 0) {
-                    ws.send(event.data);
+                    audioChunks.push(event.data); // Accumulate instead of sending immediately
                 }
             };
 
-            mediaRecorder.start(1000); // Send chunks every 1s
-            document.getElementById("status").innerText = "Status: Recording...";
+            mediaRecorder.onstop = () => {
+                // Create a complete audio file from all chunks
+                const audioBlob = new Blob(audioChunks, { type: mimeType });
+                console.log(`Sending complete audio: ${audioBlob.size} bytes`);
+
+                // Send the complete audio file
+                ws.send(audioBlob);
+
+                // Clear chunks
+                audioChunks = [];
+
+                document.getElementById("status").innerText = "Status: Processing...";
+            };
+
+            // Don't send chunks, just accumulate them
+            mediaRecorder.start();
+            document.getElementById("status").innerText = "Status: Recording... (speak, then click Stop)";
         }
 
         function stopRecording() {
-            mediaRecorder.stop();
-            document.getElementById("status").innerText = "Status: Connected";
+            if (mediaRecorder && mediaRecorder.state !== 'inactive') {
+                mediaRecorder.stop();
+                // Stop all tracks to release microphone
+                mediaRecorder.stream.getTracks().forEach(track => track.stop());
+            }
         }
     </script>
 </body>
+
 </html>
