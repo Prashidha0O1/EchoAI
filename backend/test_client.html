@@ -1,8 +1,10 @@
 <!DOCTYPE html>
 <html>
+
 <head>
     <title>EchoAI WebSocket Test</title>
 </head>
+
 <body>
     <h1>EchoAI WebSocket Test</h1>
     <button onclick="startRecording()">Start Recording</button>
@@ -38,22 +40,29 @@
 
         async function startRecording() {
             const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-            mediaRecorder = new MediaRecorder(stream);
-            
+
+            // Try to use WAV format for better compatibility
+            const mimeType = 'audio/webm;codecs=opus'; // Most browsers support this
+            mediaRecorder = new MediaRecorder(stream, { mimeType: mimeType });
+
             mediaRecorder.ondataavailable = (event) => {
                 if (event.data.size > 0) {
                     ws.send(event.data);
                 }
             };
 
-            mediaRecorder.start(1000); // Send chunks every 1s
-            document.getElementById("status").innerText = "Status: Recording...";
+            // Send larger chunks (3 seconds) for better audio quality
+            mediaRecorder.start(3000);
+            document.getElementById("status").innerText = "Status: Recording... (speak now)";
         }
 
         function stopRecording() {
-            mediaRecorder.stop();
+            if (mediaRecorder && mediaRecorder.state !== 'inactive') {
+                mediaRecorder.stop();
+            }
             document.getElementById("status").innerText = "Status: Connected";
         }
     </script>
 </body>
+
 </html>
