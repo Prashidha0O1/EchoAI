@@ -24,8 +24,8 @@ class WhisperSTT(STTProvider):
                 return ""
             
             # Save audio bytes to a temporary file
-            # Try with .opus extension first (WebM usually contains Opus audio)
-            with tempfile.NamedTemporaryFile(delete=False, suffix='.opus') as temp_audio:
+            # Use .webm extension since browser sends complete WebM container
+            with tempfile.NamedTemporaryFile(delete=False, suffix='.webm') as temp_audio:
                 temp_audio.write(audio_data)
                 temp_audio_path = temp_audio.name
             
