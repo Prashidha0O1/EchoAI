@@ -1,0 +1,962 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EchoAI - Interview Agent Wireframes</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', sans-serif;
+            background: #f5f5f5;
+            padding: 20px;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+        }
+
+        .page-title {
+            text-align: center;
+            margin-bottom: 50px;
+            color: #333;
+        }
+
+        .page-title h1 {
+            font-size: 32px;
+            margin-bottom: 10px;
+        }
+
+        .page-title p {
+            font-size: 16px;
+            color: #666;
+        }
+
+        .wireframes-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(600px, 1fr));
+            gap: 40px;
+            margin-bottom: 40px;
+        }
+
+        .wireframe-box {
+            background: white;
+            border: 2px solid #333;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+            overflow: hidden;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .wireframe-box:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+        }
+
+        .wireframe-header {
+            background: linear-gradient(135deg, #2c2c2c 0%, #444 100%);
+            padding: 16px 20px;
+            border-bottom: 2px solid #333;
+            font-weight: 600;
+            font-size: 15px;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .wireframe-header .page-number {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .wireframe-content {
+            padding: 0;
+            background: white;
+        }
+
+        svg {
+            width: 100%;
+            height: auto;
+            background: white;
+            display: block;
+        }
+
+        .design-notes {
+            background: white;
+            border: 2px solid #333;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .design-notes h2 {
+            margin-bottom: 20px;
+            font-size: 20px;
+            color: #333;
+            border-bottom: 2px solid #e8e8e8;
+            padding-bottom: 10px;
+        }
+
+        .design-notes h3 {
+            margin-top: 20px;
+            margin-bottom: 10px;
+            font-size: 16px;
+            color: #555;
+        }
+
+        .design-notes p,
+        .design-notes li {
+            font-size: 14px;
+            color: #666;
+            line-height: 1.6;
+        }
+
+        .design-notes ul {
+            margin-left: 25px;
+            margin-top: 10px;
+        }
+
+        .design-notes li {
+            margin-bottom: 8px;
+        }
+
+        .color-palette {
+            display: flex;
+            gap: 15px;
+            margin-top: 10px;
+            flex-wrap: wrap;
+        }
+
+        .color-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .color-swatch {
+            width: 40px;
+            height: 40px;
+            border: 2px solid #333;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="page-title">
+            <h1>EchoAI - Interview Agent Wireframes</h1>
+            <p>Final Year Project | AI-Powered Interview Practice Platform</p>
+        </div>
+
+        <div class="wireframes-grid">
+
+            <!-- Page 1: Landing Page (Home) -->
+            <div class="wireframe-box">
+                <div class="wireframe-header">
+                    <span>Page 1: Landing Page (Home)</span>
+                    <span class="page-number">1/8</span>
+                </div>
+                <div class="wireframe-content">
+                    <svg viewBox="0 0 600 900" xmlns="http://www.w3.org/2000/svg">
+                        <!-- Navigation Bar -->
+                        <rect x="0" y="0" width="600" height="60" fill="#d0d0d0" stroke="#333" stroke-width="2" />
+                        <text x="20" y="40" font-size="18" font-weight="bold">EchoAI</text>
+                        <text x="480" y="40" font-size="12">Home</text>
+                        <text x="520" y="40" font-size="12">About</text>
+                        <text x="560" y="40" font-size="12">Login</text>
+
+                        <!-- Hero Section -->
+                        <rect x="20" y="80" width="560" height="120" fill="#f0f0f0" stroke="#333" stroke-width="1" />
+                        <text x="300" y="125" font-size="24" font-weight="bold" text-anchor="middle">Master Your
+                            Interviews</text>
+                        <text x="300" y="155" font-size="14" text-anchor="middle">AI-Powered Practice Sessions for
+                            Success</text>
+                        <rect x="220" y="170" width="160" height="40" fill="white" stroke="#333" stroke-width="2"
+                            rx="4" />
+                        <text x="300" y="198" font-size="12" font-weight="bold" text-anchor="middle">Get Started
+                            Now</text>
+
+                        <!-- Features Section -->
+                        <text x="20" y="240" font-size="14" font-weight="bold">Key Features</text>
+
+                        <!-- Feature 1 -->
+                        <rect x="20" y="260" width="160" height="140" fill="#f9f9f9" stroke="#333" stroke-width="1"
+                            rx="4" />
+                        <text x="100" y="285" font-size="12" font-weight="bold" text-anchor="middle">📝 CV Upload</text>
+                        <line x1="30" y1="300" x2="170" y2="300" stroke="#999" />
+                        <text x="30" y="320" font-size="10">Upload your CV and</text>
+                        <text x="30" y="335" font-size="10">job description</text>
+                        <text x="30" y="350" font-size="10">for analysis</text>
+                        <text x="30" y="390" font-size="9" fill="#666">AI processes your</text>
+                        <text x="30" y="403" font-size="9" fill="#666">documents</text>
+
+                        <!-- Feature 2 -->
+                        <rect x="220" y="260" width="160" height="140" fill="#f9f9f9" stroke="#333" stroke-width="1"
+                            rx="4" />
+                        <text x="300" y="285" font-size="12" font-weight="bold" text-anchor="middle">🎙️ Live
+                            Interview</text>
+                        <line x1="230" y1="300" x2="370" y2="300" stroke="#999" />
+                        <text x="230" y="320" font-size="10">Real-time Q&A with</text>
+                        <text x="230" y="335" font-size="10">AI interviewer</text>
+                        <text x="230" y="350" font-size="10">Voice & text support</text>
+                        <text x="230" y="390" font-size="9" fill="#666">TTS & STT enabled</text>
+
+                        <!-- Feature 3 -->
+                        <rect x="420" y="260" width="160" height="140" fill="#f9f9f9" stroke="#333" stroke-width="1"
+                            rx="4" />
+                        <text x="500" y="285" font-size="12" font-weight="bold" text-anchor="middle">📊 Analytics</text>
+                        <line x1="430" y1="300" x2="570" y2="300" stroke="#999" />
+                        <text x="430" y="320" font-size="10">Get detailed feedback</text>
+                        <text x="430" y="335" font-size="10">and improvement tips</text>
+                        <text x="430" y="350" font-size="10">for better performance</text>
+
+                        <!-- How It Works -->
+                        <text x="20" y="440" font-size="14" font-weight="bold">How It Works</text>
+                        <rect x="20" y="460" width="560" height="100" fill="#f9f9f9" stroke="#333" stroke-width="1"
+                            rx="4" />
+                        <circle cx="50" cy="485" r="5" fill="#333" />
+                        <text x="65" y="490" font-size="11">1. Sign up and login</text>
+                        <circle cx="50" cy="510" r="5" fill="#333" />
+                        <text x="65" y="515" font-size="11">2. Upload CV & Job Description</text>
+                        <circle cx="50" cy="535" r="5" fill="#333" />
+                        <text x="65" y="540" font-size="11">3. Start interview practice session</text>
+
+                        <!-- CTA Box -->
+                        <rect x="20" y="590" width="560" height="80" fill="#e8e8e8" stroke="#333" stroke-width="2"
+                            rx="4" />
+                        <text x="300" y="625" font-size="16" font-weight="bold" text-anchor="middle">Ready to
+                            Practice?</text>
+                        <rect x="180" y="640" width="240" height="35" fill="white" stroke="#333" stroke-width="2"
+                            rx="4" />
+                        <text x="300" y="665" font-size="12" font-weight="bold" text-anchor="middle">Create Free
+                            Account</text>
+
+                        <!-- Footer -->
+                        <rect x="0" y="850" width="600" height="50" fill="#d0d0d0" stroke="#333" stroke-width="2" />
+                        <text x="20" y="880" font-size="10">© 2025 EchoAI | Terms | Privacy | Contact</text>
+                    </svg>
+                </div>
+            </div>
+
+            <!-- Page 2: About Us -->
+            <div class="wireframe-box">
+                <div class="wireframe-header">
+                    <span>Page 2: About Us</span>
+                    <span class="page-number">2/8</span>
+                </div>
+                <div class="wireframe-content">
+                    <svg viewBox="0 0 600 900" xmlns="http://www.w3.org/2000/svg">
+                        <!-- Navigation -->
+                        <rect x="0" y="0" width="600" height="60" fill="#d0d0d0" stroke="#333" stroke-width="2" />
+                        <text x="20" y="40" font-size="18" font-weight="bold">EchoAI</text>
+                        <text x="480" y="40" font-size="12">Home</text>
+                        <text x="520" y="40" font-size="12">About</text>
+
+                        <!-- Hero -->
+                        <rect x="20" y="80" width="560" height="100" fill="#e8e8e8" stroke="#333" stroke-width="1"
+                            rx="4" />
+                        <text x="300" y="135" font-size="24" font-weight="bold" text-anchor="middle">About EchoAI</text>
+
+                        <!-- Mission -->
+                        <text x="20" y="220" font-size="14" font-weight="bold">Our Mission</text>
+                        <rect x="20" y="240" width="560" height="100" fill="#f9f9f9" stroke="#333" stroke-width="1"
+                            rx="4" />
+                        <text x="30" y="265" font-size="11">To democratize interview preparation using advanced
+                            AI</text>
+                        <text x="30" y="285" font-size="11">technology. We make professional interview coaching</text>
+                        <text x="30" y="305" font-size="11">accessible to everyone, boosting confidence and
+                            success</text>
+                        <text x="30" y="325" font-size="11">rates globally.</text>
+
+                        <!-- Vision -->
+                        <text x="20" y="380" font-size="14" font-weight="bold">Our Vision</text>
+                        <rect x="20" y="400" width="560" height="80" fill="#f9f9f9" stroke="#333" stroke-width="1"
+                            rx="4" />
+                        <text x="30" y="425" font-size="11">Every job seeker should have access to unlimited,</text>
+                        <text x="30" y="445" font-size="11">personalized interview preparation. We're building
+                            the</text>
+                        <text x="30" y="465" font-size="11">future of career development with AI.</text>
+
+                        <!-- Why Us -->
+                        <text x="20" y="520" font-size="14" font-weight="bold">Why Choose Us?</text>
+
+                        <!-- Stats Box 1 -->
+                        <rect x="20" y="540" width="170" height="100" fill="#f9f9f9" stroke="#333" stroke-width="1"
+                            rx="4" />
+                        <text x="105" y="565" font-size="16" font-weight="bold" text-anchor="middle">10K+</text>
+                        <line x1="30" y1="580" x2="160" y2="580" stroke="#999" />
+                        <text x="30" y="600" font-size="10">Users Trained</text>
+                        <text x="30" y="615" font-size="10">Globally</text>
+                        <text x="30" y="630" font-size="9" fill="#666">Success Stories</text>
+
+                        <!-- Stats Box 2 -->
+                        <rect x="215" y="540" width="170" height="100" fill="#f9f9f9" stroke="#333" stroke-width="1"
+                            rx="4" />
+                        <text x="300" y="565" font-size="16" font-weight="bold" text-anchor="middle">95%</text>
+                        <line x1="225" y1="580" x2="355" y2="580" stroke="#999" />
+                        <text x="225" y="600" font-size="10">Success Rate</text>
+                        <text x="225" y="615" font-size="10">Interview Pass</text>
+                        <text x="225" y="630" font-size="9" fill="#666">Among Users</text>
+
+                        <!-- Stats Box 3 -->
+                        <rect x="410" y="540" width="170" height="100" fill="#f9f9f9" stroke="#333" stroke-width="1"
+                            rx="4" />
+                        <text x="495" y="565" font-size="16" font-weight="bold" text-anchor="middle">24/7</text>
+                        <line x1="420" y1="580" x2="550" y2="580" stroke="#999" />
+                        <text x="420" y="600" font-size="10">AI Support</text>
+                        <text x="420" y="615" font-size="10">Anytime, Anywhere</text>
+                        <text x="420" y="630" font-size="9" fill="#666">Practice Sessions</text>
+
+                        <!-- CTA -->
+                        <rect x="20" y="680" width="560" height="80" fill="#e8e8e8" stroke="#333" stroke-width="2"
+                            rx="4" />
+                        <text x="300" y="715" font-size="14" font-weight="bold" text-anchor="middle">Join Our Community
+                            Today</text>
+                        <rect x="180" y="735" width="240" height="35" fill="white" stroke="#333" stroke-width="2"
+                            rx="4" />
+                        <text x="300" y="760" font-size="12" font-weight="bold" text-anchor="middle">Start Free
+                            Trial</text>
+
+                        <!-- Footer -->
+                        <rect x="0" y="850" width="600" height="50" fill="#d0d0d0" stroke="#333" stroke-width="2" />
+                        <text x="20" y="880" font-size="10">© 2025 EchoAI | Contact Us | Privacy</text>
+                    </svg>
+                </div>
+            </div>
+
+            <!-- Page 3: Contact Us -->
+            <div class="wireframe-box">
+                <div class="wireframe-header">
+                    <span>Page 3: Contact Us</span>
+                    <span class="page-number">3/8</span>
+                </div>
+                <div class="wireframe-content">
+                    <svg viewBox="0 0 600 900" xmlns="http://www.w3.org/2000/svg">
+                        <!-- Navigation -->
+                        <rect x="0" y="0" width="600" height="60" fill="#d0d0d0" stroke="#333" stroke-width="2" />
+                        <text x="20" y="40" font-size="18" font-weight="bold">EchoAI</text>
+                        <text x="480" y="40" font-size="12">Home</text>
+                        <text x="520" y="40" font-size="12">Contact</text>
+
+                        <!-- Hero -->
+                        <rect x="20" y="80" width="560" height="100" fill="#e8e8e8" stroke="#333" stroke-width="1"
+                            rx="4" />
+                        <text x="300" y="135" font-size="24" font-weight="bold" text-anchor="middle">Get In Touch</text>
+                        <text x="300" y="160" font-size="12" text-anchor="middle">We'd love to hear from you</text>
+
+                        <!-- Contact Form -->
+                        <text x="20" y="220" font-size="14" font-weight="bold">Contact Form</text>
+
+                        <!-- Name Field -->
+                        <text x="20" y="245" font-size="11" font-weight="bold">Full Name</text>
+                        <rect x="20" y="255" width="560" height="35" fill="white" stroke="#333" stroke-width="1"
+                            rx="3" />
+                        <text x="30" y="280" font-size="11" fill="#999">Enter your full name</text>
+
+                        <!-- Email Field -->
+                        <text x="20" y="315" font-size="11" font-weight="bold">Email Address</text>
+                        <rect x="20" y="325" width="560" height="35" fill="white" stroke="#333" stroke-width="1"
+                            rx="3" />
+                        <text x="30" y="350" font-size="11" fill="#999">your@email.com</text>
+
+                        <!-- Subject Field -->
+                        <text x="20" y="385" font-size="11" font-weight="bold">Subject</text>
+                        <rect x="20" y="395" width="560" height="35" fill="white" stroke="#333" stroke-width="1"
+                            rx="3" />
+                        <text x="30" y="420" font-size="11" fill="#999">What is this about?</text>
+
+                        <!-- Message Field -->
+                        <text x="20" y="455" font-size="11" font-weight="bold">Message</text>
+                        <rect x="20" y="465" width="560" height="100" fill="white" stroke="#333" stroke-width="1"
+                            rx="3" />
+                        <text x="30" y="485" font-size="11" fill="#999">Tell us more about your inquiry</text>
+                        <text x="30" y="505" font-size="11" fill="#999">...</text>
+
+                        <!-- Submit Button -->
+                        <rect x="180" y="585" width="240" height="40" fill="#333" stroke="#333" stroke-width="2"
+                            rx="4" />
+                        <text x="300" y="612" font-size="13" font-weight="bold" fill="white" text-anchor="middle">Send
+                            Message</text>
+
+                        <!-- Contact Info -->
+                        <text x="20" y="670" font-size="14" font-weight="bold">Other Ways to Reach Us</text>
+
+                        <rect x="20" y="690" width="260" height="90" fill="#f9f9f9" stroke="#333" stroke-width="1"
+                            rx="4" />
+                        <text x="30" y="710" font-size="11" font-weight="bold">📧 Email</text>
+                        <line x1="30" y1="720" x2="270" y2="720" stroke="#999" />
+                        <text x="30" y="735" font-size="10">support@echoai.com</text>
+                        <text x="30" y="755" font-size="10">Response within 24hrs</text>
+
+                        <rect x="320" y="690" width="260" height="90" fill="#f9f9f9" stroke="#333" stroke-width="1"
+                            rx="4" />
+                        <text x="330" y="710" font-size="11" font-weight="bold">📞 Phone</text>
+                        <line x1="330" y1="720" x2="570" y2="720" stroke="#999" />
+                        <text x="330" y="735" font-size="10">+1 (555) 123-4567</text>
+                        <text x="330" y="755" font-size="10">Mon-Fri, 9AM-6PM EST</text>
+
+                        <!-- Footer -->
+                        <rect x="0" y="850" width="600" height="50" fill="#d0d0d0" stroke="#333" stroke-width="2" />
+                        <text x="20" y="880" font-size="10">© 2025 EchoAI | Privacy | Terms</text>
+                    </svg>
+                </div>
+            </div>
+
+            <!-- Page 4: Login/Register -->
+            <div class="wireframe-box">
+                <div class="wireframe-header">
+                    <span>Page 4: Login / Register</span>
+                    <span class="page-number">4/8</span>
+                </div>
+                <div class="wireframe-content">
+                    <svg viewBox="0 0 600 900" xmlns="http://www.w3.org/2000/svg">
+                        <!-- Navigation -->
+                        <rect x="0" y="0" width="600" height="60" fill="#d0d0d0" stroke="#333" stroke-width="2" />
+                        <text x="20" y="40" font-size="18" font-weight="bold">EchoAI</text>
+
+                        <!-- Main Container -->
+                        <rect x="75" y="100" width="450" height="700" fill="#f9f9f9" stroke="#333" stroke-width="2"
+                            rx="8" />
+
+                        <!-- Logo -->
+                        <rect x="200" y="130" width="200" height="60" fill="#d0d0d0" stroke="#333" stroke-width="1"
+                            rx="4" />
+                        <text x="300" y="165" font-size="16" font-weight="bold" text-anchor="middle">EchoAI</text>
+
+                        <!-- Tabs -->
+                        <rect x="125" y="220" width="100" height="40" fill="white" stroke="#333" stroke-width="2"
+                            rx="4" />
+                        <text x="175" y="248" font-size="12" font-weight="bold" text-anchor="middle">Login</text>
+
+                        <rect x="275" y="220" width="100" height="40" fill="#e8e8e8" stroke="#333" stroke-width="1"
+                            rx="4" />
+                        <text x="325" y="248" font-size="12" text-anchor="middle">Register</text>
+
+                        <!-- Email Field -->
+                        <text x="125" y="290" font-size="11" font-weight="bold">Email</text>
+                        <rect x="125" y="300" width="350" height="40" fill="white" stroke="#333" stroke-width="1"
+                            rx="3" />
+                        <text x="135" y="327" font-size="11" fill="#999">Enter your email</text>
+
+                        <!-- Password Field -->
+                        <text x="125" y="370" font-size="11" font-weight="bold">Password</text>
+                        <rect x="125" y="380" width="350" height="40" fill="white" stroke="#333" stroke-width="1"
+                            rx="3" />
+                        <text x="135" y="407" font-size="11" fill="#999">••••••••</text>
+
+                        <!-- Remember & Forgot -->
+                        <circle cx="130" cy="445" r="4" fill="white" stroke="#333" stroke-width="1" />
+                        <text x="145" y="449" font-size="11">Remember me</text>
+                        <text x="360" y="449" font-size="11" text-decoration="underline">Forgot password?</text>
+
+                        <!-- Login Button -->
+                        <rect x="125" y="470" width="350" height="45" fill="#333" stroke="#333" stroke-width="2"
+                            rx="4" />
+                        <text x="300" y="500" font-size="13" font-weight="bold" fill="white"
+                            text-anchor="middle">Login</text>
+
+                        <!-- OR Divider -->
+                        <line x1="125" y1="540" x2="240" y2="540" stroke="#ccc" stroke-width="1" />
+                        <text x="300" y="545" font-size="11" fill="#666" text-anchor="middle">OR</text>
+                        <line x1="360" y1="540" x2="475" y2="540" stroke="#ccc" stroke-width="1" />
+
+                        <!-- Google Login -->
+                        <rect x="125" y="560" width="350" height="40" fill="white" stroke="#333" stroke-width="1"
+                            rx="3" />
+                        <text x="155" y="588" font-size="12" font-weight="bold">🔵 Continue with Google</text>
+
+                        <!-- Sign Up Link -->
+                        <text x="300" y="650" font-size="11" text-anchor="middle">Don't have an account? <tspan
+                                text-decoration="underline" font-weight="bold">Sign up</tspan></text>
+
+                        <!-- Terms -->
+                        <text x="300" y="685" font-size="10" fill="#666" text-anchor="middle">By logging in, you agree
+                            to our Terms & Privacy Policy</text>
+                    </svg>
+                </div>
+            </div>
+
+            <!-- Page 5: User Dashboard -->
+            <div class="wireframe-box">
+                <div class="wireframe-header">
+                    <span>Page 5: User Dashboard</span>
+                    <span class="page-number">5/8</span>
+                </div>
+                <div class="wireframe-content">
+                    <svg viewBox="0 0 600 900" xmlns="http://www.w3.org/2000/svg">
+                        <!-- Top Navigation -->
+                        <rect x="0" y="0" width="600" height="60" fill="#d0d0d0" stroke="#333" stroke-width="2" />
+                        <text x="20" y="40" font-size="18" font-weight="bold">EchoAI</text>
+                        <text x="480" y="25" font-size="10">👤 John Doe</text>
+                        <text x="480" y="45" font-size="10">Logout</text>
+
+                        <!-- Sidebar -->
+                        <rect x="0" y="60" width="150" height="840" fill="#e8e8e8" stroke="#333" stroke-width="2" />
+                        <text x="15" y="90" font-size="12" font-weight="bold">Dashboard</text>
+                        <text x="15" y="120" font-size="11">📊 Overview</text>
+                        <text x="15" y="145" font-size="11">📝 My Interviews</text>
+                        <text x="15" y="170" font-size="11">⚙️ Settings</text>
+                        <text x="15" y="195" font-size="11">📚 Resources</text>
+                        <text x="15" y="220" font-size="11">💬 Support</text>
+
+                        <!-- Main Content -->
+                        <!-- Welcome Section -->
+                        <rect x="170" y="80" width="410" height="90" fill="#f0f0f0" stroke="#333" stroke-width="1"
+                            rx="4" />
+                        <text x="180" y="105" font-size="16" font-weight="bold">Welcome back, John!</text>
+                        <text x="180" y="130" font-size="11">You have 3 interviews completed</text>
+                        <text x="180" y="150" font-size="11">Start a new practice session or review past
+                            performances</text>
+
+                        <!-- Quick Stats -->
+                        <text x="170" y="210" font-size="12" font-weight="bold">Quick Stats</text>
+
+                        <rect x="170" y="230" width="100" height="80" fill="#f9f9f9" stroke="#333" stroke-width="1"
+                            rx="4" />
+                        <text x="220" y="255" font-size="14" font-weight="bold" text-anchor="middle">3</text>
+                        <line x1="180" y1="268" x2="260" y2="268" stroke="#999" />
+                        <text x="180" y="285" font-size="10">Interviews</text>
+                        <text x="180" y="300" font-size="10">Completed</text>
+
+                        <rect x="290" y="230" width="100" height="80" fill="#f9f9f9" stroke="#333" stroke-width="1"
+                            rx="4" />
+                        <text x="340" y="255" font-size="14" font-weight="bold" text-anchor="middle">87%</text>
+                        <line x1="300" y1="268" x2="380" y2="268" stroke="#999" />
+                        <text x="300" y="285" font-size="10">Avg Score</text>
+
+                        <rect x="410" y="230" width="100" height="80" fill="#f9f9f9" stroke="#333" stroke-width="1"
+                            rx="4" />
+                        <text x="460" y="255" font-size="14" font-weight="bold" text-anchor="middle">5</text>
+                        <line x1="420" y1="268" x2="500" y2="268" stroke="#999" />
+                        <text x="420" y="285" font-size="10">Days Streak</text>
+
+                        <!-- Recent Interviews -->
+                        <text x="170" y="350" font-size="12" font-weight="bold">Recent Interviews</text>
+
+                        <rect x="170" y="370" width="410" height="70" fill="#f9f9f9" stroke="#333" stroke-width="1"
+                            rx="4" />
+                        <text x="180" y="390" font-size="11" font-weight="bold">Software Engineer - Tech Corp</text>
+                        <text x="180" y="410" font-size="10" fill="#666">Completed 2 days ago</text>
+                        <text x="450" y="410" font-size="10" font-weight="bold">Score: 85%</text>
+                        <text x="180" y="430" font-size="10" text-decoration="underline">Review Results →</text>
+
+                        <rect x="170" y="460" width="410" height="70" fill="#f9f9f9" stroke="#333" stroke-width="1"
+                            rx="4" />
+                        <text x="180" y="480" font-size="11" font-weight="bold">Product Manager - StartUp Inc</text>
+                        <text x="180" y="500" font-size="10" fill="#666">Completed 1 week ago</text>
+                        <text x="450" y="500" font-size="10" font-weight="bold">Score: 90%</text>
+                        <text x="180" y="520" font-size="10" text-decoration="underline">Review Results →</text>
+
+                        <!-- CTA -->
+                        <rect x="170" y="560" width="410" height="60" fill="#333" stroke="#333" stroke-width="2"
+                            rx="4" />
+                        <text x="375" y="595" font-size="14" font-weight="bold" fill="white" text-anchor="middle">+
+                            Start New Interview</text>
+
+                        <!-- Footer -->
+                        <rect x="0" y="850" width="600" height="50" fill="#d0d0d0" stroke="#333" stroke-width="2" />
+                    </svg>
+                </div>
+            </div>
+
+            <!-- Page 6: Create Interview -->
+            <div class="wireframe-box">
+                <div class="wireframe-header">
+                    <span>Page 6: Create Interview</span>
+                    <span class="page-number">6/8</span>
+                </div>
+                <div class="wireframe-content">
+                    <svg viewBox="0 0 600 900" xmlns="http://www.w3.org/2000/svg">
+                        <!-- Top Navigation -->
+                        <rect x="0" y="0" width="600" height="60" fill="#d0d0d0" stroke="#333" stroke-width="2" />
+                        <text x="20" y="40" font-size="18" font-weight="bold">Create Interview</text>
+                        <text x="500" y="40" font-size="12">← Back</text>
+
+                        <!-- Progress -->
+                        <text x="20" y="100" font-size="12" font-weight="bold">Step 1 of 3: Upload Documents</text>
+                        <rect x="20" y="110" width="560" height="8" fill="#e8e8e8" stroke="#333" stroke-width="1"
+                            rx="4" />
+                        <rect x="20" y="110" width="186" height="8" fill="#333" rx="4" />
+
+                        <!-- Upload CV -->
+                        <text x="20" y="160" font-size="12" font-weight="bold">Upload Your CV</text>
+                        <rect x="20" y="175" width="260" height="120" fill="#f9f9f9" stroke="#999" stroke-width="2"
+                            stroke-dasharray="5,5" rx="8" />
+                        <text x="150" y="220" font-size="11" text-anchor="middle" font-weight="bold">📄 Click to
+                            upload</text>
+                        <text x="150" y="240" font-size="10" text-anchor="middle" fill="#666">or drag and drop</text>
+                        <text x="150" y="258" font-size="9" text-anchor="middle" fill="#999">PDF, DOCX (Max 10MB)</text>
+
+                        <!-- Upload Job Description -->
+                        <text x="320" y="160" font-size="12" font-weight="bold">Upload Job Description</text>
+                        <rect x="320" y="175" width="260" height="120" fill="#f9f9f9" stroke="#999" stroke-width="2"
+                            stroke-dasharray="5,5" rx="8" />
+                        <text x="450" y="220" font-size="11" text-anchor="middle" font-weight="bold">📄 Click to
+                            upload</text>
+                        <text x="450" y="240" font-size="10" text-anchor="middle" fill="#666">or drag and drop</text>
+                        <text x="450" y="258" font-size="9" text-anchor="middle" fill="#999">PDF, DOCX, TXT (Max
+                            10MB)</text>
+
+                        <!-- Interview Details -->
+                        <text x="20" y="340" font-size="12" font-weight="bold">Interview Details</text>
+
+                        <text x="20" y="370" font-size="11" font-weight="bold">Position Title</text>
+                        <rect x="20" y="380" width="560" height="35" fill="white" stroke="#333" stroke-width="1"
+                            rx="3" />
+                        <text x="30" y="405" font-size="11" fill="#999">e.g. Senior Software Engineer</text>
+
+                        <text x="20" y="440" font-size="11" font-weight="bold">Company Name</text>
+                        <rect x="20" y="450" width="560" height="35" fill="white" stroke="#333" stroke-width="1"
+                            rx="3" />
+                        <text x="30" y="475" font-size="11" fill="#999">e.g. Google, Microsoft, etc</text>
+
+                        <text x="20" y="510" font-size="11" font-weight="bold">Experience Level</text>
+                        <rect x="20" y="520" width="560" height="35" fill="white" stroke="#333" stroke-width="1"
+                            rx="3" />
+                        <text x="30" y="545" font-size="11" fill="#999">Select Level ▼</text>
+
+                        <!-- Buttons -->
+                        <rect x="20" y="580" width="260" height="40" fill="white" stroke="#333" stroke-width="2"
+                            rx="4" />
+                        <text x="150" y="607" font-size="12" font-weight="bold" text-anchor="middle">Cancel</text>
+
+                        <rect x="320" y="580" width="260" height="40" fill="#333" stroke="#333" stroke-width="2"
+                            rx="4" />
+                        <text x="450" y="607" font-size="12" font-weight="bold" fill="white"
+                            text-anchor="middle">Analyze & Continue</text>
+
+                        <!-- Info Box -->
+                        <rect x="20" y="650" width="560" height="70" fill="#e8f0ff" stroke="#666" stroke-width="1"
+                            rx="4" />
+                        <text x="30" y="675" font-size="11" font-weight="bold">ℹ️ AI Processing</text>
+                        <text x="30" y="695" font-size="10">Our AI will analyze your CV and job description to</text>
+                        <text x="30" y="710" font-size="10">generate personalized interview questions (2-5 min)</text>
+                    </svg>
+                </div>
+            </div>
+
+            <!-- Page 7: Live Interview (Split Screen) -->
+            <div class="wireframe-box">
+                <div class="wireframe-header">
+                    <span>Page 7: Live Interview (Split Screen)</span>
+                    <span class="page-number">7/8</span>
+                </div>
+                <div class="wireframe-content">
+                    <svg viewBox="0 0 600 900" xmlns="http://www.w3.org/2000/svg">
+                        <!-- Top Navigation -->
+                        <rect x="0" y="0" width="600" height="50" fill="#d0d0d0" stroke="#333" stroke-width="2" />
+                        <text x="20" y="32" font-size="14" font-weight="bold">Interview: Software Engineer -
+                            TechCorp</text>
+                        <text x="520" y="32" font-size="12" font-weight="bold">Exit</text>
+
+                        <!-- Timer & Status -->
+                        <rect x="20" y="60" width="560" height="40" fill="#f9f9f9" stroke="#333" stroke-width="1"
+                            rx="4" />
+                        <text x="30" y="85" font-size="11" font-weight="bold">⏱️ Time: 12:45</text>
+                        <text x="200" y="85" font-size="11">Question 3 of 8</text>
+                        <text x="470" y="85" font-size="11" font-weight="bold" fill="#cc0000">🔴 Recording</text>
+
+                        <!-- Split Screen Container -->
+                        <!-- Left: Interviewer -->
+                        <text x="30" y="130" font-size="11" font-weight="bold">AI Interviewer</text>
+                        <rect x="20" y="145" width="270" height="200" fill="#c0c0c0" stroke="#333" stroke-width="2"
+                            rx="4" />
+                        <circle cx="155" cy="230" r="40" fill="#999" stroke="#333" stroke-width="2" />
+                        <text x="155" y="237" font-size="10" fill="white" text-anchor="middle"
+                            font-weight="bold">Video</text>
+                        <text x="155" y="320" font-size="10" fill="#333" text-anchor="middle" font-weight="bold">AI
+                            Interviewer (Listening...)</text>
+
+                        <!-- Right: Transcription -->
+                        <text x="330" y="130" font-size="11" font-weight="bold">Live Transcription</text>
+                        <rect x="310" y="145" width="270" height="200" fill="#f9f9f9" stroke="#333" stroke-width="2"
+                            rx="4" />
+
+                        <!-- AI Question -->
+                        <text x="320" y="165" font-size="10" font-weight="bold" fill="#333">AI:</text>
+                        <text x="345" y="165" font-size="9" fill="#333">Tell me about your experience</text>
+                        <text x="345" y="180" font-size="9" fill="#333">with cloud technologies?</text>
+
+                        <!-- User Answer (Live) -->
+                        <line x1="320" y1="195" x2="570" y2="195" stroke="#ccc" />
+                        <text x="320" y="215" font-size="10" font-weight="bold" fill="#333">You:</text>
+                        <text x="345" y="215" font-size="9" fill="#333">I have 3 years of experience</text>
+                        <text x="345" y="230" font-size="9" fill="#333">working with AWS and Azure.</text>
+                        <text x="345" y="245" font-size="9" fill="#333">In my previous role...</text>
+                        <text x="345" y="260" font-size="9" fill="#999">[Listening for more...]</text>
+
+                        <!-- Question Box -->
+                        <rect x="20" y="360" width="560" height="100" fill="#f0f0f0" stroke="#333" stroke-width="2"
+                            rx="4" />
+                        <text x="30" y="380" font-size="11" font-weight="bold">Current Question:</text>
+                        <text x="30" y="405" font-size="11">Tell me about your experience with cloud</text>
+                        <text x="30" y="425" font-size="11">technologies like AWS, Azure, or GCP?</text>
+                        <text x="30" y="445" font-size="10" fill="#666" style="font-style:italic;">(Click to read/listen
+                            again)</text>
+
+                        <!-- Controls -->
+                        <text x="20" y="490" font-size="11" font-weight="bold">Controls</text>
+
+                        <rect x="20" y="505" width="120" height="50" fill="white" stroke="#333" stroke-width="2"
+                            rx="4" />
+                        <text x="80" y="525" font-size="16" text-anchor="middle">🎤</text>
+                        <text x="80" y="545" font-size="9" text-anchor="middle" font-weight="bold">Speak</text>
+
+                        <rect x="160" y="505" width="120" height="50" fill="white" stroke="#333" stroke-width="2"
+                            rx="4" />
+                        <text x="220" y="525" font-size="16" text-anchor="middle">🔊</text>
+                        <text x="220" y="545" font-size="9" text-anchor="middle" font-weight="bold">Repeat</text>
+
+                        <rect x="300" y="505" width="120" height="50" fill="white" stroke="#333" stroke-width="2"
+                            rx="4" />
+                        <text x="360" y="525" font-size="16" text-anchor="middle">⏭️</text>
+                        <text x="360" y="545" font-size="9" text-anchor="middle" font-weight="bold">Next</text>
+
+                        <rect x="440" y="505" width="140" height="50" fill="#e8e8e8" stroke="#333" stroke-width="2"
+                            rx="4" />
+                        <text x="510" y="535" font-size="9" text-anchor="middle" font-weight="bold">End Interview</text>
+
+                        <!-- Status Box -->
+                        <rect x="20" y="575" width="560" height="70" fill="#f9f9f9" stroke="#333" stroke-width="1"
+                            rx="4" />
+                        <text x="30" y="595" font-size="11" font-weight="bold">Session Status</text>
+                        <text x="30" y="615" font-size="10">✓ Microphone: ON | ✓ Audio: ON | ✓ Recording: ON</text>
+                        <text x="30" y="630" font-size="10" fill="#666">All systems working normally</text>
+
+                        <!-- Navigation -->
+                        <rect x="20" y="665" width="260" height="40" fill="white" stroke="#333" stroke-width="1"
+                            rx="4" />
+                        <text x="150" y="690" font-size="11" text-anchor="middle">← Previous Question</text>
+
+                        <rect x="320" y="665" width="260" height="40" fill="white" stroke="#333" stroke-width="1"
+                            rx="4" />
+                        <text x="450" y="690" font-size="11" text-anchor="middle">Next Question →</text>
+
+                        <!-- Tip Box -->
+                        <rect x="20" y="720" width="560" height="60" fill="#e8f0ff" stroke="#666" stroke-width="1"
+                            rx="4" />
+                        <text x="30" y="740" font-size="10" font-weight="bold">💡 Tip:</text>
+                        <text x="30" y="757" font-size="9">Speak clearly and naturally. The AI will transcribe
+                            and</text>
+                        <text x="30" y="772" font-size="9">provide feedback after the session ends.</text>
+
+                        <!-- Footer -->
+                        <rect x="0" y="850" width="600" height="50" fill="#d0d0d0" stroke="#333" stroke-width="2" />
+                    </svg>
+                </div>
+            </div>
+
+            <!-- Page 8: Interview Results -->
+            <div class="wireframe-box">
+                <div class="wireframe-header">
+                    <span>Page 8: Interview Results & Feedback</span>
+                    <span class="page-number">8/8</span>
+                </div>
+                <div class="wireframe-content">
+                    <svg viewBox="0 0 600 900" xmlns="http://www.w3.org/2000/svg">
+                        <!-- Top Navigation -->
+                        <rect x="0" y="0" width="600" height="60" fill="#d0d0d0" stroke="#333" stroke-width="2" />
+                        <text x="20" y="40" font-size="18" font-weight="bold">Interview Results</text>
+                        <text x="500" y="40" font-size="12">← Dashboard</text>
+
+                        <!-- Overall Score -->
+                        <rect x="20" y="80" width="560" height="100" fill="#f0f0f0" stroke="#333" stroke-width="2"
+                            rx="8" />
+                        <text x="300" y="105" font-size="12" font-weight="bold" text-anchor="middle">Overall
+                            Performance</text>
+                        <circle cx="150" cy="145" r="35" fill="white" stroke="#333" stroke-width="2" />
+                        <text x="150" y="152" font-size="20" font-weight="bold" text-anchor="middle">87%</text>
+
+                        <text x="200" y="125" font-size="11" font-weight="bold">Great Job!</text>
+                        <text x="200" y="145" font-size="10">Your performance exceeded expectations</text>
+                        <text x="200" y="165" font-size="10" fill="#666">Session Duration: 12m 45s</text>
+
+                        <!-- Detailed Scores -->
+                        <text x="20" y="220" font-size="12" font-weight="bold">Detailed Breakdown</text>
+
+                        <rect x="20" y="240" width="560" height="50" fill="#f9f9f9" stroke="#333" stroke-width="1"
+                            rx="4" />
+                        <text x="30" y="260" font-size="11" font-weight="bold">Communication</text>
+                        <rect x="350" y="252" width="200" height="8" fill="#e8e8e8" stroke="#333" stroke-width="1"
+                            rx="2" />
+                        <rect x="350" y="252" width="160" height="8" fill="#333" rx="2" />
+                        <text x="560" y="263" font-size="10" font-weight="bold">80%</text>
+
+                        <rect x="20" y="305" width="560" height="50" fill="#f9f9f9" stroke="#333" stroke-width="1"
+                            rx="4" />
+                        <text x="30" y="325" font-size="11" font-weight="bold">Technical Knowledge</text>
+                        <rect x="350" y="317" width="200" height="8" fill="#e8e8e8" stroke="#333" stroke-width="1"
+                            rx="2" />
+                        <rect x="350" y="317" width="180" height="8" fill="#333" rx="2" />
+                        <text x="560" y="328" font-size="10" font-weight="bold">90%</text>
+
+                        <rect x="20" y="370" width="560" height="50" fill="#f9f9f9" stroke="#333" stroke-width="1"
+                            rx="4" />
+                        <text x="30" y="390" font-size="11" font-weight="bold">Problem Solving</text>
+                        <rect x="350" y="382" width="200" height="8" fill="#e8e8e8" stroke="#333" stroke-width="1"
+                            rx="2" />
+                        <rect x="350" y="382" width="170" height="8" fill="#333" rx="2" />
+                        <text x="560" y="393" font-size="10" font-weight="bold">85%</text>
+
+                        <!-- Strengths & Areas to Improve -->
+                        <text x="20" y="450" font-size="12" font-weight="bold">Key Strengths</text>
+                        <rect x="20" y="470" width="260" height="100" fill="#f9f9f9" stroke="#333" stroke-width="1"
+                            rx="4" />
+                        <text x="30" y="490" font-size="10">✓ Excellent problem-solving approach</text>
+                        <text x="30" y="510" font-size="10">✓ Strong technical fundamentals</text>
+                        <text x="30" y="530" font-size="10">✓ Clear communication of ideas</text>
+                        <text x="30" y="550" font-size="10">✓ Good examples from past projects</text>
+
+                        <text x="320" y="450" font-size="12" font-weight="bold">Areas to Improve</text>
+                        <rect x="320" y="470" width="260" height="100" fill="#f9f9f9" stroke="#333" stroke-width="1"
+                            rx="4" />
+                        <text x="330" y="490" font-size="10">• Provide more specific metrics</text>
+                        <text x="330" y="510" font-size="10">• Use more recent examples</text>
+                        <text x="330" y="530" font-size="10">• Ask clarifying questions</text>
+                        <text x="330" y="550" font-size="10">• Work on pacing & pauses</text>
+
+                        <!-- Recommendations -->
+                        <text x="20" y="610" font-size="12" font-weight="bold">AI Recommendations</text>
+                        <rect x="20" y="630" width="560" height="80" fill="#e8f0ff" stroke="#666" stroke-width="1"
+                            rx="4" />
+                        <text x="30" y="650" font-size="10">1. Practice behavioral questions with STAR format</text>
+                        <text x="30" y="670" font-size="10">2. Prepare 2-3 detailed project examples with metrics</text>
+                        <text x="30" y="690" font-size="10">3. Review common follow-up questions in your field</text>
+                        <text x="30" y="705" font-size="10">4. Do 2-3 more practice sessions before real
+                            interview</text>
+
+                        <!-- Buttons -->
+                        <rect x="20" y="730" width="260" height="45" fill="white" stroke="#333" stroke-width="2"
+                            rx="4" />
+                        <text x="150" y="758" font-size="12" font-weight="bold" text-anchor="middle">📥 Download
+                            Report</text>
+
+                        <rect x="320" y="730" width="260" height="45" fill="#333" stroke="#333" stroke-width="2"
+                            rx="4" />
+                        <text x="450" y="758" font-size="12" font-weight="bold" fill="white" text-anchor="middle">🔄
+                            Practice Again</text>
+
+                        <!-- Footer -->
+                        <rect x="0" y="850" width="600" height="50" fill="#d0d0d0" stroke="#333" stroke-width="2" />
+                        <text x="20" y="880" font-size="10">© 2025 EchoAI | Terms | Privacy | Contact</text>
+                    </svg>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Design Notes Section -->
+        <div class="design-notes">
+            <h2>📋 Wireframe Design Documentation</h2>
+
+            <h3>🎨 Color Palette</h3>
+            <div class="color-palette">
+                <div class="color-item">
+                    <div class="color-swatch" style="background: #333;"></div>
+                    <span>#333 (Primary)</span>
+                </div>
+                <div class="color-item">
+                    <div class="color-swatch" style="background: #d0d0d0;"></div>
+                    <span>#d0d0d0 (Headers)</span>
+                </div>
+                <div class="color-item">
+                    <div class="color-swatch" style="background: #f9f9f9;"></div>
+                    <span>#f9f9f9 (Cards)</span>
+                </div>
+                <div class="color-item">
+                    <div class="color-swatch" style="background: #e8e8e8;"></div>
+                    <span>#e8e8e8 (Sections)</span>
+                </div>
+                <div class="color-item">
+                    <div class="color-swatch" style="background: #e8f0ff;"></div>
+                    <span>#e8f0ff (Info)</span>
+                </div>
+            </div>
+
+            <h3>📄 Complete Page Breakdown (8 Pages)</h3>
+            <ul>
+                <li><strong>Page 1: Landing Page (Home)</strong> - Hero section, key features (CV Upload, Live
+                    Interview, Analytics), how it works, and CTA</li>
+                <li><strong>Page 2: About Us</strong> - Mission statement, vision, company stats (10K+ users, 95%
+                    success rate, 24/7 support)</li>
+                <li><strong>Page 3: Contact Us</strong> - Contact form with fields (name, email, subject, message) and
+                    alternative contact methods</li>
+                <li><strong>Page 4: Login/Register</strong> - Tabbed authentication interface with email/password,
+                    social login, and password recovery</li>
+                <li><strong>Page 5: User Dashboard</strong> - Overview with sidebar navigation, quick stats, recent
+                    interviews, and create new interview CTA</li>
+                <li><strong>Page 6: Create Interview</strong> - Multi-step upload interface for CV and job description
+                    with interview details form</li>
+                <li><strong>Page 7: Live Interview (Split Screen)</strong> - Real-time interview with AI interviewer
+                    video, live transcription, controls, and status indicators</li>
+                <li><strong>Page 8: Results & Feedback</strong> - Overall performance score, detailed breakdown,
+                    strengths, areas to improve, and AI recommendations</li>
+            </ul>
+
+            <h3>🔑 Key Features & Functionality</h3>
+            <ul>
+                <li><strong>CV & Job Description Upload:</strong> Users upload documents for AI analysis (PDF, DOCX
+                    support)</li>
+                <li><strong>AI-Powered Questions:</strong> Fine-tuned LLM generates personalized interview questions
+                    based on CV and job description</li>
+                <li><strong>Text-to-Speech (TTS):</strong> AI interviewer speaks questions aloud</li>
+                <li><strong>Speech-to-Text (STT):</strong> User responses are captured and transcribed in real-time</li>
+                <li><strong>Split-Screen Interface:</strong> AI interviewer video on left, live transcription on right
+                </li>
+                <li><strong>Real-Time Transcription:</strong> Conversation is transcribed live during interview session
+                </li>
+                <li><strong>Performance Analytics:</strong> Detailed scoring on communication, technical knowledge, and
+                    problem-solving</li>
+                <li><strong>Personalized Feedback:</strong> AI-generated strengths, improvement areas, and
+                    recommendations</li>
+            </ul>
+
+            <h3>🎯 Design Principles</h3>
+            <ul>
+                <li><strong>Minimalist & Professional:</strong> Clean grayscale wireframe aesthetic for clarity</li>
+                <li><strong>Clear User Flow:</strong> Logical progression from landing → signup → create → practice →
+                    results</li>
+                <li><strong>Responsive Layout:</strong> Grid-based design considerations for various screen sizes</li>
+                <li><strong>Consistent Branding:</strong> EchoAI branding throughout all pages</li>
+                <li><strong>Accessibility First:</strong> Clear labels, proper contrast, intuitive navigation</li>
+                <li><strong>User-Friendly Controls:</strong> Simple, intuitive controls for interview management</li>
+            </ul>
+
+            <h3>💻 Technical Stack Considerations</h3>
+            <ul>
+                <li><strong>Frontend:</strong> React/Next.js for responsive UI</li>
+                <li><strong>AI/ML:</strong> Fine-tuned LLM (GPT-4, Claude, or similar) for question generation</li>
+                <li><strong>TTS:</strong> Web Speech API or cloud TTS service (Google TTS, Amazon Polly)</li>
+                <li><strong>STT:</strong> Web Speech API or cloud STT service (Google Speech-to-Text, Whisper)</li>
+                <li><strong>Backend:</strong> Node.js/Python for API and AI integration</li>
+                <li><strong>Database:</strong> PostgreSQL/MongoDB for user data and interview transcripts</li>
+                <li><strong>Storage:</strong> Cloud storage (AWS S3, Google Cloud Storage) for CV/JD uploads</li>
+            </ul>
+
+            <h3>📱 Future Enhancements</h3>
+            <ul>
+                <li>Video recording of user for body language analysis</li>
+                <li>Industry-specific interview templates</li>
+                <li>Team/group interview simulations</li>
+                <li>Interview scheduling and reminders</li>
+                <li>Comparison with other users in similar roles</li>
+                <li>Mobile app version (iOS/Android)</li>
+            </ul>
+        </div>
+    </div>
+</body>
+
+</html>
