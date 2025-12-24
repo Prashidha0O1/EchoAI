@@ -1,9 +1,13 @@
-from fastapi import FastAPI, WebSocket, WebSocketDisconnect, Request
+from fastapi import FastAPI, WebSocket, WebSocketDisconnect, Request, Depends, HTTPException, status
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import HTMLResponse
+from fastapi.security import OAuth2PasswordRequestForm
+from sqlalchemy.orm import Session
 from speech_pipeline.stt.whisper_stt import WhisperSTT
 from speech_pipeline.tts.pyttsx3_tts import Pyttsx3TTS
 from speech_pipeline.webrtc import offer
+from database import models, schemas, crud, auth
+from database.database import engine, get_db
 import logging
 
 # Configure logging
@@ -15,6 +19,9 @@ app = FastAPI(
     version="0.1.0",
     description="AI-powered interview practice assistant with speech-to-text and text-to-speech capabilities"
 )
+
+# Create database tables
+models.Base.metadata.create_all(bind=engine)
 
 # Add CORS middleware
 app.add_middleware(
@@ -96,6 +103,25 @@ async def serve_test_websocket():
         return HTMLResponse(content=content)
     except FileNotFoundError:
         return {"error": "test_client.html not found"}
+
+@app.post("/register", response_model=schemas.UserOut)
+def register(user: schemas.UserCreate, db: Session = Depends(get_db)):
+    db_user = crud.get_user_by_email(db, email=user.email)
+    if db_user:
+        raise HTTPException(status_code=400, detail="Email already registered")
+    return crud.create_user(db=db, user=user)
+
+@app.post("/login", response_model=schemas.Token)
+def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
+    user = crud.get_user_by_email(db, email=form_data.username)
+    if not user or not auth.verify_password(form_data.password, user.hashed_password):
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Incorrect email or password",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+    access_token = auth.create_access_token(data={"sub": user.email})
+    return {"access_token": access_token, "token_type": "bearer"}
 
 @app.websocket("/ws/interview")
 async def websocket_endpoint(websocket: WebSocket):
