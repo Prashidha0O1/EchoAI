@@ -17,5 +17,7 @@ dependencies = [
     "pyttsx3",
     "soundfile",
     "numpy",
-    "aiortc"
+    "aiortc",
+    "psycopg2-binary>=2.9.11",
+    "python-dotenv>=1.2.1",
 ]
