@@ -1,14 +1,15 @@
-from fastapi import FastAPI, WebSocket, WebSocketDisconnect, Request, Depends, HTTPException, status
+from fastapi import FastAPI, WebSocket, WebSocketDisconnect, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import HTMLResponse
-from fastapi.security import OAuth2PasswordRequestForm
-from sqlalchemy.orm import Session
+from fastapi.staticfiles import StaticFiles
 from speech_pipeline.stt.whisper_stt import WhisperSTT
 from speech_pipeline.tts.pyttsx3_tts import Pyttsx3TTS
 from speech_pipeline.webrtc import offer
-from database import models, schemas, crud, auth
-from database.database import engine, get_db
+from database import models
+from database.database import engine
+from routers import auth_router, interviews_router, profile_router
 import logging
+import os
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -23,6 +24,10 @@ app = FastAPI(
 # Create database tables
 models.Base.metadata.create_all(bind=engine)
 
+# Create uploads directory
+UPLOAD_DIR = os.path.join(os.path.dirname(__file__), "uploads")
+os.makedirs(UPLOAD_DIR, exist_ok=True)
+
 # Add CORS middleware
 app.add_middleware(
     CORSMiddleware,
@@ -31,6 +36,11 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# Include routers
+app.include_router(auth_router)
+app.include_router(interviews_router)
+app.include_router(profile_router)
 
 # Initialize models
 logger.info("Initializing models...")
@@ -68,7 +78,10 @@ def get_info():
             "GET /health": "Health check",
             "GET /info": "Service information",
             "POST /offer": "WebRTC offer",
-            "WebSocket /ws/interview": "Interview WebSocket connection"
+            "WebSocket /ws/interview": "Interview WebSocket connection",
+            "Auth": "/auth/register, /auth/login, /auth/me, /auth/forgot-password, /auth/reset-password",
+            "Interviews": "/interviews (CRUD), /interviews/{id}/start, /interviews/{id}/end, /interviews/{id}/messages",
+            "Profile": "/profile, /profile/cv, /profile/picture"
         },
         "models": {
             "stt": "Whisper (base)" if stt_service else "Not loaded",
@@ -103,25 +116,6 @@ async def serve_test_websocket():
         return HTMLResponse(content=content)
     except FileNotFoundError:
         return {"error": "test_client.html not found"}
-
-@app.post("/register", response_model=schemas.UserOut)
-def register(user: schemas.UserCreate, db: Session = Depends(get_db)):
-    db_user = crud.get_user_by_email(db, email=user.email)
-    if db_user:
-        raise HTTPException(status_code=400, detail="Email already registered")
-    return crud.create_user(db=db, user=user)
-
-@app.post("/login", response_model=schemas.Token)
-def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
-    user = crud.get_user_by_email(db, email=form_data.username)
-    if not user or not auth.verify_password(form_data.password, user.hashed_password):
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Incorrect email or password",
-            headers={"WWW-Authenticate": "Bearer"},
-        )
-    access_token = auth.create_access_token(data={"sub": user.email})
-    return {"access_token": access_token, "token_type": "bearer"}
 
 @app.websocket("/ws/interview")
 async def websocket_endpoint(websocket: WebSocket):

@@ -1,40 +1,130 @@
-from sqlalchemy import Column, Integer, String, Boolean, DateTime
+from sqlalchemy import Column, Integer, String, Boolean, DateTime, ForeignKey, Text, Float, JSON
 from sqlalchemy.sql import func
+from sqlalchemy.orm import relationship
 from .database import Base
 
+
 class User(Base):
+    """User authentication table with admin flag"""
     __tablename__ = "users"
 
     id = Column(Integer, primary_key=True, index=True)
-    email = Column(String, unique=True, index=True, nullable=False)
-    hashed_password = Column(String, nullable=False)
-    full_name = Column(String, nullable=True)
+    username = Column(String(150), unique=True, index=True, nullable=False)
+    email = Column(String(254), unique=True, index=True, nullable=False)
+    hashed_password = Column(String(128), nullable=False)
+    first_name = Column(String(150), nullable=True)
+    last_name = Column(String(150), nullable=True)
+    is_admin = Column(Boolean, default=False)
     is_active = Column(Boolean, default=True)
+    last_login = Column(DateTime(timezone=True), nullable=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
+    # Relationships
+    profile = relationship("UserProfile", back_populates="user", uselist=False, cascade="all, delete-orphan")
+    interviews = relationship("Interview", back_populates="user", cascade="all, delete-orphan")
+
     def __repr__(self):
-        return f"User(id={self.id}, email={self.email}, full_name={self.full_name}, is_active={self.is_active})"
+        return f"User(id={self.id}, username={self.username}, email={self.email})"
 
 
-class Chat(Base):
-    __tablename__ = "chats"
+class UserProfile(Base):
+    """User profile with CV file storage"""
+    __tablename__ = "user_profiles"
 
     id = Column(Integer, primary_key=True, index=True)
-    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), unique=True, nullable=False)
+    phone = Column(String(20), nullable=True)
+    cv_file_path = Column(String(255), nullable=True)  # Path to uploaded CV file
+    cv_parsed_text = Column(Text, nullable=True)  # LLM-extracted content from CV
+    profile_picture = Column(String(255), nullable=True)
+    bio = Column(Text, nullable=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
+    updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
+
+    # Relationships
+    user = relationship("User", back_populates="profile")
 
     def __repr__(self):
-        return f"Chat(id={self.id}, user_id={self.user_id})"
+        return f"UserProfile(id={self.id}, user_id={self.user_id})"
+
+
+class Interview(Base):
+    """Interview session with JD and generated questions"""
+    __tablename__ = "interviews"
+
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
+    interview_type = Column(String(50), default="mixed")  # technical, behavioral, hr, mixed
+    job_description = Column(Text, nullable=True)  # Parsed JD content
+    status = Column(String(20), default="pending")  # pending, in_progress, completed
+    generated_questions = Column(JSON, nullable=True)  # AI generated questions array
+    scheduled_at = Column(DateTime(timezone=True), nullable=True)
+    started_at = Column(DateTime(timezone=True), nullable=True)
+    completed_at = Column(DateTime(timezone=True), nullable=True)
+    full_transcript = Column(Text, nullable=True)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+
+    # Relationships
+    user = relationship("User", back_populates="interviews")
+    messages = relationship("Message", back_populates="interview", cascade="all, delete-orphan")
+    report = relationship("Report", back_populates="interview", uselist=False, cascade="all, delete-orphan")
+
+    def __repr__(self):
+        return f"Interview(id={self.id}, user_id={self.user_id}, status={self.status})"
 
 
 class Message(Base):
+    """Individual messages in an interview conversation"""
     __tablename__ = "messages"
 
     id = Column(Integer, primary_key=True, index=True)
-    chat_id = Column(Integer, ForeignKey("chats.id"), nullable=False)
-    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
-    content = Column(String, nullable=False)
-    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    interview_id = Column(Integer, ForeignKey("interviews.id", ondelete="CASCADE"), nullable=False)
+    sender = Column(String(10), nullable=False)  # 'ai' or 'user'
+    content = Column(Text, nullable=False)
+    sequence_number = Column(Integer, nullable=False)
+    audio_url = Column(String(255), nullable=True)  # Optional audio file path
+    timestamp = Column(DateTime(timezone=True), server_default=func.now())
+
+    # Relationships
+    interview = relationship("Interview", back_populates="messages")
 
     def __repr__(self):
-        return f"Message(id={self.id}, chat_id={self.chat_id}, user_id={self.user_id}, content={self.content})"
+        return f"Message(id={self.id}, interview_id={self.interview_id}, sender={self.sender})"
+
+
+class Report(Base):
+    """AI-generated interview feedback report"""
+    __tablename__ = "reports"
+
+    id = Column(Integer, primary_key=True, index=True)
+    interview_id = Column(Integer, ForeignKey("interviews.id", ondelete="CASCADE"), unique=True, nullable=False)
+    report_name = Column(String(255), nullable=True)
+    overall_score = Column(Float, nullable=True)  # 0-100
+    performance_metrics = Column(JSON, nullable=True)  # response_time, clarity, relevance scores
+    strengths = Column(JSON, nullable=True)  # Array of strengths
+    improvements = Column(JSON, nullable=True)  # Array of areas to improve
+    summary = Column(Text, nullable=True)
+    generated_at = Column(DateTime(timezone=True), server_default=func.now())
+
+    # Relationships
+    interview = relationship("Interview", back_populates="report")
+    tags = relationship("ReportTag", back_populates="report", cascade="all, delete-orphan")
+
+    def __repr__(self):
+        return f"Report(id={self.id}, interview_id={self.interview_id}, score={self.overall_score})"
+
+
+class ReportTag(Base):
+    """Categorized tags for interview reports"""
+    __tablename__ = "report_tags"
+
+    id = Column(Integer, primary_key=True, index=True)
+    report_id = Column(Integer, ForeignKey("reports.id", ondelete="CASCADE"), nullable=False)
+    tag_name = Column(String(100), nullable=False)  # communication, technical, confidence, etc.
+    tag_category = Column(String(50), nullable=False)  # strength, weakness, neutral
+
+    # Relationships
+    report = relationship("Report", back_populates="tags")
+
+    def __repr__(self):
+        return f"ReportTag(id={self.id}, tag_name={self.tag_name}, category={self.tag_category})"
