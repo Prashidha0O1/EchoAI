@@ -14,16 +14,11 @@ export default function Navbar() {
     // or keep it minimal. Here we'll show it but adaptive.
 
     return (
-        <nav className="fixed top-0 left-0 right-0 z-50 border-b border-white/5 bg-[#0a0a0a]/80 backdrop-blur-xl">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <nav className="fixed top-0 left-0 right-0 z-50 border-b border-[#27272a] bg-[#0a0a0a]/80 backdrop-blur-md">
+            <div className="max-w-6xl mx-auto px-6">
                 <div className="flex items-center justify-between h-16">
-                    <Link href="/" className="flex items-center gap-2">
-                        <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-500 to-purple-500 flex items-center justify-center">
-                            <span className="text-white font-bold text-lg">E</span>
-                        </div>
-                        <span className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-white to-zinc-400">
-                            EchoAI
-                        </span>
+                    <Link href="/" className="text-xl font-semibold text-white" style={{ fontFamily: 'var(--font-heading)' }}>
+                        EchoAI
                     </Link>
 
                     <div className="flex items-center gap-4">
@@ -31,8 +26,8 @@ export default function Navbar() {
                             <>
                                 <Link
                                     href="/dashboard"
-                                    className={`text-sm font-medium transition-colors ${pathname === '/dashboard' ? 'text-white' : 'text-zinc-400 hover:text-white'
-                                        }`}
+                                     className={`text-sm font-medium transition-colors ${pathname === '/dashboard' ? 'text-white' : 'text-[#91A3B0] hover:text-white'
+                                         }`}
                                 >
                                     Dashboard
                                 </Link>
@@ -58,18 +53,18 @@ export default function Navbar() {
                         ) : (
                             !isAuthPage && (
                                 <div className="flex items-center gap-4">
-                                    <Link
-                                        href="/login"
-                                        className="text-sm font-medium text-zinc-400 hover:text-white transition-colors"
-                                    >
-                                        Log In
-                                    </Link>
-                                    <Link
-                                        href="/signup"
-                                        className="text-sm font-medium bg-white text-black px-4 py-2 rounded-lg hover:bg-zinc-200 transition-colors"
-                                    >
-                                        Sign Up
-                                    </Link>
+                                     <Link
+                                         href="/login"
+                                         className="text-sm font-medium text-[#91A3B0] hover:text-white transition-colors"
+                                     >
+                                         Log In
+                                     </Link>
+                                     <Link
+                                         href="/signup"
+                                         className="text-sm font-medium bg-white text-black px-5 py-2 rounded-lg hover:bg-white/90 transition-colors"
+                                     >
+                                         Sign up
+                                     </Link>
                                 </div>
                             )
                         )}

@@ -79,8 +79,6 @@ async function apiRequest<T>(
         ...options.headers,
     };
 
-    // Don't set Content-Type for FormData (browser will set it)
-    // Also don't overwrite if it's already set (e.g. for URLSearchParams)
     if (!(options.body instanceof FormData) && !(headers as Record<string, string>)['Content-Type']) {
         (headers as Record<string, string>)['Content-Type'] = 'application/json';
     }
