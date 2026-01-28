@@ -79,8 +79,7 @@ async function apiRequest<T>(
         ...options.headers,
     };
 
-    // Don't set Content-Type for FormData (browser will set it with boundary)
-    if (!(options.body instanceof FormData)) {
+    if (!(options.body instanceof FormData) && !(headers as Record<string, string>)['Content-Type']) {
         (headers as Record<string, string>)['Content-Type'] = 'application/json';
     }
 
@@ -96,7 +95,20 @@ async function apiRequest<T>(
 
         if (!response.ok) {
             const errorData = await response.json().catch(() => ({}));
-            return { error: errorData.detail || `Error: ${response.status}` };
+            let errorMsg = `Error: ${response.status}`;
+
+            if (errorData.detail) {
+                if (typeof errorData.detail === 'string') {
+                    errorMsg = errorData.detail;
+                } else {
+                    // Handle FastAPI validation errors which are often lists of objects
+                    errorMsg = typeof errorData.detail === 'object'
+                        ? JSON.stringify(errorData.detail)
+                        : String(errorData.detail);
+                }
+            }
+
+            return { error: errorMsg };
         }
 
         const data = await response.json();
