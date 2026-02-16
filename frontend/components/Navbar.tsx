@@ -10,8 +10,6 @@ export default function Navbar() {
 
     const isAuthPage = pathname?.startsWith('/login') || pathname?.startsWith('/signup');
 
-    // Don't show navbar on login/signup pages if you prefer a clean look, 
-    // or keep it minimal. Here we'll show it but adaptive.
 
     return (
         <nav className="fixed top-0 left-0 right-0 z-50 border-b border-[#27272a] bg-[#0a0a0a]/80 backdrop-blur-md">
@@ -26,8 +24,8 @@ export default function Navbar() {
                             <>
                                 <Link
                                     href="/dashboard"
-                                     className={`text-sm font-medium transition-colors ${pathname === '/dashboard' ? 'text-white' : 'text-[#91A3B0] hover:text-white'
-                                         }`}
+                                    className={`text-sm font-medium transition-colors ${pathname === '/dashboard' ? 'text-white' : 'text-[#91A3B0] hover:text-white'
+                                        }`}
                                 >
                                     Dashboard
                                 </Link>
@@ -53,18 +51,18 @@ export default function Navbar() {
                         ) : (
                             !isAuthPage && (
                                 <div className="flex items-center gap-4">
-                                     <Link
-                                         href="/login"
-                                         className="text-sm font-medium text-[#91A3B0] hover:text-white transition-colors"
-                                     >
-                                         Log In
-                                     </Link>
-                                     <Link
-                                         href="/signup"
-                                         className="text-sm font-medium bg-white text-black px-5 py-2 rounded-lg hover:bg-white/90 transition-colors"
-                                     >
-                                         Sign up
-                                     </Link>
+                                    <Link
+                                        href="/login"
+                                        className="text-sm font-medium text-[#91A3B0] hover:text-white transition-colors"
+                                    >
+                                        Log In
+                                    </Link>
+                                    <Link
+                                        href="/signup"
+                                        className="text-sm font-medium bg-white text-black px-5 py-2 rounded-lg hover:bg-white/90 transition-colors"
+                                    >
+                                        Sign up
+                                    </Link>
                                 </div>
                             )
                         )}
