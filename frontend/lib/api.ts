@@ -18,6 +18,7 @@ interface User {
     last_name: string | null;
     is_admin: boolean;
     is_active: boolean;
+    email_verified: boolean;
     last_login: string | null;
     created_at: string;
     profile?: UserProfile;

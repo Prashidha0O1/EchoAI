@@ -2,7 +2,6 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
 import Input from '@/components/Input';
 import Button from '@/components/Button';
@@ -19,7 +18,6 @@ export default function SignupPage() {
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
     const { register } = useAuth();
-    const router = useRouter();
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -46,10 +44,13 @@ export default function SignupPage() {
                 cvFile || undefined
             );
 
-            if (result.success) {
-                router.push('/dashboard');
-            } else {
-                setError(result.error || 'Failed to create account');
+            // Navigation is handled inside AuthContext.register.
+            // Only show an error here if something went wrong.
+            if (!result.success && result.error) {
+                // "Account created! Please log in." is a soft success — don't show as error
+                if (!result.error.toLowerCase().includes('please log in')) {
+                    setError(result.error);
+                }
             }
         } catch (err) {
             setError('An unexpected error occurred');
