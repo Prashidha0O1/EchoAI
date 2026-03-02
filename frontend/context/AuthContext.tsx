@@ -68,18 +68,25 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         lastName?: string,
         cvFile?: File
     ) => {
+        // Step 1: create the account
         const response = await authApi.register(username, email, password, firstName, lastName, cvFile);
-        if (response.data) {
-            // Auto-login after registration
-            const loginResponse = await authApi.login(email, password);
-            if (loginResponse.data) {
-                setToken(loginResponse.data.access_token);
-                await refreshUser();
-                return { success: true };
-            }
-            return { success: true };
+        if (!response.data) {
+            return { success: false, error: response.error || 'Registration failed' };
         }
-        return { success: false, error: response.error };
+
+        // Step 2: auto-login with the same credentials
+        const loginResponse = await authApi.login(email, password);
+        if (!loginResponse.data) {
+            // Account was created but auto-login failed — send to login page
+            router.push('/login');
+            return { success: false, error: loginResponse.error || 'Account created! Please log in.' };
+        }
+
+        // Step 3: store token and fetch user
+        setToken(loginResponse.data.access_token);
+        await refreshUser();
+        router.push('/dashboard');
+        return { success: true };
     };
 
     const logout = () => {

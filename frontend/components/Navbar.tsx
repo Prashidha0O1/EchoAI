@@ -29,7 +29,7 @@ export default function Navbar() {
                                 >
                                     Dashboard
                                 </Link>
-                                <div className="h-4 w-[1px] bg-white/10" />
+                                <div className="h-4 w-px bg-white/10" />
                                 <div className="flex items-center gap-3">
                                     <div className="w-8 h-8 rounded-full bg-zinc-800 flex items-center justify-center border border-white/5">
                                         {user?.profile?.profile_picture ? (
