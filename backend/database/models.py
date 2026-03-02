@@ -16,12 +16,16 @@ class User(Base):
     last_name = Column(String(150), nullable=True)
     is_admin = Column(Boolean, default=False)
     is_active = Column(Boolean, default=True)
+    email_verified = Column(Boolean, default=False)
+    verification_code = Column(String(6), nullable=True)
+    verification_code_created_at = Column(DateTime(timezone=True), nullable=True)
     last_login = Column(DateTime(timezone=True), nullable=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
     # Relationships
     profile = relationship("UserProfile", back_populates="user", uselist=False, cascade="all, delete-orphan")
     interviews = relationship("Interview", back_populates="user", cascade="all, delete-orphan")
+    resumes = relationship("Resume", back_populates="user", cascade="all, delete-orphan")
 
     def __repr__(self):
         return f"User(id={self.id}, username={self.username}, email={self.email})"
@@ -128,3 +132,43 @@ class ReportTag(Base):
 
     def __repr__(self):
         return f"ReportTag(id={self.id}, tag_name={self.tag_name}, category={self.tag_category})"
+
+
+class Resume(Base):
+    """User-built resumes"""
+    __tablename__ = "resumes"
+
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
+    title = Column(String(200), nullable=False)
+    template = Column(String(50), default="modern")  # modern, classic, minimal, creative
+    
+    # Personal Info
+    full_name = Column(String(200), nullable=True)
+    email_contact = Column(String(254), nullable=True)
+    phone_contact = Column(String(20), nullable=True)
+    location = Column(String(200), nullable=True)
+    linkedin_url = Column(String(255), nullable=True)
+    github_url = Column(String(255), nullable=True)
+    portfolio_url = Column(String(255), nullable=True)
+    summary = Column(Text, nullable=True)
+    
+    # JSON fields for structured data
+    education = Column(JSON, nullable=True)  # [{institution, degree, field, start, end, gpa, achievements}]
+    experience = Column(JSON, nullable=True)  # [{company, title, location, start, end, description, achievements}]
+    skills = Column(JSON, nullable=True)  # {technical: [], soft: [], languages: [], tools: []}
+    projects = Column(JSON, nullable=True)  # [{title, description, technologies, link, start, end}]
+    certifications = Column(JSON, nullable=True)  # [{name, issuer, date, credential_id, url}]
+    achievements = Column(JSON, nullable=True)  # [{title, description, date}]
+    
+    is_primary = Column(Boolean, default=False)
+    pdf_url = Column(String(255), nullable=True)
+    
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
+
+    # Relationships
+    user = relationship("User", back_populates="resumes")
+
+    def __repr__(self):
+        return f"Resume(id={self.id}, user_id={self.user_id}, title={self.title})"

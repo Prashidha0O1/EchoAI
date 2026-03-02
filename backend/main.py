@@ -7,7 +7,9 @@ from speech_pipeline.tts.pyttsx3_tts import Pyttsx3TTS
 from speech_pipeline.webrtc import offer
 from database import models
 from database.database import engine
-from routers import auth_router, interviews_router, profile_router
+from routers import auth_router, interviews_router, profile_router, verification_router, resumes_router
+from app.api.v1.interviews.websocket import router as websocket_router
+from sqlalchemy import text
 import logging
 import os
 
@@ -21,7 +23,35 @@ app = FastAPI(
     description="AI-powered interview practice assistant with speech-to-text and text-to-speech capabilities"
 )
 
-# Create database tables
+# ── Auto-migration: add any missing columns / tables ──────────────────────────
+def run_migrations():
+    """
+    Safely add columns/tables that were introduced after the initial DB creation.
+    Uses IF NOT EXISTS so it is safe to run on every startup.
+    """
+    with engine.connect() as conn:
+        # --- users table: email-verification columns ---
+        conn.execute(text(
+            "ALTER TABLE users ADD COLUMN IF NOT EXISTS "
+            "email_verified BOOLEAN NOT NULL DEFAULT FALSE"
+        ))
+        conn.execute(text(
+            "ALTER TABLE users ADD COLUMN IF NOT EXISTS "
+            "verification_code VARCHAR(6)"
+        ))
+        conn.execute(text(
+            "ALTER TABLE users ADD COLUMN IF NOT EXISTS "
+            "verification_code_created_at TIMESTAMPTZ"
+        ))
+        conn.commit()
+    logger.info("DB migrations applied successfully.")
+
+try:
+    run_migrations()
+except Exception as e:
+    logger.error(f"Migration error (non-fatal): {e}")
+
+# Create any brand-new tables (e.g. resumes) defined in models
 models.Base.metadata.create_all(bind=engine)
 
 # Create uploads directory
@@ -31,7 +61,11 @@ os.makedirs(UPLOAD_DIR, exist_ok=True)
 # Add CORS middleware
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # In production, replace with specific origins
+    allow_origins=[
+        "http://localhost:3000",
+        "http://127.0.0.1:3000",
+        "http://localhost:3001",
+    ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -41,6 +75,9 @@ app.add_middleware(
 app.include_router(auth_router)
 app.include_router(interviews_router)
 app.include_router(profile_router)
+app.include_router(verification_router)
+app.include_router(resumes_router)
+app.include_router(websocket_router)
 
 # Initialize models
 logger.info("Initializing models...")
@@ -117,10 +154,13 @@ async def serve_test_websocket():
     except FileNotFoundError:
         return {"error": "test_client.html not found"}
 
-@app.websocket("/ws/interview")
-async def websocket_endpoint(websocket: WebSocket):
+# Legacy WebSocket endpoint - now handled by websocket_router
+# Kept for backward compatibility with old test clients
+@app.websocket("/ws/interview/test")
+async def websocket_test_endpoint(websocket: WebSocket):
+    """Legacy test endpoint for simple audio echo"""
     await websocket.accept()
-    logger.info("WebSocket client connected")
+    logger.info("WebSocket test client connected")
     
     if not stt_service or not tts_service:
         await websocket.send_json({"error": "Services not initialized"})
@@ -143,7 +183,7 @@ async def websocket_endpoint(websocket: WebSocket):
                 await websocket.send_bytes(audio_response)
                 
     except WebSocketDisconnect:
-        logger.info("WebSocket client disconnected")
+        logger.info("WebSocket test client disconnected")
     except Exception as e:
-        logger.error(f"WebSocket error: {e}")
+        logger.error(f"WebSocket test error: {e}")
         await websocket.close()

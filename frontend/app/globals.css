@@ -1,6 +1,101 @@
 @import "tailwindcss";
 
 :root {
+  --background: #09090b;
+  --foreground: #fafafa;
+  --primary: #4f46e5;
+  --primary-dark: #4338ca;
+  --secondary: #64748b;
+  --border: #27272a;
+  --card-bg: #18181b;
+  --success: #22c55e;
+  --error: #ef4444;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-primary: var(--primary);
+  --color-primary-dark: var(--primary-dark);
+  --color-secondary: var(--secondary);
+  --color-border: var(--border);
+  --color-card-bg: var(--card-bg);
+  --color-success: var(--success);
+  --color-error: var(--error);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+  --font-lexend: var(--font-lexend);
+}
+
+@layer base {
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+
+  body {
+    background: var(--background);
+    color: var(--foreground);
+    font-family: var(--font-geist-sans), system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    font-weight: 600;
+    line-height: 1.2;
+  }
+
+  .font-lexend {
+    font-family: var(--font-lexend), sans-serif;
+  }
+}
+
+@layer components {
+  .btn-primary {
+    @apply inline-flex items-center gap-2 px-5 py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-semibold rounded-xl transition-colors shadow-lg shadow-indigo-500/20;
+  }
+
+  .btn-secondary {
+    @apply inline-flex items-center gap-2 px-5 py-2.5 border border-zinc-700 bg-zinc-800 hover:bg-zinc-700 text-zinc-200 text-sm font-medium rounded-xl transition-colors;
+  }
+
+  .glass-card {
+    @apply bg-zinc-900/60 border border-zinc-800 rounded-2xl;
+  }
+
+  .dashboard-card {
+    @apply bg-zinc-900/60 border border-zinc-800 rounded-2xl p-5 transition-all hover:border-zinc-700;
+  }
+
+  .card {
+    @apply bg-card-bg border border-border rounded-xl p-6 transition-shadow;
+  }
+
+  .card:hover {
+    @apply shadow-lg shadow-black/30;
+  }
+
+  .input-field {
+    @apply w-full px-4 py-3 border border-zinc-700 rounded-xl bg-zinc-900 text-zinc-100 placeholder:text-zinc-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500 transition-all;
+  }
+
+  .nav-link {
+    @apply text-zinc-400 font-medium transition-colors hover:text-white;
+  }
+
+  .spinner {
+    @apply animate-spin rounded-full border-2 border-t-transparent border-indigo-500;
+  }
+}
+
+
+:root {
   --background: #ffffff;
   --foreground: #171717;
   --primary: #2563eb;
