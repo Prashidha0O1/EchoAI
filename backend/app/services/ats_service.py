@@ -9,7 +9,7 @@ import torch.nn.functional as F
 
 logger = logging.getLogger(__name__)
 
-AI_MODELS_DIR = Path(__file__).resolve().parents[3] / "ai_models"
+AI_MODELS_DIR = Path(__file__).resolve().parents[2] / "ai_models"
 
 # Module-level singleton so the model is only loaded once per process
 _ats_service_instance: Optional["ATSService"] = None
