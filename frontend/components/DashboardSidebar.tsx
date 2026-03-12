@@ -14,11 +14,13 @@ import {
     X,
     Mic2,
     Plus,
+    ScanSearch,
 } from 'lucide-react';
 
 const navItems = [
     { label: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
     { label: 'Resume Builder', href: '/resumes', icon: FileText },
+    { label: 'ATS Checker', href: '/ats', icon: ScanSearch },
     { label: 'Interviews', href: '/interviews', icon: Video },
     { label: 'Profile', href: '/profile', icon: User },
 ];
