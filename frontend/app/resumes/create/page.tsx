@@ -1,19 +1,21 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useRef, useCallback, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import DashboardLayout from '@/components/DashboardLayout';
 import Button from '@/components/Button';
 import ResumePreviewModal from '@/components/ResumePreviewModal';
 import VerificationGate from '@/components/VerificationGate';
 import { resumeApi, ResumeEducation, ResumeExperience, ResumeProject, ResumeCertification } from '@/lib/resumeApi';
-import { Plus, Trash2, Save, Eye } from 'lucide-react';
+import { Plus, Trash2, Save, Eye, Columns2, X } from 'lucide-react';
 
 export default function CreateResumePage() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [activeTab, setActiveTab] = useState('personal');
   const [showPreview, setShowPreview] = useState(false);
+  const [splitView, setSplitView] = useState(false);
+  const previewRef = useRef<HTMLIFrameElement>(null);
 
   // Form state
   const [title, setTitle] = useState('My Resume');
@@ -194,7 +196,7 @@ export default function CreateResumePage() {
     setCertifications(updated);
   };
 
-  const buildPreviewHtml = (): string => {
+  const buildPreviewHtml = useCallback((): string => {
     const skills = [
       ...(technicalSkills ? technicalSkills.split(',').map(s => s.trim()).filter(Boolean) : []),
       ...(softSkills ? softSkills.split(',').map(s => s.trim()).filter(Boolean) : []),
@@ -266,7 +268,16 @@ export default function CreateResumePage() {
       </div>
     </div>`).join('')}</div>` : ''}
 </body></html>`;
-  };
+  }, [fullName, email, phone, location, linkedin, github, summary, technicalSkills, softSkills, languages, tools, experience, education, projects, certifications]);
+
+  useEffect(() => {
+    if (!splitView || !previewRef.current) return;
+    const doc = previewRef.current.contentDocument ?? previewRef.current.contentWindow?.document;
+    if (!doc) return;
+    doc.open();
+    doc.write(buildPreviewHtml());
+    doc.close();
+  }, [splitView, buildPreviewHtml]);
 
   const tabs = [
     { id: 'personal', label: 'Personal Info' },
@@ -280,7 +291,8 @@ export default function CreateResumePage() {
   return (
     <DashboardLayout>
       <VerificationGate feature="create or edit resumes">
-      <div className="max-w-4xl mx-auto space-y-6">
+      <div className={splitView ? 'flex gap-6 items-start' : ''}>
+      <div className={splitView ? 'flex-1 min-w-0 space-y-6' : 'max-w-4xl mx-auto space-y-6'}>
 
           {/* Header */}
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
@@ -290,14 +302,28 @@ export default function CreateResumePage() {
               </h1>
               <p className="text-zinc-500 text-sm mt-1">Build your professional resume</p>
             </div>
-            <button
-              type="button"
-              onClick={() => setShowPreview(true)}
-              className="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium bg-zinc-800 hover:bg-zinc-700 text-zinc-300 border border-zinc-700 transition-colors w-fit"
-            >
-              <Eye className="w-4 h-4" />
-              Live Preview
-            </button>
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={() => setSplitView(v => !v)}
+                className={`hidden lg:inline-flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium border transition-colors w-fit ${
+                  splitView
+                    ? 'bg-indigo-600/20 border-indigo-500/40 text-indigo-400 hover:bg-indigo-600/30'
+                    : 'bg-zinc-800 hover:bg-zinc-700 text-zinc-300 border-zinc-700'
+                }`}
+              >
+                <Columns2 className="w-4 h-4" />
+                Split View
+              </button>
+              <button
+                type="button"
+                onClick={() => setShowPreview(true)}
+                className="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium bg-zinc-800 hover:bg-zinc-700 text-zinc-300 border border-zinc-700 transition-colors w-fit"
+              >
+                <Eye className="w-4 h-4" />
+                Preview
+              </button>
+            </div>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-6">
@@ -858,6 +884,32 @@ export default function CreateResumePage() {
               </Button>
             </div>
           </form>
+      </div>
+
+      {/* Live split-screen preview pane */}
+      {splitView && (
+        <aside className="w-[460px] shrink-0 sticky top-6 hidden lg:flex flex-col rounded-2xl border border-zinc-700 overflow-hidden shadow-2xl">
+          <div className="bg-zinc-900/95 border-b border-zinc-800 px-4 py-2.5 flex items-center justify-between shrink-0">
+            <span className="text-xs font-medium text-zinc-400 flex items-center gap-1.5">
+              <Eye className="w-3.5 h-3.5" /> Live Preview
+            </span>
+            <button
+              type="button"
+              onClick={() => setSplitView(false)}
+              className="text-zinc-500 hover:text-zinc-300 transition-colors"
+              title="Close split view"
+            >
+              <X className="w-3.5 h-3.5" />
+            </button>
+          </div>
+          <iframe
+            ref={previewRef}
+            className="w-full border-0 bg-white"
+            style={{ height: 'calc(100vh - 130px)' }}
+            title="Live resume preview"
+          />
+        </aside>
+      )}
       </div>
 
       {showPreview && (
