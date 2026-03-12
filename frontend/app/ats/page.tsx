@@ -30,7 +30,7 @@ function ScoreMeter({ percentage }: { percentage: number }) {
             : { stroke: '#f87171', text: 'text-rose-400', label: 'Low Match', labelClass: 'text-rose-400', bg: 'from-rose-600/10 to-pink-600/5 border-rose-500/20' };
 
     return (
-        <div className={`flex flex-col items-center gap-6 rounded-2xl border bg-gradient-to-br ${colorClass.bg} p-8`}>
+        <div className={`flex flex-col items-center gap-6 rounded-2xl border bg-linear-to-br ${colorClass.bg} p-8`}>
             <p className="text-sm font-medium text-zinc-400 uppercase tracking-widest">ATS Match Score</p>
 
             <div className="relative">
@@ -147,7 +147,7 @@ export default function ATSCheckerPage() {
                         <div className="w-10 h-10 rounded-xl bg-violet-500/20 flex items-center justify-center">
                             <ScanSearch className="w-5 h-5 text-violet-400" />
                         </div>
-                        <h1 className="text-2xl font-bold bg-gradient-to-r from-white to-zinc-400 bg-clip-text text-transparent">
+                        <h1 className="text-2xl font-bold bg-linear-to-r from-white to-zinc-400 bg-clip-text text-transparent">
                             ATS Resume Checker
                         </h1>
                     </div>
@@ -261,7 +261,7 @@ export default function ATSCheckerPage() {
                             <button
                                 type="submit"
                                 disabled={!resumeFile || !jobDescription.trim() || loading}
-                                className="flex-1 flex items-center justify-center gap-2 py-3 px-5 rounded-xl bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-500 hover:to-purple-500 disabled:from-zinc-700 disabled:to-zinc-700 disabled:text-zinc-500 disabled:cursor-not-allowed text-white text-sm font-semibold shadow-lg shadow-violet-500/20 border border-violet-500/30 disabled:border-zinc-600 transition-all duration-200"
+                                className="flex-1 flex items-center justify-center gap-2 py-3 px-5 rounded-xl bg-linear-to-r from-violet-600 to-purple-600 hover:from-violet-500 hover:to-purple-500 disabled:from-zinc-700 disabled:to-zinc-700 disabled:text-zinc-500 disabled:cursor-not-allowed text-white text-sm font-semibold shadow-lg shadow-violet-500/20 border border-violet-500/30 disabled:border-zinc-600 transition-all duration-200"
                             >
                                 {loading ? (
                                     <>
