@@ -24,7 +24,7 @@ export function useAudioRecorder({
   const [isPaused, setIsPaused] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [permissionGranted, setPermissionGranted] = useState(false);
-  
+
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
   const chunksRef = useRef<Blob[]>([]);
@@ -61,8 +61,8 @@ export function useAudioRecorder({
       const mimeType = MediaRecorder.isTypeSupported('audio/webm;codecs=opus')
         ? 'audio/webm;codecs=opus'
         : MediaRecorder.isTypeSupported('audio/webm')
-        ? 'audio/webm'
-        : 'audio/wav';
+          ? 'audio/webm'
+          : 'audio/wav';
 
       console.log('Using audio MIME type:', mimeType);
 
@@ -78,11 +78,6 @@ export function useAudioRecorder({
         if (event.data && event.data.size > 0) {
           console.log('Audio chunk received:', event.data.size, 'bytes');
           chunksRef.current.push(event.data);
-          
-          // Send chunk immediately if callback provided
-          if (onAudioChunk) {
-            onAudioChunk(event.data);
-          }
         }
       };
 
@@ -96,18 +91,18 @@ export function useAudioRecorder({
         console.log('MediaRecorder stopped');
         setIsRecording(false);
         setIsPaused(false);
+
+        // Send combined chunks when recording stops
+        if (onAudioChunk && chunksRef.current.length > 0) {
+          const finalBlob = new Blob(chunksRef.current, { type: mimeType });
+          console.log('Sending final audio blob:', finalBlob.size, 'bytes');
+          onAudioChunk(finalBlob);
+        }
       };
 
       // Start recording
       mediaRecorder.start();
       setIsRecording(true);
-      
-      // Request data at regular intervals
-      intervalRef.current = setInterval(() => {
-        if (mediaRecorder.state === 'recording') {
-          mediaRecorder.requestData();
-        }
-      }, chunkDurationMs);
 
       console.log('Recording started');
 

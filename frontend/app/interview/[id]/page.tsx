@@ -295,72 +295,11 @@ export default function InterviewSessionPage() {
         )}
 
         {/* ── Real-Time Transcript Panel ── */}
-        <div className="flex-1 rounded-2xl bg-zinc-900/60 border border-zinc-800 flex flex-col overflow-hidden" style={{ minHeight: 'calc(100vh - 340px)' }}>
-          <div className="px-5 py-3.5 border-b border-zinc-800 flex items-center justify-between">
-            <h2 className="text-sm font-semibold text-zinc-300">Live Transcript</h2>
-            <div className="flex items-center gap-1.5 text-xs text-zinc-500">
-              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-              Real-time
-            </div>
-          </div>
-
-          {/* Message area */}
-          <div className="flex-1 overflow-y-auto px-5 py-4 space-y-4">
-            {messages.length === 0 && !isAIThinking ? (
-              <div className="flex flex-col items-center justify-center h-48 text-center">
-                <div className="w-14 h-14 rounded-2xl bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center mb-4">
-                  <Mic className="w-7 h-7 text-indigo-400" />
-                </div>
-                <p className="text-zinc-400 font-medium text-sm">Ready to start</p>
-                <p className="text-zinc-600 text-xs mt-1">Press the microphone button and start speaking</p>
-              </div>
-            ) : (
-              <>
-                {messages.map((msg, idx) => (
-                  <div
-                    key={idx}
-                    className={`flex gap-3 ${msg.sender === 'user' ? 'flex-row-reverse' : 'flex-row'}`}
-                  >
-                    {/* Avatar */}
-                    <div className={`w-8 h-8 rounded-xl flex items-center justify-center shrink-0 ${msg.sender === 'ai'
-                      ? 'bg-gradient-to-br from-indigo-600 to-purple-600'
-                      : 'bg-gradient-to-br from-zinc-700 to-zinc-600'
-                      }`}>
-                      {msg.sender === 'ai' ? <Bot className="w-4 h-4 text-white" /> : <User className="w-4 h-4 text-zinc-300" />}
-                    </div>
-
-                    {/* Bubble */}
-                    <div className={`max-w-[75%] ${msg.sender === 'user' ? 'items-end' : 'items-start'} flex flex-col`}>
-                      <div className={`px-4 py-3 rounded-2xl text-sm leading-relaxed ${msg.sender === 'ai'
-                        ? 'bg-zinc-800 text-zinc-100 rounded-tl-sm'
-                        : 'bg-indigo-600 text-white rounded-tr-sm'
-                        }`}>
-                        {msg.content}
-                      </div>
-                      <span className="text-[10px] text-zinc-600 mt-1 px-1">
-                        {new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
-                      </span>
-                    </div>
-                  </div>
-                ))}
-
-                {/* AI thinking */}
-                {isAIThinking && (
-                  <div className="flex gap-3">
-                    <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-indigo-600 to-purple-600 flex items-center justify-center shrink-0">
-                      <Bot className="w-4 h-4 text-white" />
-                    </div>
-                    <div className="px-4 py-3 rounded-2xl rounded-tl-sm bg-zinc-800 text-zinc-400 text-sm flex items-center gap-1.5">
-                      <span className="w-1.5 h-1.5 rounded-full bg-indigo-400 animate-bounce" style={{ animationDelay: '0ms' }} />
-                      <span className="w-1.5 h-1.5 rounded-full bg-indigo-400 animate-bounce" style={{ animationDelay: '150ms' }} />
-                      <span className="w-1.5 h-1.5 rounded-full bg-indigo-400 animate-bounce" style={{ animationDelay: '300ms' }} />
-                    </div>
-                  </div>
-                )}
-                <div ref={bottomRef} />
-              </>
-            )}
-          </div>
+        <div className="flex-1 flex flex-col min-h-[400px]" style={{ minHeight: 'calc(100vh - 340px)' }}>
+          <LiveTranscript
+            messages={messages}
+            isAIThinking={isAIThinking}
+          />
         </div>
 
         {/* ── Audio Controls ── */}

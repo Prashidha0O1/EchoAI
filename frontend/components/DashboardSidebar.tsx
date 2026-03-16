@@ -14,11 +14,13 @@ import {
     X,
     Mic2,
     Plus,
+    ScanSearch,
 } from 'lucide-react';
 
 const navItems = [
     { label: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
     { label: 'Resume Builder', href: '/resumes', icon: FileText },
+    { label: 'ATS Checker', href: '/ats', icon: ScanSearch },
     { label: 'Interviews', href: '/interviews', icon: Video },
     { label: 'Profile', href: '/profile', icon: User },
 ];
@@ -45,11 +47,11 @@ export default function DashboardSidebar() {
         <div className="flex flex-col h-full overflow-hidden">
             {/* Logo */}
             <div className={`flex items-center border-b border-white/10 shrink-0 ${showLabels ? 'gap-3 px-5 py-5' : 'justify-center px-0 py-5'}`}>
-                <div className="w-9 h-9 shrink-0 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center shadow-lg shadow-indigo-500/30">
+                <div className="w-9 h-9 shrink-0 rounded-xl bg-linear-to-br from-indigo-500 to-purple-600 flex items-center justify-center shadow-lg shadow-indigo-500/30">
                     <Mic2 className="w-5 h-5 text-white" />
                 </div>
                 {showLabels && (
-                    <span className="text-xl font-bold bg-gradient-to-r from-white to-zinc-400 bg-clip-text text-transparent tracking-tight whitespace-nowrap">
+                    <span className="text-xl font-bold bg-linear-to-r from-white to-zinc-400 bg-clip-text text-transparent tracking-tight whitespace-nowrap">
                         EchoAI
                     </span>
                 )}
@@ -59,7 +61,7 @@ export default function DashboardSidebar() {
             <div className={`mx-2 mt-4 rounded-xl bg-white/5 border border-white/10 shrink-0 ${showLabels ? 'px-3 py-3' : 'px-1.5 py-3 flex justify-center'}`}>
                 {showLabels ? (
                     <div className="flex items-center gap-2.5">
-                        <div className="w-9 h-9 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white font-semibold text-sm shrink-0">
+                        <div className="w-9 h-9 rounded-full bg-linear-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white font-semibold text-sm shrink-0">
                             {initials}
                         </div>
                         <div className="min-w-0">
@@ -74,7 +76,7 @@ export default function DashboardSidebar() {
                     </div>
                 ) : (
                     <div className="relative">
-                        <div className="w-9 h-9 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white font-semibold text-sm">
+                        <div className="w-9 h-9 rounded-full bg-linear-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white font-semibold text-sm">
                             {initials}
                         </div>
                         <div className={`absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full border-2 border-zinc-950 ${user?.email_verified ? 'bg-emerald-400' : 'bg-amber-400'}`} />
@@ -96,7 +98,7 @@ export default function DashboardSidebar() {
                             className={`group flex items-center rounded-xl text-sm font-medium transition-all duration-150
                                 ${showLabels ? 'gap-3 px-3 py-2.5' : 'justify-center px-0 py-2.5'}
                                 ${active
-                                    ? 'bg-gradient-to-r from-indigo-600/80 to-purple-600/60 text-white shadow-md shadow-indigo-500/20 border border-indigo-500/30'
+                                    ? 'bg-linear-to-r from-indigo-600/80 to-purple-600/60 text-white shadow-md shadow-indigo-500/20 border border-indigo-500/30'
                                     : 'text-zinc-400 hover:text-white hover:bg-white/5'
                                 }`}
                         >
@@ -113,7 +115,7 @@ export default function DashboardSidebar() {
                     href="/interviews/create"
                     onClick={() => setMobileOpen(false)}
                     title={!showLabels ? 'New Interview' : undefined}
-                    className={`flex items-center gap-2 w-full py-2.5 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 text-white text-sm font-semibold hover:from-indigo-500 hover:to-purple-500 transition-all shadow-lg shadow-indigo-500/25 border border-indigo-500/30
+                    className={`flex items-center gap-2 w-full py-2.5 rounded-xl bg-linear-to-r from-indigo-600 to-purple-600 text-white text-sm font-semibold hover:from-indigo-500 hover:to-purple-500 transition-all shadow-lg shadow-indigo-500/25 border border-indigo-500/30
                         ${showLabels ? 'justify-center px-3' : 'justify-center px-0'}`}
                 >
                     <Plus className="w-4 h-4 shrink-0" />

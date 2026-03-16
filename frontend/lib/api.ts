@@ -229,4 +229,23 @@ export const profileApi = {
     },
 };
 
-export type { User, UserProfile, Interview, LoginResponse };
+// ATS API
+interface ATSResult {
+    score: number;
+    percentage: number;
+    resume_filename: string;
+}
+
+export const atsApi = {
+    check: async (resume: File, jobDescription: string): Promise<ApiResponse<ATSResult>> => {
+        const formData = new FormData();
+        formData.append('resume', resume);
+        formData.append('job_description', jobDescription);
+        return apiRequest<ATSResult>('/ats/check', {
+            method: 'POST',
+            body: formData,
+        });
+    },
+};
+
+export type { User, UserProfile, Interview, LoginResponse, ATSResult };

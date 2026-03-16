@@ -7,7 +7,7 @@ from speech_pipeline.tts.pyttsx3_tts import Pyttsx3TTS
 from speech_pipeline.webrtc import offer
 from database import models
 from database.database import engine
-from routers import auth_router, interviews_router, profile_router, verification_router, resumes_router
+from routers import auth_router, interviews_router, profile_router, verification_router, resumes_router, ats_router
 from app.api.v1.interviews.websocket import router as websocket_router
 from sqlalchemy import text
 import logging
@@ -77,6 +77,7 @@ app.include_router(interviews_router)
 app.include_router(profile_router)
 app.include_router(verification_router)
 app.include_router(resumes_router)
+app.include_router(ats_router)
 app.include_router(websocket_router)
 
 # Initialize models
@@ -89,6 +90,17 @@ except Exception as e:
     logger.error(f"Error initializing models: {e}")
     stt_service = None
     tts_service = None
+
+# Pre-load ATS model (non-fatal if it fails)
+try:
+    from app.services.ats_service import get_ats_service
+    _ats = get_ats_service()
+    if _ats.is_loaded:
+        logger.info("ATS model pre-loaded successfully.")
+    else:
+        logger.warning("ATS model failed to load; /ats/check will return 503 until fixed.")
+except Exception as e:
+    logger.error(f"Error pre-loading ATS model: {e}")
 
 @app.get("/")
 def read_root():
