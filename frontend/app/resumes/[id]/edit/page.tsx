@@ -181,19 +181,19 @@ export default function EditResumePage() {
   // Array helpers
   const addEducation = () => setEducation([...education, { institution: '', degree: '', field: '', start_date: '', end_date: '', gpa: '', achievements: [] }]);
   const removeEducation = (i: number) => setEducation(education.filter((_, idx) => idx !== i));
-  const updateEducation = (i: number, field: keyof ResumeEducation, val: string) => { const u = [...education]; (u[i] as unknown as Record<string, unknown>)[field] = val; setEducation(u); };
+  const updateEducation = (i: number, field: keyof ResumeEducation, val: any) => { const u = [...education]; u[i] = { ...u[i], [field]: val }; setEducation(u); };
 
   const addExperience = () => setExperience([...experience, { company: '', title: '', location: '', start_date: '', end_date: '', description: '', achievements: [] }]);
   const removeExperience = (i: number) => setExperience(experience.filter((_, idx) => idx !== i));
-  const updateExperience = (i: number, field: keyof ResumeExperience, val: string) => { const u = [...experience]; (u[i] as unknown as Record<string, unknown>)[field] = val; setExperience(u); };
+  const updateExperience = (i: number, field: keyof ResumeExperience, val: any) => { const u = [...experience]; u[i] = { ...u[i], [field]: val }; setExperience(u); };
 
   const addProject = () => setProjects([...projects, { title: '', description: '', technologies: [], link: '' }]);
   const removeProject = (i: number) => setProjects(projects.filter((_, idx) => idx !== i));
-  const updateProject = (i: number, field: keyof ResumeProject, val: string | string[]) => { const u = [...projects]; (u[i] as unknown as Record<string, unknown>)[field] = val; setProjects(u); };
+  const updateProject = (i: number, field: keyof ResumeProject, val: any) => { const u = [...projects]; u[i] = { ...u[i], [field]: val }; setProjects(u); };
 
   const addCertification = () => setCertifications([...certifications, { name: '', issuer: '', date: '', credential_id: '' }]);
   const removeCertification = (i: number) => setCertifications(certifications.filter((_, idx) => idx !== i));
-  const updateCertification = (i: number, field: keyof ResumeCertification, val: string) => { const u = [...certifications]; (u[i] as unknown as Record<string, unknown>)[field] = val; setCertifications(u); };
+  const updateCertification = (i: number, field: keyof ResumeCertification, val: any) => { const u = [...certifications]; u[i] = { ...u[i], [field]: val }; setCertifications(u); };
 
   const inputCls = 'w-full px-4 py-2 bg-zinc-800 border border-zinc-700 rounded-lg focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 outline-none text-zinc-100 text-sm placeholder-zinc-600';
   const tabs = [
