@@ -62,8 +62,8 @@ export default function AudioCapture({
           "relative w-20 h-20 rounded-full flex items-center justify-center transition-all duration-300",
           "focus:outline-none focus:ring-4 focus:ring-offset-2 focus:ring-offset-zinc-950",
           isRecording
-            ? "bg-gradient-to-br from-red-500 to-red-600 focus:ring-red-500/50 shadow-lg shadow-red-500/50 scale-110"
-            : "bg-gradient-to-br from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 focus:ring-indigo-500/50 shadow-lg shadow-indigo-500/30",
+            ? "bg-linear-to-br from-red-500 to-red-600 focus:ring-red-500/50 shadow-lg shadow-red-500/50 scale-110"
+            : "bg-linear-to-br from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 focus:ring-indigo-500/50 shadow-lg shadow-indigo-500/30",
           error && !permissionGranted && "opacity-50 cursor-not-allowed"
         )}
       >
@@ -131,7 +131,7 @@ export default function AudioCapture({
           {[...Array(20)].map((_, i) => (
             <div
               key={i}
-              className="w-1 bg-gradient-to-t from-indigo-600 to-purple-500 rounded-full animate-pulse"
+              className="w-1 bg-linear-to-t from-indigo-600 to-purple-500 rounded-full animate-pulse"
               style={{
                 height: `${Math.random() * 100}%`,
                 animationDelay: `${i * 50}ms`,
