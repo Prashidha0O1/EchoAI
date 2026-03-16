@@ -181,19 +181,19 @@ export default function EditResumePage() {
   // Array helpers
   const addEducation = () => setEducation([...education, { institution: '', degree: '', field: '', start_date: '', end_date: '', gpa: '', achievements: [] }]);
   const removeEducation = (i: number) => setEducation(education.filter((_, idx) => idx !== i));
-  const updateEducation = (i: number, field: keyof ResumeEducation, val: string) => { const u = [...education]; (u[i] as Record<string, unknown>)[field] = val; setEducation(u); };
+  const updateEducation = (i: number, field: keyof ResumeEducation, val: string) => { const u = [...education]; (u[i] as unknown as Record<string, unknown>)[field] = val; setEducation(u); };
 
   const addExperience = () => setExperience([...experience, { company: '', title: '', location: '', start_date: '', end_date: '', description: '', achievements: [] }]);
   const removeExperience = (i: number) => setExperience(experience.filter((_, idx) => idx !== i));
-  const updateExperience = (i: number, field: keyof ResumeExperience, val: string) => { const u = [...experience]; (u[i] as Record<string, unknown>)[field] = val; setExperience(u); };
+  const updateExperience = (i: number, field: keyof ResumeExperience, val: string) => { const u = [...experience]; (u[i] as unknown as Record<string, unknown>)[field] = val; setExperience(u); };
 
   const addProject = () => setProjects([...projects, { title: '', description: '', technologies: [], link: '' }]);
   const removeProject = (i: number) => setProjects(projects.filter((_, idx) => idx !== i));
-  const updateProject = (i: number, field: keyof ResumeProject, val: string | string[]) => { const u = [...projects]; (u[i] as Record<string, unknown>)[field] = val; setProjects(u); };
+  const updateProject = (i: number, field: keyof ResumeProject, val: string | string[]) => { const u = [...projects]; (u[i] as unknown as Record<string, unknown>)[field] = val; setProjects(u); };
 
   const addCertification = () => setCertifications([...certifications, { name: '', issuer: '', date: '', credential_id: '' }]);
   const removeCertification = (i: number) => setCertifications(certifications.filter((_, idx) => idx !== i));
-  const updateCertification = (i: number, field: keyof ResumeCertification, val: string) => { const u = [...certifications]; (u[i] as Record<string, unknown>)[field] = val; setCertifications(u); };
+  const updateCertification = (i: number, field: keyof ResumeCertification, val: string) => { const u = [...certifications]; (u[i] as unknown as Record<string, unknown>)[field] = val; setCertifications(u); };
 
   const inputCls = 'w-full px-4 py-2 bg-zinc-800 border border-zinc-700 rounded-lg focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 outline-none text-zinc-100 text-sm placeholder-zinc-600';
   const tabs = [
@@ -262,256 +262,254 @@ export default function EditResumePage() {
         )}
 
         <div className={splitView ? 'flex gap-6 items-start' : ''}>
-        <div className={splitView ? 'flex-1 min-w-0 space-y-6' : 'max-w-4xl mx-auto space-y-6'}>
+          <div className={splitView ? 'flex-1 min-w-0 space-y-6' : 'max-w-4xl mx-auto space-y-6'}>
 
-          {/* Header */}
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-            <div className="flex items-center gap-3">
-              <button
-                type="button"
-                onClick={() => router.push('/resumes')}
-                className="p-2 rounded-xl bg-zinc-800/60 hover:bg-zinc-700 text-zinc-400 hover:text-zinc-200 border border-zinc-700 transition-colors"
-                title="Back to resumes"
-              >
-                <ArrowLeft className="w-4 h-4" />
-              </button>
-              <div>
-                <h1 className="text-2xl sm:text-3xl font-bold bg-linear-to-r from-white to-zinc-400 bg-clip-text text-transparent">
-                  Edit Resume
-                </h1>
-                <p className="text-zinc-500 text-sm mt-0.5">Update your professional resume</p>
+            {/* Header */}
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+              <div className="flex items-center gap-3">
+                <button
+                  type="button"
+                  onClick={() => router.push('/resumes')}
+                  className="p-2 rounded-xl bg-zinc-800/60 hover:bg-zinc-700 text-zinc-400 hover:text-zinc-200 border border-zinc-700 transition-colors"
+                  title="Back to resumes"
+                >
+                  <ArrowLeft className="w-4 h-4" />
+                </button>
+                <div>
+                  <h1 className="text-2xl sm:text-3xl font-bold bg-linear-to-r from-white to-zinc-400 bg-clip-text text-transparent">
+                    Edit Resume
+                  </h1>
+                  <p className="text-zinc-500 text-sm mt-0.5">Update your professional resume</p>
+                </div>
+              </div>
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => setSplitView(v => !v)}
+                  className={`hidden lg:inline-flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium border transition-colors w-fit ${splitView
+                      ? 'bg-indigo-600/20 border-indigo-500/40 text-indigo-400 hover:bg-indigo-600/30'
+                      : 'bg-zinc-800 hover:bg-zinc-700 text-zinc-300 border-zinc-700'
+                    }`}
+                >
+                  <Columns2 className="w-4 h-4" />
+                  Split View
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setShowPreview(true)}
+                  className="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium bg-zinc-800 hover:bg-zinc-700 text-zinc-300 border border-zinc-700 transition-colors w-fit"
+                >
+                  <Eye className="w-4 h-4" />
+                  Preview
+                </button>
               </div>
             </div>
-            <div className="flex items-center gap-2">
-              <button
-                type="button"
-                onClick={() => setSplitView(v => !v)}
-                className={`hidden lg:inline-flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium border transition-colors w-fit ${
-                  splitView
-                    ? 'bg-indigo-600/20 border-indigo-500/40 text-indigo-400 hover:bg-indigo-600/30'
-                    : 'bg-zinc-800 hover:bg-zinc-700 text-zinc-300 border-zinc-700'
-                }`}
-              >
-                <Columns2 className="w-4 h-4" />
-                Split View
-              </button>
-              <button
-                type="button"
-                onClick={() => setShowPreview(true)}
-                className="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium bg-zinc-800 hover:bg-zinc-700 text-zinc-300 border border-zinc-700 transition-colors w-fit"
-              >
-                <Eye className="w-4 h-4" />
-                Preview
-              </button>
-            </div>
+
+            <form onSubmit={handleSubmit} className="space-y-5">
+
+              {/* Title & Template */}
+              <div className="bg-zinc-900/60 border border-zinc-800 rounded-2xl p-5">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                  <div>
+                    <label className="block text-sm font-medium text-zinc-300 mb-2">Resume Title</label>
+                    <input type="text" value={title} onChange={e => setTitle(e.target.value)} className={inputCls} placeholder="Software Engineer Resume" required />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-zinc-300 mb-2">Template</label>
+                    <select value={template} onChange={e => setTemplate(e.target.value as 'modern' | 'classic' | 'minimal' | 'creative')} className={inputCls}>
+                      <option value="modern">Modern</option>
+                      <option value="classic">Classic</option>
+                      <option value="minimal">Minimal</option>
+                      <option value="creative">Creative</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+
+              {/* Tabs */}
+              <div className="bg-zinc-900/60 border border-zinc-800 rounded-2xl overflow-hidden">
+                <div className="flex border-b border-zinc-800 overflow-x-auto">
+                  {tabs.map(tab => (
+                    <button
+                      key={tab.id}
+                      type="button"
+                      onClick={() => setActiveTab(tab.id)}
+                      className={`px-5 py-3 text-sm font-medium whitespace-nowrap transition-colors ${activeTab === tab.id
+                          ? 'text-indigo-400 border-b-2 border-indigo-500 bg-white/5'
+                          : 'text-zinc-500 hover:text-zinc-300'
+                        }`}
+                    >
+                      {tab.label}
+                    </button>
+                  ))}
+                </div>
+
+                <div className="p-5">
+
+                  {/* Personal Info */}
+                  {activeTab === 'personal' && (
+                    <div className="space-y-5">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div><label className="block text-sm font-medium text-zinc-400 mb-2">Full Name *</label><input type="text" value={fullName} onChange={e => setFullName(e.target.value)} className={inputCls} placeholder="John Doe" required /></div>
+                        <div><label className="block text-sm font-medium text-zinc-400 mb-2">Email *</label><input type="email" value={email} onChange={e => setEmail(e.target.value)} className={inputCls} placeholder="john@example.com" required /></div>
+                        <div><label className="block text-sm font-medium text-zinc-400 mb-2">Phone</label><input type="tel" value={phone} onChange={e => setPhone(e.target.value)} className={inputCls} placeholder="+1 (555) 123-4567" /></div>
+                        <div><label className="block text-sm font-medium text-zinc-400 mb-2">Location</label><input type="text" value={location} onChange={e => setLocation(e.target.value)} className={inputCls} placeholder="San Francisco, CA" /></div>
+                        <div><label className="block text-sm font-medium text-zinc-400 mb-2">LinkedIn URL</label><input type="url" value={linkedin} onChange={e => setLinkedin(e.target.value)} className={inputCls} placeholder="https://linkedin.com/in/johndoe" /></div>
+                        <div><label className="block text-sm font-medium text-zinc-400 mb-2">GitHub URL</label><input type="url" value={github} onChange={e => setGithub(e.target.value)} className={inputCls} placeholder="https://github.com/johndoe" /></div>
+                        <div className="md:col-span-2"><label className="block text-sm font-medium text-zinc-400 mb-2">Portfolio URL</label><input type="url" value={portfolio} onChange={e => setPortfolio(e.target.value)} className={inputCls} placeholder="https://johndoe.com" /></div>
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-zinc-400 mb-2">Professional Summary</label>
+                        <textarea value={summary} onChange={e => setSummary(e.target.value)} rows={4} className={`${inputCls} resize-none`} placeholder="A brief summary of your professional background..." />
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Experience */}
+                  {activeTab === 'experience' && (
+                    <div className="space-y-5">
+                      {experience.length === 0 && (
+                        <div className="text-center py-8 text-zinc-600 text-sm">No experience added yet. Click below to add your first entry.</div>
+                      )}
+                      {experience.map((exp, idx) => (
+                        <div key={idx} className="border border-zinc-800 rounded-xl p-5 relative">
+                          <button type="button" onClick={() => removeExperience(idx)} className="absolute top-4 right-4 text-red-400 hover:text-red-300"><Trash2 className="w-4 h-4" /></button>
+                          <h4 className="text-sm font-semibold text-zinc-300 mb-4">Experience {idx + 1}</h4>
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div><label className="block text-sm font-medium text-zinc-400 mb-2">Company *</label><input type="text" value={exp.company} onChange={e => updateExperience(idx, 'company', e.target.value)} className={inputCls} placeholder="Tech Corp" /></div>
+                            <div><label className="block text-sm font-medium text-zinc-400 mb-2">Job Title *</label><input type="text" value={exp.title} onChange={e => updateExperience(idx, 'title', e.target.value)} className={inputCls} placeholder="Software Engineer" /></div>
+                            <div><label className="block text-sm font-medium text-zinc-400 mb-2">Location</label><input type="text" value={exp.location || ''} onChange={e => updateExperience(idx, 'location', e.target.value)} className={inputCls} placeholder="San Francisco, CA" /></div>
+                            <div className="grid grid-cols-2 gap-3">
+                              <div><label className="block text-sm font-medium text-zinc-400 mb-2">Start</label><input type="month" value={exp.start_date} onChange={e => updateExperience(idx, 'start_date', e.target.value)} className={inputCls} /></div>
+                              <div><label className="block text-sm font-medium text-zinc-400 mb-2">End</label><input type="month" value={exp.end_date || ''} onChange={e => updateExperience(idx, 'end_date', e.target.value)} className={inputCls} /></div>
+                            </div>
+                            <div className="md:col-span-2"><label className="block text-sm font-medium text-zinc-400 mb-2">Description</label><textarea value={exp.description || ''} onChange={e => updateExperience(idx, 'description', e.target.value)} rows={3} className={`${inputCls} resize-none`} placeholder="Describe your role and key achievements..." /></div>
+                          </div>
+                        </div>
+                      ))}
+                      <Button type="button" onClick={addExperience} variant="outline" className="w-full"><Plus className="w-4 h-4 mr-2" />Add Experience</Button>
+                    </div>
+                  )}
+
+                  {/* Education */}
+                  {activeTab === 'education' && (
+                    <div className="space-y-5">
+                      {education.length === 0 && (
+                        <div className="text-center py-8 text-zinc-600 text-sm">No education added yet. Click below to add your first entry.</div>
+                      )}
+                      {education.map((edu, idx) => (
+                        <div key={idx} className="border border-zinc-800 rounded-xl p-5 relative">
+                          <button type="button" onClick={() => removeEducation(idx)} className="absolute top-4 right-4 text-red-400 hover:text-red-300"><Trash2 className="w-4 h-4" /></button>
+                          <h4 className="text-sm font-semibold text-zinc-300 mb-4">Education {idx + 1}</h4>
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div className="md:col-span-2"><label className="block text-sm font-medium text-zinc-400 mb-2">Institution *</label><input type="text" value={edu.institution} onChange={e => updateEducation(idx, 'institution', e.target.value)} className={inputCls} placeholder="University of Example" /></div>
+                            <div><label className="block text-sm font-medium text-zinc-400 mb-2">Degree *</label><input type="text" value={edu.degree} onChange={e => updateEducation(idx, 'degree', e.target.value)} className={inputCls} placeholder="Bachelor of Science" /></div>
+                            <div><label className="block text-sm font-medium text-zinc-400 mb-2">Field of Study</label><input type="text" value={edu.field || ''} onChange={e => updateEducation(idx, 'field', e.target.value)} className={inputCls} placeholder="Computer Science" /></div>
+                            <div><label className="block text-sm font-medium text-zinc-400 mb-2">Start Date</label><input type="month" value={edu.start_date} onChange={e => updateEducation(idx, 'start_date', e.target.value)} className={inputCls} /></div>
+                            <div><label className="block text-sm font-medium text-zinc-400 mb-2">End Date</label><input type="month" value={edu.end_date || ''} onChange={e => updateEducation(idx, 'end_date', e.target.value)} className={inputCls} /></div>
+                            <div><label className="block text-sm font-medium text-zinc-400 mb-2">GPA</label><input type="text" value={edu.gpa || ''} onChange={e => updateEducation(idx, 'gpa', e.target.value)} className={inputCls} placeholder="3.8/4.0" /></div>
+                          </div>
+                        </div>
+                      ))}
+                      <Button type="button" onClick={addEducation} variant="outline" className="w-full"><Plus className="w-4 h-4 mr-2" />Add Education</Button>
+                    </div>
+                  )}
+
+                  {/* Skills */}
+                  {activeTab === 'skills' && (
+                    <div className="space-y-5">
+                      <div><label className="block text-sm font-medium text-zinc-400 mb-2">Technical Skills</label><input type="text" value={technicalSkills} onChange={e => setTechnicalSkills(e.target.value)} className={inputCls} placeholder="Python, JavaScript, React (comma separated)" /><p className="text-xs text-zinc-600 mt-1">Separate with commas</p></div>
+                      <div><label className="block text-sm font-medium text-zinc-400 mb-2">Soft Skills</label><input type="text" value={softSkills} onChange={e => setSoftSkills(e.target.value)} className={inputCls} placeholder="Leadership, Communication" /></div>
+                      <div><label className="block text-sm font-medium text-zinc-400 mb-2">Languages</label><input type="text" value={languages} onChange={e => setLanguages(e.target.value)} className={inputCls} placeholder="English (Native), Spanish (Fluent)" /></div>
+                      <div><label className="block text-sm font-medium text-zinc-400 mb-2">Tools & Frameworks</label><input type="text" value={tools} onChange={e => setTools(e.target.value)} className={inputCls} placeholder="Git, Docker, AWS" /></div>
+                    </div>
+                  )}
+
+                  {/* Projects */}
+                  {activeTab === 'projects' && (
+                    <div className="space-y-5">
+                      {projects.length === 0 && (
+                        <div className="text-center py-8 text-zinc-600 text-sm">No projects added yet. Click below to add your first project.</div>
+                      )}
+                      {projects.map((proj, idx) => (
+                        <div key={idx} className="border border-zinc-800 rounded-xl p-5 relative">
+                          <button type="button" onClick={() => removeProject(idx)} className="absolute top-4 right-4 text-red-400 hover:text-red-300"><Trash2 className="w-4 h-4" /></button>
+                          <h4 className="text-sm font-semibold text-zinc-300 mb-4">Project {idx + 1}</h4>
+                          <div className="space-y-4">
+                            <div><label className="block text-sm font-medium text-zinc-400 mb-2">Title *</label><input type="text" value={proj.title} onChange={e => updateProject(idx, 'title', e.target.value)} className={inputCls} placeholder="E-commerce Platform" /></div>
+                            <div><label className="block text-sm font-medium text-zinc-400 mb-2">Description *</label><textarea value={proj.description} onChange={e => updateProject(idx, 'description', e.target.value)} rows={3} className={`${inputCls} resize-none`} placeholder="Describe the project..." /></div>
+                            <div><label className="block text-sm font-medium text-zinc-400 mb-2">Technologies</label><input type="text" value={proj.technologies?.join(', ') || ''} onChange={e => updateProject(idx, 'technologies', e.target.value.split(',').map(t => t.trim()).filter(Boolean))} className={inputCls} placeholder="React, Node.js (comma separated)" /></div>
+                            <div><label className="block text-sm font-medium text-zinc-400 mb-2">Project Link</label><input type="url" value={proj.link || ''} onChange={e => updateProject(idx, 'link', e.target.value)} className={inputCls} placeholder="https://github.com/..." /></div>
+                          </div>
+                        </div>
+                      ))}
+                      <Button type="button" onClick={addProject} variant="outline" className="w-full"><Plus className="w-4 h-4 mr-2" />Add Project</Button>
+                    </div>
+                  )}
+
+                  {/* Certifications */}
+                  {activeTab === 'certifications' && (
+                    <div className="space-y-5">
+                      {certifications.length === 0 && (
+                        <div className="text-center py-8 text-zinc-600 text-sm">No certifications added yet. Click below to add your first certification.</div>
+                      )}
+                      {certifications.map((cert, idx) => (
+                        <div key={idx} className="border border-zinc-800 rounded-xl p-5 relative">
+                          <button type="button" onClick={() => removeCertification(idx)} className="absolute top-4 right-4 text-red-400 hover:text-red-300"><Trash2 className="w-4 h-4" /></button>
+                          <h4 className="text-sm font-semibold text-zinc-300 mb-4">Certification {idx + 1}</h4>
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div><label className="block text-sm font-medium text-zinc-400 mb-2">Name *</label><input type="text" value={cert.name} onChange={e => updateCertification(idx, 'name', e.target.value)} className={inputCls} placeholder="AWS Certified Solutions Architect" /></div>
+                            <div><label className="block text-sm font-medium text-zinc-400 mb-2">Issuer *</label><input type="text" value={cert.issuer} onChange={e => updateCertification(idx, 'issuer', e.target.value)} className={inputCls} placeholder="Amazon Web Services" /></div>
+                            <div><label className="block text-sm font-medium text-zinc-400 mb-2">Date</label><input type="month" value={cert.date} onChange={e => updateCertification(idx, 'date', e.target.value)} className={inputCls} /></div>
+                            <div><label className="block text-sm font-medium text-zinc-400 mb-2">Credential ID</label><input type="text" value={cert.credential_id || ''} onChange={e => updateCertification(idx, 'credential_id', e.target.value)} className={inputCls} placeholder="ABC123XYZ" /></div>
+                          </div>
+                        </div>
+                      ))}
+                      <Button type="button" onClick={addCertification} variant="outline" className="w-full"><Plus className="w-4 h-4 mr-2" />Add Certification</Button>
+                    </div>
+                  )}
+
+                </div>
+              </div>
+
+              {/* Actions */}
+              <div className="flex gap-3 pb-8">
+                <Button type="submit" disabled={saving} className="flex-1">
+                  {saving
+                    ? <><Loader2 className="w-4 h-4 animate-spin mr-2" />Saving…</>
+                    : <><Save className="w-4 h-4 mr-2" />Save Changes</>
+                  }
+                </Button>
+                <Button type="button" variant="outline" onClick={() => router.push('/resumes')}>Cancel</Button>
+              </div>
+
+            </form>
           </div>
 
-          <form onSubmit={handleSubmit} className="space-y-5">
-
-            {/* Title & Template */}
-            <div className="bg-zinc-900/60 border border-zinc-800 rounded-2xl p-5">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                <div>
-                  <label className="block text-sm font-medium text-zinc-300 mb-2">Resume Title</label>
-                  <input type="text" value={title} onChange={e => setTitle(e.target.value)} className={inputCls} placeholder="Software Engineer Resume" required />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-zinc-300 mb-2">Template</label>
-                  <select value={template} onChange={e => setTemplate(e.target.value as 'modern' | 'classic' | 'minimal' | 'creative')} className={inputCls}>
-                    <option value="modern">Modern</option>
-                    <option value="classic">Classic</option>
-                    <option value="minimal">Minimal</option>
-                    <option value="creative">Creative</option>
-                  </select>
-                </div>
+          {/* Live split-screen preview pane */}
+          {splitView && (
+            <aside className="w-[460px] shrink-0 sticky top-6 hidden lg:flex flex-col rounded-2xl border border-zinc-700 overflow-hidden shadow-2xl">
+              <div className="bg-zinc-900/95 border-b border-zinc-800 px-4 py-2.5 flex items-center justify-between shrink-0">
+                <span className="text-xs font-medium text-zinc-400 flex items-center gap-1.5">
+                  <Eye className="w-3.5 h-3.5" /> Live Preview
+                </span>
+                <button
+                  type="button"
+                  onClick={() => setSplitView(false)}
+                  className="text-zinc-500 hover:text-zinc-300 transition-colors"
+                  title="Close split view"
+                >
+                  <X className="w-3.5 h-3.5" />
+                </button>
               </div>
-            </div>
-
-            {/* Tabs */}
-            <div className="bg-zinc-900/60 border border-zinc-800 rounded-2xl overflow-hidden">
-              <div className="flex border-b border-zinc-800 overflow-x-auto">
-                {tabs.map(tab => (
-                  <button
-                    key={tab.id}
-                    type="button"
-                    onClick={() => setActiveTab(tab.id)}
-                    className={`px-5 py-3 text-sm font-medium whitespace-nowrap transition-colors ${
-                      activeTab === tab.id
-                        ? 'text-indigo-400 border-b-2 border-indigo-500 bg-white/5'
-                        : 'text-zinc-500 hover:text-zinc-300'
-                    }`}
-                  >
-                    {tab.label}
-                  </button>
-                ))}
-              </div>
-
-              <div className="p-5">
-
-                {/* Personal Info */}
-                {activeTab === 'personal' && (
-                  <div className="space-y-5">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div><label className="block text-sm font-medium text-zinc-400 mb-2">Full Name *</label><input type="text" value={fullName} onChange={e => setFullName(e.target.value)} className={inputCls} placeholder="John Doe" required /></div>
-                      <div><label className="block text-sm font-medium text-zinc-400 mb-2">Email *</label><input type="email" value={email} onChange={e => setEmail(e.target.value)} className={inputCls} placeholder="john@example.com" required /></div>
-                      <div><label className="block text-sm font-medium text-zinc-400 mb-2">Phone</label><input type="tel" value={phone} onChange={e => setPhone(e.target.value)} className={inputCls} placeholder="+1 (555) 123-4567" /></div>
-                      <div><label className="block text-sm font-medium text-zinc-400 mb-2">Location</label><input type="text" value={location} onChange={e => setLocation(e.target.value)} className={inputCls} placeholder="San Francisco, CA" /></div>
-                      <div><label className="block text-sm font-medium text-zinc-400 mb-2">LinkedIn URL</label><input type="url" value={linkedin} onChange={e => setLinkedin(e.target.value)} className={inputCls} placeholder="https://linkedin.com/in/johndoe" /></div>
-                      <div><label className="block text-sm font-medium text-zinc-400 mb-2">GitHub URL</label><input type="url" value={github} onChange={e => setGithub(e.target.value)} className={inputCls} placeholder="https://github.com/johndoe" /></div>
-                      <div className="md:col-span-2"><label className="block text-sm font-medium text-zinc-400 mb-2">Portfolio URL</label><input type="url" value={portfolio} onChange={e => setPortfolio(e.target.value)} className={inputCls} placeholder="https://johndoe.com" /></div>
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-zinc-400 mb-2">Professional Summary</label>
-                      <textarea value={summary} onChange={e => setSummary(e.target.value)} rows={4} className={`${inputCls} resize-none`} placeholder="A brief summary of your professional background..." />
-                    </div>
-                  </div>
-                )}
-
-                {/* Experience */}
-                {activeTab === 'experience' && (
-                  <div className="space-y-5">
-                    {experience.length === 0 && (
-                      <div className="text-center py-8 text-zinc-600 text-sm">No experience added yet. Click below to add your first entry.</div>
-                    )}
-                    {experience.map((exp, idx) => (
-                      <div key={idx} className="border border-zinc-800 rounded-xl p-5 relative">
-                        <button type="button" onClick={() => removeExperience(idx)} className="absolute top-4 right-4 text-red-400 hover:text-red-300"><Trash2 className="w-4 h-4" /></button>
-                        <h4 className="text-sm font-semibold text-zinc-300 mb-4">Experience {idx + 1}</h4>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                          <div><label className="block text-sm font-medium text-zinc-400 mb-2">Company *</label><input type="text" value={exp.company} onChange={e => updateExperience(idx, 'company', e.target.value)} className={inputCls} placeholder="Tech Corp" /></div>
-                          <div><label className="block text-sm font-medium text-zinc-400 mb-2">Job Title *</label><input type="text" value={exp.title} onChange={e => updateExperience(idx, 'title', e.target.value)} className={inputCls} placeholder="Software Engineer" /></div>
-                          <div><label className="block text-sm font-medium text-zinc-400 mb-2">Location</label><input type="text" value={exp.location || ''} onChange={e => updateExperience(idx, 'location', e.target.value)} className={inputCls} placeholder="San Francisco, CA" /></div>
-                          <div className="grid grid-cols-2 gap-3">
-                            <div><label className="block text-sm font-medium text-zinc-400 mb-2">Start</label><input type="month" value={exp.start_date} onChange={e => updateExperience(idx, 'start_date', e.target.value)} className={inputCls} /></div>
-                            <div><label className="block text-sm font-medium text-zinc-400 mb-2">End</label><input type="month" value={exp.end_date || ''} onChange={e => updateExperience(idx, 'end_date', e.target.value)} className={inputCls} /></div>
-                          </div>
-                          <div className="md:col-span-2"><label className="block text-sm font-medium text-zinc-400 mb-2">Description</label><textarea value={exp.description || ''} onChange={e => updateExperience(idx, 'description', e.target.value)} rows={3} className={`${inputCls} resize-none`} placeholder="Describe your role and key achievements..." /></div>
-                        </div>
-                      </div>
-                    ))}
-                    <Button type="button" onClick={addExperience} variant="outline" className="w-full"><Plus className="w-4 h-4 mr-2" />Add Experience</Button>
-                  </div>
-                )}
-
-                {/* Education */}
-                {activeTab === 'education' && (
-                  <div className="space-y-5">
-                    {education.length === 0 && (
-                      <div className="text-center py-8 text-zinc-600 text-sm">No education added yet. Click below to add your first entry.</div>
-                    )}
-                    {education.map((edu, idx) => (
-                      <div key={idx} className="border border-zinc-800 rounded-xl p-5 relative">
-                        <button type="button" onClick={() => removeEducation(idx)} className="absolute top-4 right-4 text-red-400 hover:text-red-300"><Trash2 className="w-4 h-4" /></button>
-                        <h4 className="text-sm font-semibold text-zinc-300 mb-4">Education {idx + 1}</h4>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                          <div className="md:col-span-2"><label className="block text-sm font-medium text-zinc-400 mb-2">Institution *</label><input type="text" value={edu.institution} onChange={e => updateEducation(idx, 'institution', e.target.value)} className={inputCls} placeholder="University of Example" /></div>
-                          <div><label className="block text-sm font-medium text-zinc-400 mb-2">Degree *</label><input type="text" value={edu.degree} onChange={e => updateEducation(idx, 'degree', e.target.value)} className={inputCls} placeholder="Bachelor of Science" /></div>
-                          <div><label className="block text-sm font-medium text-zinc-400 mb-2">Field of Study</label><input type="text" value={edu.field || ''} onChange={e => updateEducation(idx, 'field', e.target.value)} className={inputCls} placeholder="Computer Science" /></div>
-                          <div><label className="block text-sm font-medium text-zinc-400 mb-2">Start Date</label><input type="month" value={edu.start_date} onChange={e => updateEducation(idx, 'start_date', e.target.value)} className={inputCls} /></div>
-                          <div><label className="block text-sm font-medium text-zinc-400 mb-2">End Date</label><input type="month" value={edu.end_date || ''} onChange={e => updateEducation(idx, 'end_date', e.target.value)} className={inputCls} /></div>
-                          <div><label className="block text-sm font-medium text-zinc-400 mb-2">GPA</label><input type="text" value={edu.gpa || ''} onChange={e => updateEducation(idx, 'gpa', e.target.value)} className={inputCls} placeholder="3.8/4.0" /></div>
-                        </div>
-                      </div>
-                    ))}
-                    <Button type="button" onClick={addEducation} variant="outline" className="w-full"><Plus className="w-4 h-4 mr-2" />Add Education</Button>
-                  </div>
-                )}
-
-                {/* Skills */}
-                {activeTab === 'skills' && (
-                  <div className="space-y-5">
-                    <div><label className="block text-sm font-medium text-zinc-400 mb-2">Technical Skills</label><input type="text" value={technicalSkills} onChange={e => setTechnicalSkills(e.target.value)} className={inputCls} placeholder="Python, JavaScript, React (comma separated)" /><p className="text-xs text-zinc-600 mt-1">Separate with commas</p></div>
-                    <div><label className="block text-sm font-medium text-zinc-400 mb-2">Soft Skills</label><input type="text" value={softSkills} onChange={e => setSoftSkills(e.target.value)} className={inputCls} placeholder="Leadership, Communication" /></div>
-                    <div><label className="block text-sm font-medium text-zinc-400 mb-2">Languages</label><input type="text" value={languages} onChange={e => setLanguages(e.target.value)} className={inputCls} placeholder="English (Native), Spanish (Fluent)" /></div>
-                    <div><label className="block text-sm font-medium text-zinc-400 mb-2">Tools & Frameworks</label><input type="text" value={tools} onChange={e => setTools(e.target.value)} className={inputCls} placeholder="Git, Docker, AWS" /></div>
-                  </div>
-                )}
-
-                {/* Projects */}
-                {activeTab === 'projects' && (
-                  <div className="space-y-5">
-                    {projects.length === 0 && (
-                      <div className="text-center py-8 text-zinc-600 text-sm">No projects added yet. Click below to add your first project.</div>
-                    )}
-                    {projects.map((proj, idx) => (
-                      <div key={idx} className="border border-zinc-800 rounded-xl p-5 relative">
-                        <button type="button" onClick={() => removeProject(idx)} className="absolute top-4 right-4 text-red-400 hover:text-red-300"><Trash2 className="w-4 h-4" /></button>
-                        <h4 className="text-sm font-semibold text-zinc-300 mb-4">Project {idx + 1}</h4>
-                        <div className="space-y-4">
-                          <div><label className="block text-sm font-medium text-zinc-400 mb-2">Title *</label><input type="text" value={proj.title} onChange={e => updateProject(idx, 'title', e.target.value)} className={inputCls} placeholder="E-commerce Platform" /></div>
-                          <div><label className="block text-sm font-medium text-zinc-400 mb-2">Description *</label><textarea value={proj.description} onChange={e => updateProject(idx, 'description', e.target.value)} rows={3} className={`${inputCls} resize-none`} placeholder="Describe the project..." /></div>
-                          <div><label className="block text-sm font-medium text-zinc-400 mb-2">Technologies</label><input type="text" value={proj.technologies?.join(', ') || ''} onChange={e => updateProject(idx, 'technologies', e.target.value.split(',').map(t => t.trim()).filter(Boolean))} className={inputCls} placeholder="React, Node.js (comma separated)" /></div>
-                          <div><label className="block text-sm font-medium text-zinc-400 mb-2">Project Link</label><input type="url" value={proj.link || ''} onChange={e => updateProject(idx, 'link', e.target.value)} className={inputCls} placeholder="https://github.com/..." /></div>
-                        </div>
-                      </div>
-                    ))}
-                    <Button type="button" onClick={addProject} variant="outline" className="w-full"><Plus className="w-4 h-4 mr-2" />Add Project</Button>
-                  </div>
-                )}
-
-                {/* Certifications */}
-                {activeTab === 'certifications' && (
-                  <div className="space-y-5">
-                    {certifications.length === 0 && (
-                      <div className="text-center py-8 text-zinc-600 text-sm">No certifications added yet. Click below to add your first certification.</div>
-                    )}
-                    {certifications.map((cert, idx) => (
-                      <div key={idx} className="border border-zinc-800 rounded-xl p-5 relative">
-                        <button type="button" onClick={() => removeCertification(idx)} className="absolute top-4 right-4 text-red-400 hover:text-red-300"><Trash2 className="w-4 h-4" /></button>
-                        <h4 className="text-sm font-semibold text-zinc-300 mb-4">Certification {idx + 1}</h4>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                          <div><label className="block text-sm font-medium text-zinc-400 mb-2">Name *</label><input type="text" value={cert.name} onChange={e => updateCertification(idx, 'name', e.target.value)} className={inputCls} placeholder="AWS Certified Solutions Architect" /></div>
-                          <div><label className="block text-sm font-medium text-zinc-400 mb-2">Issuer *</label><input type="text" value={cert.issuer} onChange={e => updateCertification(idx, 'issuer', e.target.value)} className={inputCls} placeholder="Amazon Web Services" /></div>
-                          <div><label className="block text-sm font-medium text-zinc-400 mb-2">Date</label><input type="month" value={cert.date} onChange={e => updateCertification(idx, 'date', e.target.value)} className={inputCls} /></div>
-                          <div><label className="block text-sm font-medium text-zinc-400 mb-2">Credential ID</label><input type="text" value={cert.credential_id || ''} onChange={e => updateCertification(idx, 'credential_id', e.target.value)} className={inputCls} placeholder="ABC123XYZ" /></div>
-                        </div>
-                      </div>
-                    ))}
-                    <Button type="button" onClick={addCertification} variant="outline" className="w-full"><Plus className="w-4 h-4 mr-2" />Add Certification</Button>
-                  </div>
-                )}
-
-              </div>
-            </div>
-
-            {/* Actions */}
-            <div className="flex gap-3 pb-8">
-              <Button type="submit" disabled={saving} className="flex-1">
-                {saving
-                  ? <><Loader2 className="w-4 h-4 animate-spin mr-2" />Saving…</>
-                  : <><Save className="w-4 h-4 mr-2" />Save Changes</>
-                }
-              </Button>
-              <Button type="button" variant="outline" onClick={() => router.push('/resumes')}>Cancel</Button>
-            </div>
-
-          </form>
-        </div>
-
-        {/* Live split-screen preview pane */}
-        {splitView && (
-          <aside className="w-[460px] shrink-0 sticky top-6 hidden lg:flex flex-col rounded-2xl border border-zinc-700 overflow-hidden shadow-2xl">
-            <div className="bg-zinc-900/95 border-b border-zinc-800 px-4 py-2.5 flex items-center justify-between shrink-0">
-              <span className="text-xs font-medium text-zinc-400 flex items-center gap-1.5">
-                <Eye className="w-3.5 h-3.5" /> Live Preview
-              </span>
-              <button
-                type="button"
-                onClick={() => setSplitView(false)}
-                className="text-zinc-500 hover:text-zinc-300 transition-colors"
-                title="Close split view"
-              >
-                <X className="w-3.5 h-3.5" />
-              </button>
-            </div>
-            <iframe
-              ref={previewRef}
-              className="w-full border-0 bg-white"
-              style={{ height: 'calc(100vh - 130px)' }}
-              title="Live resume preview"
-            />
-          </aside>
-        )}
+              <iframe
+                ref={previewRef}
+                className="w-full border-0 bg-white"
+                style={{ height: 'calc(100vh - 130px)' }}
+                title="Live resume preview"
+              />
+            </aside>
+          )}
         </div>
 
         {showPreview && (

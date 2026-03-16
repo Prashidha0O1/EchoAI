@@ -1,0 +1,17 @@
+fastapi[standard]
+uvicorn[standard]
+sounddevice
+numpy
+openai-whisper
+pyttsx3
+sqlalchemy
+psycopg2-binary
+python-jose[cryptography]
+passlib[bcrypt]
+python-multipart
+redis
+aiortc
+pydantic-settings
+PyPDF2
+python-docx
+alembic

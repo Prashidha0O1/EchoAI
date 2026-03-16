@@ -1,0 +1,60 @@
+================================================================================
+  DATABASE MIGRATION - Copy & Paste These Commands
+================================================================================
+
+STEP 1: Copy SQL file to Docker container
+-------------------------------------------
+docker cp backend\migrations\add_email_verification_and_resumes.sql echoai-db:/tmp/migration.sql
+
+
+STEP 2: Run migration inside container
+---------------------------------------
+docker exec -it echoai-db psql -U postgres -d echo_ai_db -f /tmp/migration.sql
+
+
+ALTERNATIVE: If using local PostgreSQL (not Docker)
+----------------------------------------------------
+psql -U postgres -d echo_ai_db -f backend\migrations\add_email_verification_and_resumes.sql
+
+
+STEP 3: Verify migration worked
+--------------------------------
+docker exec -it echoai-db psql -U postgres -d echo_ai_db -c "\d users"
+
+
+STEP 4: Install new Python packages
+------------------------------------
+cd backend
+pip install reportlab weasyprint
+
+
+STEP 5: Restart backend
+------------------------
+cd backend
+uvicorn main:app --reload
+
+
+STEP 6: Test system
+--------------------
+cd backend
+python test_complete_system.py
+
+
+Expected output:
+✅ PASS Database Connection
+✅ PASS Email Verification
+✅ PASS Resume Builder
+✅ PASS Interview System
+✅ PASS JWT Authentication
+✅ PASS Models & Services
+🎉 All systems operational!
+
+
+================================================================================
+  DONE! Your system is ready for demo.
+================================================================================
+
+Open: http://localhost:3000
+Test: Sign up → Email verify → Build resume → Live interview
+
+Good luck! 🚀

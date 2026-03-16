@@ -296,8 +296,8 @@ export default function InterviewSessionPage() {
 
         {/* ── Real-Time Transcript Panel ── */}
         <div className="flex-1 flex flex-col min-h-[400px]" style={{ minHeight: 'calc(100vh - 340px)' }}>
-          <LiveTranscript 
-            messages={messages} 
+          <LiveTranscript
+            messages={messages}
             isAIThinking={isAIThinking}
           />
         </div>
