@@ -1,5 +1,6 @@
 import pyttsx3
-import io
+import tempfile
+import os
 from speech_pipeline.interface import TTSProvider
 
 class Pyttsx3TTS(TTSProvider):
@@ -7,7 +8,8 @@ class Pyttsx3TTS(TTSProvider):
         pass
 
     async def speak(self, text: str) -> bytes:
-        output_file = "temp_tts.wav"
+        fd, output_file = tempfile.mkstemp(suffix=".wav")
+        os.close(fd)
         try:
             engine = pyttsx3.init()
             engine.save_to_file(text, output_file)
@@ -19,3 +21,9 @@ class Pyttsx3TTS(TTSProvider):
         except Exception as e:
             print(f"Error in TTS: {e}")
             return b""
+        finally:
+            if os.path.exists(output_file):
+                try:
+                    os.unlink(output_file)
+                except:
+                    pass
