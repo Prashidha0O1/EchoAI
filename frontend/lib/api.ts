@@ -36,13 +36,31 @@ interface UserProfile {
     updated_at: string;
 }
 
+interface InterviewQuestion {
+    question: string;
+    category: 'technical' | 'behavioral' | 'situational' | 'experience';
+    difficulty: 'easy' | 'medium' | 'hard';
+    keywords: string[];
+    ideal_answer: string;
+}
+
+interface GenerateQuestionsResponse {
+    session_id: number;
+    questions: InterviewQuestion[];
+    role: string;
+    experience_level: string;
+    total_questions: number;
+}
+
 interface Interview {
     id: number;
     user_id: number;
     interview_type: 'technical' | 'behavioral' | 'hr' | 'mixed';
     job_description: string | null;
+    role: string | null;
+    experience_level: string | null;
     status: 'pending' | 'in_progress' | 'completed';
-    generated_questions: string[] | null;
+    generated_questions: InterviewQuestion[] | null;
     scheduled_at: string | null;
     started_at: string | null;
     completed_at: string | null;
@@ -248,4 +266,25 @@ export const atsApi = {
     },
 };
 
-export type { User, UserProfile, Interview, LoginResponse, ATSResult };
+// Question Generator API
+export const questionGeneratorApi = {
+    generate: async (
+        jobDescription: string,
+        role: string,
+        experienceLevel: string,
+        cvFile?: File,
+    ): Promise<ApiResponse<GenerateQuestionsResponse>> => {
+        const formData = new FormData();
+        formData.append('job_description', jobDescription);
+        formData.append('role', role);
+        formData.append('experience_level', experienceLevel);
+        if (cvFile) formData.append('cv_file', cvFile);
+
+        return apiRequest<GenerateQuestionsResponse>('/generate-questions', {
+            method: 'POST',
+            body: formData,
+        });
+    },
+};
+
+export type { User, UserProfile, Interview, InterviewQuestion, GenerateQuestionsResponse, LoginResponse, ATSResult };

@@ -60,6 +60,8 @@ class Interview(Base):
     user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
     interview_type = Column(String(50), default="mixed")  # technical, behavioral, hr, mixed
     job_description = Column(Text, nullable=True)  # Parsed JD content
+    role = Column(String(200), nullable=True)  # Job role / position title
+    experience_level = Column(String(50), nullable=True)  # entry, junior, mid, senior, lead
     status = Column(String(20), default="pending")  # pending, in_progress, completed
     generated_questions = Column(JSON, nullable=True)  # AI generated questions array
     scheduled_at = Column(DateTime(timezone=True), nullable=True)
