@@ -7,7 +7,7 @@ from speech_pipeline.tts.pyttsx3_tts import Pyttsx3TTS
 from speech_pipeline.webrtc import offer
 from database import models
 from database.database import engine
-from routers import auth_router, interviews_router, profile_router, verification_router, resumes_router, ats_router
+from routers import auth_router, interviews_router, profile_router, verification_router, resumes_router, ats_router, question_generator_router
 from app.api.v1.interviews.websocket import router as websocket_router
 from sqlalchemy import text
 import logging
@@ -42,6 +42,15 @@ def run_migrations():
         conn.execute(text(
             "ALTER TABLE users ADD COLUMN IF NOT EXISTS "
             "verification_code_created_at TIMESTAMPTZ"
+        ))
+        # --- interviews table: role and experience_level columns ---
+        conn.execute(text(
+            "ALTER TABLE interviews ADD COLUMN IF NOT EXISTS "
+            "role VARCHAR(200)"
+        ))
+        conn.execute(text(
+            "ALTER TABLE interviews ADD COLUMN IF NOT EXISTS "
+            "experience_level VARCHAR(50)"
         ))
         conn.commit()
     logger.info("DB migrations applied successfully.")
@@ -78,6 +87,7 @@ app.include_router(profile_router)
 app.include_router(verification_router)
 app.include_router(resumes_router)
 app.include_router(ats_router)
+app.include_router(question_generator_router)
 app.include_router(websocket_router)
 
 # Initialize models

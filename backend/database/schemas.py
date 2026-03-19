@@ -111,6 +111,8 @@ class InterviewCreate(BaseModel):
     """Schema for creating an interview"""
     interview_type: str = Field(..., pattern=r'^(technical|behavioral|hr|mixed)$')
     job_description: Optional[str] = None
+    role: Optional[str] = None
+    experience_level: Optional[str] = None
 
 
 class InterviewUpdate(BaseModel):
@@ -125,8 +127,10 @@ class InterviewOut(BaseModel):
     user_id: int
     interview_type: str
     job_description: Optional[str] = None
+    role: Optional[str] = None
+    experience_level: Optional[str] = None
     status: str
-    generated_questions: Optional[List[str]] = None
+    generated_questions: Optional[Any] = None
     scheduled_at: Optional[datetime] = None
     started_at: Optional[datetime] = None
     completed_at: Optional[datetime] = None
