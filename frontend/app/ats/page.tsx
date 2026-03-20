@@ -11,6 +11,10 @@ import {
     AlertCircle,
     CheckCircle2,
     Loader2,
+    Lightbulb,
+    MessageSquareWarning,
+    Sparkles,
+    TriangleAlert,
 } from 'lucide-react';
 
 // ─── Circular score meter ───────────────────────────────────────────────────
@@ -292,25 +296,77 @@ export default function ATSCheckerPage() {
                     <div className="flex flex-col justify-start">
                         {result ? (
                             <div className="space-y-4">
+                                {/* Score meter */}
                                 <ScoreMeter percentage={result.percentage} />
 
-                                {/* Detail card */}
+                                {/* Match score + filename */}
                                 <div className="rounded-xl bg-zinc-900/60 border border-zinc-800 p-4 space-y-3">
                                     <p className="text-xs font-semibold text-zinc-500 uppercase tracking-wider">Details</p>
-                                    <div className="grid grid-cols-2 gap-3">
-                                        <div className="rounded-lg bg-zinc-800/60 p-3">
-                                            <p className="text-xs text-zinc-500">Match Score</p>
-                                            <p className="text-lg font-bold text-white mt-0.5">{result.percentage.toFixed(2)}%</p>
-                                        </div>
-                                        <div className="rounded-lg bg-zinc-800/60 p-3">
-                                            <p className="text-xs text-zinc-500">Raw Score</p>
-                                            <p className="text-lg font-bold text-white mt-0.5">{result.score.toFixed(4)}</p>
-                                        </div>
+                                    <div className="rounded-lg bg-zinc-800/60 p-3">
+                                        <p className="text-xs text-zinc-500">Match Score</p>
+                                        <p className="text-lg font-bold text-white mt-0.5">{result.percentage.toFixed(2)}%</p>
                                     </div>
                                     <div className="flex items-center gap-2 pt-1 text-xs text-zinc-600">
                                         <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500/70 shrink-0" />
                                         Analysed: <span className="text-zinc-400 truncate">{result.resume_filename}</span>
                                     </div>
+                                </div>
+
+                                {/* Missing keywords */}
+                                <div className="rounded-xl bg-zinc-900/60 border border-zinc-800 p-4 space-y-3">
+                                    <div className="flex items-center gap-2">
+                                        <TriangleAlert className="w-4 h-4 text-amber-400 shrink-0" />
+                                        <p className="text-xs font-semibold text-zinc-300 uppercase tracking-wider">Missing from Your CV</p>
+                                    </div>
+                                    {result.missing_keywords.length === 0 ? (
+                                        <div className="flex items-center gap-2 text-emerald-400 text-sm">
+                                            <CheckCircle2 className="w-4 h-4 shrink-0" />
+                                            Great! No major keyword gaps found.
+                                        </div>
+                                    ) : (
+                                        <div className="flex flex-wrap gap-2">
+                                            {result.missing_keywords.map((kw) => (
+                                                <span
+                                                    key={kw}
+                                                    className="text-xs px-2.5 py-1 rounded-full bg-amber-500/10 border border-amber-500/25 text-amber-300 font-medium"
+                                                >
+                                                    {kw}
+                                                </span>
+                                            ))}
+                                        </div>
+                                    )}
+                                </div>
+
+                                {/* Recommendations */}
+                                <div className="rounded-xl bg-zinc-900/60 border border-zinc-800 p-4 space-y-3">
+                                    <div className="flex items-center gap-2">
+                                        <Lightbulb className="w-4 h-4 text-violet-400 shrink-0" />
+                                        <p className="text-xs font-semibold text-zinc-300 uppercase tracking-wider">Recommendations</p>
+                                    </div>
+                                    <ul className="space-y-2">
+                                        {result.recommendations.map((rec, i) => (
+                                            <li key={i} className="flex items-start gap-2 text-sm text-zinc-400">
+                                                <span className="mt-1.5 w-1.5 h-1.5 rounded-full bg-violet-500/60 shrink-0" />
+                                                {rec}
+                                            </li>
+                                        ))}
+                                    </ul>
+                                </div>
+
+                                {/* Resume feedback */}
+                                <div className="rounded-xl bg-zinc-900/60 border border-zinc-800 p-4 space-y-3">
+                                    <div className="flex items-center gap-2">
+                                        <Sparkles className="w-4 h-4 text-sky-400 shrink-0" />
+                                        <p className="text-xs font-semibold text-zinc-300 uppercase tracking-wider">Resume Feedback</p>
+                                    </div>
+                                    <ul className="space-y-2.5">
+                                        {result.feedback.map((tip, i) => (
+                                            <li key={i} className="flex items-start gap-2.5 text-sm text-zinc-400">
+                                                <CheckCircle2 className="w-4 h-4 text-sky-500/60 shrink-0 mt-0.5" />
+                                                {tip}
+                                            </li>
+                                        ))}
+                                    </ul>
                                 </div>
                             </div>
                         ) : (
@@ -319,7 +375,7 @@ export default function ATSCheckerPage() {
                                     <ScanSearch className="w-8 h-8 text-zinc-600" />
                                 </div>
                                 <div>
-                                    <p className="text-zinc-400 font-medium">Your score will appear here</p>
+                                    <p className="text-zinc-400 font-medium">Your results will appear here</p>
                                     <p className="text-zinc-600 text-sm mt-1 max-w-xs">
                                         Upload a resume and add a job description, then click Check ATS Score.
                                     </p>
@@ -337,7 +393,7 @@ export default function ATSCheckerPage() {
                             { step: '01', label: 'Upload Resume', desc: 'PDF or DOCX file' },
                             { step: '02', label: 'Paste Job Description', desc: 'Full JD text' },
                             { step: '03', label: 'BERT Analysis', desc: 'Fine-tuned model scores the match' },
-                            { step: '04', label: 'Get Your Score', desc: '0–100% match percentage' },
+                            { step: '04', label: 'Score, Gaps & Feedback', desc: 'Actionable insights to improve your CV' },
                         ].map(({ step, label, desc }) => (
                             <div key={step} className="flex items-start gap-3">
                                 <span className="text-xs font-bold text-violet-500 bg-violet-500/10 border border-violet-500/20 rounded-lg px-2 py-1 shrink-0">

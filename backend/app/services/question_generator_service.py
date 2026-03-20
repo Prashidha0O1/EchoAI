@@ -65,8 +65,7 @@ class QuestionGeneratorService:
             self.tokenizer = AutoTokenizer.from_pretrained(MODEL_DIR)
             self.model = AutoModelForCausalLM.from_pretrained(
                 MODEL_DIR,
-                torch_dtype=torch.bfloat16,
-                device_map="auto",
+                dtype=torch.bfloat16,
             )
             self.model.eval()
             self.is_loaded = True

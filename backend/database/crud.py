@@ -186,12 +186,35 @@ def complete_interview(db: Session, interview_id: int, transcript: str) -> Optio
     return db_interview
 
 
+def update_interview_status(
+    db: Session,
+    interview_id: int,
+    status: str,
+    started_at: Optional[datetime] = None,
+    completed_at: Optional[datetime] = None,
+) -> Optional[models.Interview]:
+    """Update interview status and optional timestamps"""
+    db_interview = get_interview(db, interview_id)
+    if not db_interview:
+        return None
+
+    db_interview.status = status
+    if started_at is not None:
+        db_interview.started_at = started_at
+    if completed_at is not None:
+        db_interview.completed_at = completed_at
+
+    db.commit()
+    db.refresh(db_interview)
+    return db_interview
+
+
 def delete_interview(db: Session, interview_id: int) -> bool:
     """Delete an interview"""
     db_interview = get_interview(db, interview_id)
     if not db_interview:
         return False
-    
+
     db.delete(db_interview)
     db.commit()
     return True
@@ -199,19 +222,39 @@ def delete_interview(db: Session, interview_id: int) -> bool:
 
 # ============= Message CRUD =============
 
-def create_message(db: Session, interview_id: int, message: schemas.MessageCreate) -> models.Message:
+def get_next_sequence_number(db: Session, interview_id: int) -> int:
+    """Get the next sequence number for messages in an interview"""
+    last = (
+        db.query(models.Message)
+        .filter(models.Message.interview_id == interview_id)
+        .order_by(models.Message.sequence_number.desc())
+        .first()
+    )
+    return (last.sequence_number + 1) if last else 1
+
+
+def create_message(db: Session, message: schemas.MessageCreate) -> models.Message:
     """Create a new message"""
     db_message = models.Message(
-        interview_id=interview_id,
+        interview_id=message.interview_id,
         sender=message.sender,
         content=message.content,
         sequence_number=message.sequence_number,
-        audio_url=message.audio_url
+        audio_url=message.audio_url,
     )
     db.add(db_message)
     db.commit()
     db.refresh(db_message)
     return db_message
+
+
+def get_interview_report(db: Session, interview_id: int) -> Optional[models.Report]:
+    """Get the report for an interview"""
+    return (
+        db.query(models.Report)
+        .filter(models.Report.interview_id == interview_id)
+        .first()
+    )
 
 
 def get_interview_messages(db: Session, interview_id: int) -> List[models.Message]:

@@ -249,9 +249,11 @@ export const profileApi = {
 
 // ATS API
 interface ATSResult {
-    score: number;
     percentage: number;
     resume_filename: string;
+    missing_keywords: string[];
+    recommendations: string[];
+    feedback: string[];
 }
 
 export const atsApi = {

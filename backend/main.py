@@ -112,6 +112,17 @@ try:
 except Exception as e:
     logger.error(f"Error pre-loading ATS model: {e}")
 
+# Pre-load Gemma 3 question-generator model (non-fatal if it fails)
+try:
+    from app.services.question_generator_service import get_question_generator
+    _qgen = get_question_generator()
+    if _qgen.is_loaded:
+        logger.info("Gemma 3 question-generator model pre-loaded successfully.")
+    else:
+        logger.warning("Gemma 3 model failed to load; /generate-questions will use fallback template questions.")
+except Exception as e:
+    logger.error(f"Error pre-loading Gemma 3 model: {e}")
+
 @app.get("/")
 def read_root():
     """Root endpoint - Welcome message"""

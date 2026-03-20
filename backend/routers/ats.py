@@ -28,7 +28,7 @@ async def check_ats_score(
     - **resume**: PDF or DOCX file of the candidate's CV.
     - **job_description**: Plain-text job description to match against.
 
-    Returns a match **percentage** (0–100) and a raw **score** (0–1).
+    Returns a match **percentage** (0–100), missing keywords, recommendations, and feedback.
     """
     # Validate file type
     _, ext = os.path.splitext(resume.filename or "")
@@ -74,10 +74,13 @@ async def check_ats_score(
             )
 
         result = ats.compute_ats_score(resume_text, job_description)
+        gaps = ats.analyze_resume_gaps(resume_text, job_description, result["percentage"])
         return {
-            "score": result["score"],
             "percentage": result["percentage"],
             "resume_filename": resume.filename,
+            "missing_keywords": gaps["missing_keywords"],
+            "recommendations": gaps["recommendations"],
+            "feedback": gaps["feedback"],
         }
 
     finally:

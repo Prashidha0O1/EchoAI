@@ -134,6 +134,159 @@ class ATSService:
             logger.error(f"Error during ATS inference: {exc}")
             return {"score": 0.0, "percentage": 0.0}
 
+    # ------------------------------------------------------------------
+    # Gap analysis & feedback
+    # ------------------------------------------------------------------
+
+    # Comprehensive keyword dictionary keyed by display category
+    _SKILL_CATEGORIES: dict = {
+        "Programming Languages": [
+            "python", "java", "javascript", "typescript", "c++", "c#", "go", "rust",
+            "swift", "kotlin", "ruby", "php", "scala", "r", "matlab", "perl", "bash",
+            "shell", "powershell", "dart", "lua", "haskell", "elixir", "clojure",
+        ],
+        "Frontend": [
+            "react", "angular", "vue", "next.js", "nuxt", "svelte", "redux", "tailwind",
+            "bootstrap", "html", "css", "sass", "less", "webpack", "vite", "jquery",
+            "react native", "flutter", "ionic", "electron",
+        ],
+        "Backend & Frameworks": [
+            "node.js", "django", "flask", "fastapi", "spring", "express", "rails",
+            "laravel", "asp.net", "graphql", "rest api", "grpc", "soap", "websockets",
+            "microservices", "serverless", "nestjs", "gin", "fiber",
+        ],
+        "Databases": [
+            "sql", "nosql", "postgresql", "mysql", "sqlite", "mongodb", "redis",
+            "cassandra", "elasticsearch", "dynamodb", "firebase", "oracle", "mssql",
+            "neo4j", "influxdb", "cockroachdb", "supabase", "prisma",
+        ],
+        "DevOps & Cloud": [
+            "docker", "kubernetes", "aws", "azure", "gcp", "terraform", "ansible",
+            "jenkins", "github actions", "gitlab ci", "circleci", "helm", "prometheus",
+            "grafana", "nginx", "apache", "linux", "ci/cd", "devops", "sre",
+            "cloudformation", "pulumi",
+        ],
+        "Data & AI / ML": [
+            "machine learning", "deep learning", "nlp", "computer vision", "tensorflow",
+            "pytorch", "keras", "scikit-learn", "pandas", "numpy", "spark", "hadoop",
+            "airflow", "dbt", "tableau", "power bi", "data pipeline", "etl",
+            "llm", "bert", "gpt", "hugging face", "langchain", "rag",
+        ],
+        "Tools & Practices": [
+            "git", "github", "gitlab", "bitbucket", "jira", "confluence", "agile",
+            "scrum", "kanban", "tdd", "bdd", "unit testing", "integration testing",
+            "code review", "pair programming", "solid", "design patterns", "clean code",
+            "swagger", "openapi", "postman", "figma",
+        ],
+        "Soft Skills": [
+            "communication", "leadership", "teamwork", "problem solving", "critical thinking",
+            "time management", "collaboration", "mentoring", "stakeholder management",
+            "project management", "analytical", "adaptability",
+        ],
+    }
+
+    def analyze_resume_gaps(
+        self, resume_text: str, jd_text: str, percentage: float
+    ) -> dict:
+        """
+        Compare the resume against the job description and return:
+          - missing_keywords: skills/terms in JD but absent from CV
+          - recommendations:  grouped, actionable suggestions
+          - feedback:         general resume improvement tips
+        """
+        cv_lower = resume_text.lower()
+        jd_lower = jd_text.lower()
+
+        # ── 1. Keyword gap detection ────────────────────────────────
+        missing_by_category: dict[str, list[str]] = {}
+
+        for category, keywords in self._SKILL_CATEGORIES.items():
+            missing = []
+            for kw in keywords:
+                # Keyword must appear in JD but NOT in CV
+                if kw in jd_lower and kw not in cv_lower:
+                    missing.append(kw.title() if len(kw) <= 4 else kw.capitalize())
+            if missing:
+                missing_by_category[category] = missing
+
+        all_missing: list[str] = [kw for kws in missing_by_category.values() for kw in kws]
+
+        # ── 2. Recommendations ──────────────────────────────────────
+        recommendations: list[str] = []
+
+        for category, kws in missing_by_category.items():
+            skill_list = ", ".join(kws[:6])
+            suffix = f" (and {len(kws) - 6} more)" if len(kws) > 6 else ""
+            recommendations.append(
+                f"Add {category} skills to your resume: {skill_list}{suffix}."
+            )
+
+        if not recommendations:
+            recommendations.append(
+                "Your CV already covers the key skills mentioned in this job description."
+            )
+
+        # ── 3. Feedback ─────────────────────────────────────────────
+        feedback: list[str] = []
+
+        # Score-range tip
+        if percentage < 50:
+            feedback.append(
+                "Your resume needs significant tailoring for this role — "
+                "focus on incorporating the missing keywords naturally into your experience."
+            )
+        elif percentage < 75:
+            feedback.append(
+                "You're partway there. Weave the missing keywords into your experience "
+                "bullets and skills section to strengthen the match."
+            )
+        else:
+            feedback.append(
+                "Strong match! A few targeted tweaks to surface missing keywords "
+                "can push your score even higher."
+            )
+
+        # Section presence hints
+        has_summary = bool(re.search(r"\b(summary|objective|profile|about me)\b", cv_lower))
+        if not has_summary:
+            feedback.append(
+                "Add a professional summary at the top of your resume, "
+                "tailored specifically to this job role."
+            )
+
+        has_skills_section = bool(re.search(r"\b(skills|competencies|technologies)\b", cv_lower))
+        if not has_skills_section:
+            feedback.append(
+                "Create a dedicated Skills / Technical Competencies section "
+                "listing your key technologies and tools."
+            )
+
+        if len(all_missing) > 5:
+            feedback.append(
+                "Consider adding a Core Competencies section near the top of your "
+                "resume to make key skills immediately visible to ATS scanners."
+            )
+
+        # Universal best-practice tips
+        feedback.append(
+            "Quantify your achievements wherever possible "
+            "(e.g., 'Reduced load time by 40%' instead of 'Improved performance')."
+        )
+        feedback.append(
+            "Start each experience bullet with a strong action verb "
+            "(e.g., Built, Designed, Led, Optimised, Delivered)."
+        )
+        feedback.append(
+            "Mirror the exact phrasing used in the job description — "
+            "ATS systems often match on exact terms."
+        )
+
+        return {
+            "missing_keywords": all_missing,
+            "recommendations": recommendations,
+            "feedback": feedback,
+        }
+
     @property
     def is_loaded(self) -> bool:
         return self._model is not None and self._tokenizer is not None

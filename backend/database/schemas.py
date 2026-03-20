@@ -160,6 +160,7 @@ class MessageBase(BaseModel):
 
 class MessageCreate(MessageBase):
     """Schema for creating a message"""
+    interview_id: int
     sequence_number: int
 
 
