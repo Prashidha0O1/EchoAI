@@ -114,6 +114,15 @@ async function apiRequest<T>(
         });
 
         if (!response.ok) {
+            // Expired/invalid token on an authenticated request — clear and redirect
+            if (response.status === 401 && token) {
+                removeToken();
+                if (typeof window !== 'undefined') {
+                    window.location.href = '/login';
+                }
+                return { error: 'Session expired. Please log in again.' };
+            }
+
             const errorData = await response.json().catch(() => ({}));
             let errorMsg = `Error: ${response.status}`;
 
@@ -121,7 +130,6 @@ async function apiRequest<T>(
                 if (typeof errorData.detail === 'string') {
                     errorMsg = errorData.detail;
                 } else {
-                    // Handle FastAPI validation errors which are often lists of objects
                     errorMsg = typeof errorData.detail === 'object'
                         ? JSON.stringify(errorData.detail)
                         : String(errorData.detail);

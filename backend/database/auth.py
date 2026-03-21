@@ -5,6 +5,7 @@ from passlib.context import CryptContext
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 from sqlalchemy.orm import Session
+from sqlalchemy import func
 import os
 import secrets
 from dotenv import load_dotenv
@@ -80,7 +81,7 @@ async def get_current_user(
     if token_data is None:
         raise credentials_exception
     
-    user = db.query(models.User).filter(models.User.email == token_data.email).first()
+    user = db.query(models.User).filter(func.lower(models.User.email) == token_data.email.lower()).first()
     if user is None:
         raise credentials_exception
     
