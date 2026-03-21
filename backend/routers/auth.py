@@ -39,6 +39,9 @@ async def register(
     """
     Register a new user with optional CV upload.
     """
+    # Normalize email
+    email = email.lower().strip()
+
     # Check if email already exists
     if crud.get_user_by_email(db, email=email):
         raise HTTPException(status_code=400, detail="Email already registered")
@@ -89,8 +92,8 @@ async def login(
     Login with email/username and password.
     Rate limited: 5 attempts, then 5 minute lockout.
     """
-    email = form_data.username  # OAuth2 uses 'username' field
-    
+    email = form_data.username.lower().strip()  # normalize email
+
     # Check rate limiting
     is_allowed, remaining = check_login_allowed(email)
     if not is_allowed:
