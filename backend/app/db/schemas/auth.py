@@ -1,12 +1,19 @@
 """Authentication-related Pydantic schemas"""
 from pydantic import BaseModel, EmailStr, Field
-from typing import Optional
+from typing import Optional, Any
 
 
 class Token(BaseModel):
     """JWT token response"""
     access_token: str
     token_type: str
+
+
+class TokenWithUser(BaseModel):
+    """JWT token response with embedded user data to avoid a second /me request"""
+    access_token: str
+    token_type: str
+    user: Any
 
 
 class TokenData(BaseModel):

@@ -1,5 +1,6 @@
 """User and UserProfile repositories"""
 from sqlalchemy.orm import Session
+from sqlalchemy import func
 from typing import Optional
 from app.db.models.user import User, UserProfile
 from app.db.schemas import UserCreate, UserUpdate, UserProfileUpdate
@@ -16,8 +17,8 @@ class UserRepository:
     
     @staticmethod
     def get_by_email(db: Session, email: str) -> Optional[User]:
-        """Get user by email"""
-        return db.query(User).filter(User.email == email).first()
+        """Get user by email (case-insensitive)"""
+        return db.query(User).filter(func.lower(User.email) == email.lower().strip()).first()
     
     @staticmethod
     def get_by_username(db: Session, username: str) -> Optional[User]:
@@ -30,7 +31,7 @@ class UserRepository:
         hashed_password = get_password_hash(user.password)
         db_user = User(
             username=user.username,
-            email=user.email,
+            email=user.email.lower().strip(),
             hashed_password=hashed_password,
             first_name=user.first_name,
             last_name=user.last_name

@@ -40,6 +40,9 @@ async def register(
     """
     Register a new user with optional CV upload.
     """
+    # Normalize email
+    email = email.lower().strip()
+
     # Check if email already exists
     if UserRepository.get_by_email(db, email=email):
         raise HTTPException(status_code=400, detail="Email already registered")
@@ -81,7 +84,7 @@ async def register(
     return db_user
 
 
-@router.post("/login", response_model=schemas.Token)
+@router.post("/login", response_model=schemas.TokenWithUser)
 async def login(
     form_data: OAuth2PasswordRequestForm = Depends(),
     db: Session = Depends(get_db)
@@ -90,8 +93,8 @@ async def login(
     Login with email/username and password.
     Rate limited: 5 attempts, then 5 minute lockout.
     """
-    email = form_data.username  # OAuth2 uses 'username' field
-    
+    email = form_data.username.lower().strip()  # OAuth2 uses 'username' field; normalize email
+
     # Check rate limiting
     is_allowed, remaining = check_login_allowed(email)
     if not is_allowed:
@@ -137,8 +140,11 @@ async def login(
     access_token = security.create_access_token(
         data={"sub": user.email, "user_id": user.id}
     )
-    
-    return {"access_token": access_token, "token_type": "bearer"}
+
+    # Load profile so it's included in the response
+    profile = UserProfileRepository.get(db, user.id)
+
+    return {"access_token": access_token, "token_type": "bearer", "user": user}
 
 
 @router.get("/me", response_model=schemas.UserWithProfile)

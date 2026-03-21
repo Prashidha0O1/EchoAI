@@ -19,9 +19,9 @@ const Button: React.FC<ButtonProps> = ({
     const baseStyles = 'inline-flex items-center justify-center rounded-xl transition-all duration-200 font-medium focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-[#0a0a0a] disabled:opacity-50 disabled:cursor-not-allowed';
 
     const variants = {
-        primary: 'bg-indigo-600 hover:bg-indigo-700 text-white focus:ring-indigo-500 shadow-lg shadow-indigo-500/20',
-        secondary: 'bg-zinc-800 hover:bg-zinc-700 text-white focus:ring-zinc-500',
-        outline: 'border border-zinc-700 hover:border-zinc-600 text-zinc-300 hover:text-white bg-transparent focus:ring-zinc-500',
+        primary: 'text-[#022c22] focus:ring-emerald-500 shadow-lg shadow-emerald-500/20',
+        secondary: 'bg-[#0c1510] hover:bg-[#112018] text-white border border-[rgba(16,185,129,0.12)] focus:ring-emerald-800',
+        outline: 'border border-[rgba(255,255,255,0.08)] hover:border-[rgba(16,185,129,0.2)] text-[#9ca3af] hover:text-white bg-transparent focus:ring-emerald-800',
     };
 
     const sizes = 'py-3 px-6 text-sm';
@@ -33,6 +33,7 @@ const Button: React.FC<ButtonProps> = ({
         ${variants[variant]}
         ${sizes}
         ${fullWidth ? 'w-full' : ''}
+        ${variant === 'primary' ? 'bg-[#10b981] hover:bg-[#34d399]' : ''}
         ${className}
       `}
             disabled={isLoading || disabled}

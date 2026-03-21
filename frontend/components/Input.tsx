@@ -11,7 +11,7 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
         return (
             <div className={`${fullWidth ? 'w-full' : ''} mb-4`}>
                 {label && (
-                    <label className="block text-sm font-medium text-zinc-300 mb-1.5 ml-1">
+                    <label className="block text-sm font-medium mb-1.5 ml-1" style={{ color: '#9ca3af' }}>
                         {label}
                     </label>
                 )}

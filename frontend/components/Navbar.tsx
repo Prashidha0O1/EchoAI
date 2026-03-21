@@ -12,10 +12,11 @@ export default function Navbar() {
 
 
     return (
-        <nav className="fixed top-0 left-0 right-0 z-50 border-b border-[#27272a] bg-[#0a0a0a]/80 backdrop-blur-md">
+        <nav className="fixed top-0 left-0 right-0 z-50 border-b backdrop-blur-md" style={{ borderColor: 'rgba(16,185,129,0.1)', background: 'rgba(6,10,7,0.85)' }}>
             <div className="max-w-6xl mx-auto px-6">
                 <div className="flex items-center justify-between h-16">
-                    <Link href="/" className="text-xl font-semibold text-white" style={{ fontFamily: 'var(--font-heading)' }}>
+                    <Link href="/" className="flex items-center gap-2 text-xl font-semibold" style={{ fontFamily: 'var(--font-space-grotesk)', color: '#f0fdf4' }}>
+                        <span className="w-2 h-2 rounded-full inline-block" style={{ background: '#10b981' }} />
                         EchoAI
                     </Link>
 
@@ -53,13 +54,27 @@ export default function Navbar() {
                                 <div className="flex items-center gap-4">
                                     <Link
                                         href="/login"
-                                        className="text-sm font-medium text-[#91A3B0] hover:text-white transition-colors"
+                                        className="text-sm font-medium transition-colors"
+                                        style={{ color: '#6b7280' }}
+                                        onMouseEnter={e => ((e.currentTarget as HTMLElement).style.color = '#f0fdf4')}
+                                        onMouseLeave={e => ((e.currentTarget as HTMLElement).style.color = '#6b7280')}
                                     >
-                                        Log In
+                                        Log in
                                     </Link>
                                     <Link
                                         href="/signup"
-                                        className="text-sm font-medium bg-white text-black px-5 py-2 rounded-lg hover:bg-white/90 transition-colors"
+                                        className="text-sm font-semibold px-5 py-2 rounded-lg transition-all duration-200"
+                                        style={{ background: '#10b981', color: '#022c22' }}
+                                        onMouseEnter={e => {
+                                            const el = e.currentTarget as HTMLElement;
+                                            el.style.background = '#34d399';
+                                            el.style.boxShadow = '0 0 20px rgba(16,185,129,0.3)';
+                                        }}
+                                        onMouseLeave={e => {
+                                            const el = e.currentTarget as HTMLElement;
+                                            el.style.background = '#10b981';
+                                            el.style.boxShadow = 'none';
+                                        }}
                                     >
                                         Sign up
                                     </Link>

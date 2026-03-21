@@ -1,15 +1,16 @@
 @import "tailwindcss";
 
 :root {
-  --background: #09090b;
-  --foreground: #fafafa;
-  --primary: #4f46e5;
-  --primary-dark: #4338ca;
-  --secondary: #64748b;
-  --border: #27272a;
-  --card-bg: #18181b;
-  --success: #22c55e;
+  --background: #060a07;
+  --foreground: #f0fdf4;
+  --primary: #10b981;
+  --primary-dark: #059669;
+  --secondary: #6b7280;
+  --border: #1a2e1f;
+  --card-bg: #0c1510;
+  --success: #10b981;
   --error: #ef4444;
+  --accent: #34d399;
 }
 
 @theme inline {
@@ -24,7 +25,6 @@
   --color-error: var(--error);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
-  --font-lexend: var(--font-lexend);
 }
 
 @layer base {
@@ -47,146 +47,52 @@
   h4,
   h5,
   h6 {
+    font-family: var(--font-space-grotesk), system-ui, sans-serif;
     font-weight: 600;
     line-height: 1.2;
-  }
-
-  .font-lexend {
-    font-family: var(--font-lexend), sans-serif;
   }
 }
 
 @layer components {
   .btn-primary {
-    @apply inline-flex items-center gap-2 px-5 py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-semibold rounded-xl transition-colors shadow-lg shadow-indigo-500/20;
-  }
-
-  .btn-secondary {
-    @apply inline-flex items-center gap-2 px-5 py-2.5 border border-zinc-700 bg-zinc-800 hover:bg-zinc-700 text-zinc-200 text-sm font-medium rounded-xl transition-colors;
-  }
-
-  .glass-card {
-    @apply bg-zinc-900/60 border border-zinc-800 rounded-2xl;
-  }
-
-  .dashboard-card {
-    @apply bg-zinc-900/60 border border-zinc-800 rounded-2xl p-5 transition-all hover:border-zinc-700;
-  }
-
-  .card {
-    @apply bg-card-bg border border-border rounded-xl p-6 transition-shadow;
-  }
-
-  .card:hover {
-    @apply shadow-lg shadow-black/30;
-  }
-
-  .input-field {
-    @apply w-full px-4 py-3 border border-zinc-700 rounded-xl bg-zinc-900 text-zinc-100 placeholder:text-zinc-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500 transition-all;
-  }
-
-  .nav-link {
-    @apply text-zinc-400 font-medium transition-colors hover:text-white;
-  }
-
-  .spinner {
-    @apply animate-spin rounded-full border-2 border-t-transparent border-indigo-500;
-  }
-}
-
-
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-  --primary: #2563eb;
-  --primary-dark: #1d4ed8;
-  --secondary: #64748b;
-  --border: #e2e8f0;
-  --card-bg: #f8fafc;
-  --success: #22c55e;
-  --error: #ef4444;
-}
-
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --color-primary: var(--primary);
-  --color-primary-dark: var(--primary-dark);
-  --color-secondary: var(--secondary);
-  --color-border: var(--border);
-  --color-card-bg: var(--card-bg);
-  --color-success: var(--success);
-  --color-error: var(--error);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-  --font-lexend: var(--font-lexend);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-    --primary: #3b82f6;
-    --primary-dark: #2563eb;
-    --secondary: #94a3b8;
-    --border: #334155;
-    --card-bg: #1e293b;
-    --success: #22c55e;
-    --error: #ef4444;
-  }
-}
-
-@layer base {
-  * {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-  }
-
-  body {
-    background: var(--background);
-    color: var(--foreground);
-    font-family: var(--font-geist-sans), system-ui, sans-serif;
-  }
-
-  h1,
-  h2,
-  h3,
-  h4,
-  h5,
-  h6 {
-    font-weight: 600;
-    line-height: 1.2;
-  }
-
-  .font-lexend {
-    font-family: var(--font-lexend), sans-serif;
-  }
-
-  .background {
-    background: linear-gradient(to bottom, #ffffff, #f3f4f6);
-  }
-}
-
-@layer components {
-  .btn-primary {
-    @apply px-6 py-3 bg-primary text-white rounded-lg font-medium transition-colors;
+    @apply inline-flex items-center gap-2 px-5 py-2.5 text-white text-sm font-semibold rounded-xl transition-all;
+    background: var(--primary);
   }
 
   .btn-primary:hover {
-    @apply bg-primary-dark;
+    background: var(--primary-dark);
   }
 
   .btn-secondary {
-    @apply px-6 py-3 border-2 border-border bg-transparent text-foreground rounded-lg font-medium transition-colors;
+    @apply inline-flex items-center gap-2 px-5 py-2.5 border text-sm font-medium rounded-xl transition-colors;
+    border-color: var(--border);
+    color: var(--foreground);
   }
 
   .btn-secondary:hover {
-    @apply bg-card-bg;
+    background: var(--card-bg);
+  }
+
+  .glass-card {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    @apply rounded-2xl;
+  }
+
+  .dashboard-card {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    @apply rounded-2xl p-5 transition-all;
+  }
+
+  .dashboard-card:hover {
+    border-color: rgba(16, 185, 129, 0.3);
   }
 
   .card {
-    @apply bg-card-bg border border-border rounded-lg p-6 transition-shadow;
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    @apply rounded-xl p-6 transition-shadow;
   }
 
   .card:hover {
@@ -194,14 +100,33 @@
   }
 
   .input-field {
-    @apply w-full px-4 py-3 border border-border rounded-lg bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary transition-all;
+    @apply w-full px-4 py-3 rounded-xl text-sm transition-all focus:outline-none;
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    color: var(--foreground);
+  }
+
+  .input-field:focus {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.15);
+  }
+
+  .input-field::placeholder {
+    color: #4b5563;
   }
 
   .nav-link {
-    @apply text-foreground font-medium transition-colors;
+    @apply font-medium transition-colors;
+    color: #9ca3af;
   }
 
   .nav-link:hover {
-    @apply text-primary;
+    color: var(--foreground);
+  }
+
+  .spinner {
+    @apply animate-spin rounded-full border-2 border-t-transparent;
+    border-color: var(--primary);
+    border-top-color: transparent;
   }
 }

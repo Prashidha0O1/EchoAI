@@ -8,6 +8,7 @@ interface ApiResponse<T> {
 interface LoginResponse {
     access_token: string;
     token_type: string;
+    user: User;
 }
 
 interface User {

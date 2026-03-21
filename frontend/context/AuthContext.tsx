@@ -54,7 +54,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         const response = await authApi.login(email, password);
         if (response.data) {
             setToken(response.data.access_token);
-            await refreshUser();
+            setUser(response.data.user);
+            setIsLoading(false);
             return { success: true };
         }
         return { success: false, error: response.error };
