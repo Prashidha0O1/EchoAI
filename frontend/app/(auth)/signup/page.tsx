@@ -50,7 +50,7 @@ export default function SignupPage() {
   };
 
   return (
-    <div className="min-h-screen flex" style={{ background: '#060a07' }}>
+    <div className="flex" style={{ background: '#060a07', minHeight: 'calc(100vh - 4rem)' }}>
 
       {/* ── Left panel ─────────────────────────────────────── */}
       <div
