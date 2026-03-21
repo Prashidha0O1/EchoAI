@@ -39,53 +39,64 @@ export default function DashboardSidebar() {
         ? `${user.first_name} ${user.last_name || ''}`.trim()
         : user?.username ?? 'User';
 
-    /* ─────────────────────────────────────────
-       Shared inner content (used by both mobile
-       drawer and desktop hover sidebar)
-    ───────────────────────────────────────── */
     const NavContent = ({ showLabels }: { showLabels: boolean }) => (
         <div className="flex flex-col h-full overflow-hidden">
             {/* Logo */}
-            <div className={`flex items-center border-b border-white/10 shrink-0 ${showLabels ? 'gap-3 px-5 py-5' : 'justify-center px-0 py-5'}`}>
-                <div className="w-9 h-9 shrink-0 rounded-xl bg-linear-to-br from-indigo-500 to-purple-600 flex items-center justify-center shadow-lg shadow-indigo-500/30">
-                    <Mic2 className="w-5 h-5 text-white" />
+            <div
+                className={`flex items-center shrink-0 ${showLabels ? 'gap-3 px-5 py-5' : 'justify-center px-0 py-5'}`}
+                style={{ borderBottom: '1px solid rgba(255,255,255,0.06)' }}
+            >
+                <div
+                    className="w-8 h-8 shrink-0 rounded-lg flex items-center justify-center"
+                    style={{ background: '#10b981' }}
+                >
+                    <Mic2 className="w-4 h-4 text-white" />
                 </div>
                 {showLabels && (
-                    <span className="text-xl font-bold bg-linear-to-r from-white to-zinc-400 bg-clip-text text-transparent tracking-tight whitespace-nowrap">
+                    <span
+                        className="text-base font-semibold tracking-tight whitespace-nowrap"
+                        style={{ fontFamily: 'var(--font-space-grotesk)', color: '#f9fafb' }}
+                    >
                         EchoAI
                     </span>
                 )}
             </div>
 
             {/* User Info */}
-            <div className={`mx-2 mt-4 rounded-xl bg-white/5 border border-white/10 shrink-0 ${showLabels ? 'px-3 py-3' : 'px-1.5 py-3 flex justify-center'}`}>
+            <div className={`mx-2 mt-4 shrink-0 ${showLabels ? 'px-3 py-3' : 'px-1.5 py-3 flex justify-center'}`}>
                 {showLabels ? (
                     <div className="flex items-center gap-2.5">
-                        <div className="w-9 h-9 rounded-full bg-linear-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white font-semibold text-sm shrink-0">
+                        <div
+                            className="w-8 h-8 rounded-full flex items-center justify-center font-semibold text-xs shrink-0"
+                            style={{ background: '#1f2937', color: '#9ca3af', border: '1px solid rgba(255,255,255,0.08)' }}
+                        >
                             {initials}
                         </div>
                         <div className="min-w-0">
-                            <p className="text-sm font-semibold text-white truncate leading-tight">{displayName}</p>
-                            <div className="flex items-center gap-1.5 mt-0.5">
-                                <div className={`w-1.5 h-1.5 rounded-full shrink-0 ${user?.email_verified ? 'bg-emerald-400' : 'bg-amber-400'}`} />
-                                <p className="text-xs text-zinc-500 truncate">
-                                    {user?.email_verified ? 'Verified' : 'Not verified'}
-                                </p>
-                            </div>
+                            <p className="text-sm font-medium truncate leading-tight" style={{ color: '#e5e7eb' }}>{displayName}</p>
+                            <p className="text-xs truncate" style={{ color: '#6b7280' }}>
+                                {user?.email_verified ? 'Verified' : 'Unverified'}
+                            </p>
                         </div>
                     </div>
                 ) : (
                     <div className="relative">
-                        <div className="w-9 h-9 rounded-full bg-linear-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white font-semibold text-sm">
+                        <div
+                            className="w-8 h-8 rounded-full flex items-center justify-center font-semibold text-xs"
+                            style={{ background: '#1f2937', color: '#9ca3af', border: '1px solid rgba(255,255,255,0.08)' }}
+                        >
                             {initials}
                         </div>
-                        <div className={`absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full border-2 border-zinc-950 ${user?.email_verified ? 'bg-emerald-400' : 'bg-amber-400'}`} />
+                        <div
+                            className={`absolute -bottom-0.5 -right-0.5 w-2 h-2 rounded-full ${user?.email_verified ? 'bg-emerald-500' : 'bg-amber-500'}`}
+                            style={{ border: '2px solid #0d0d0d' }}
+                        />
                     </div>
                 )}
             </div>
 
-            {/* Nav items */}
-            <nav className={`flex-1 pt-4 space-y-1 overflow-hidden ${showLabels ? 'px-2' : 'px-2'}`}>
+            {/* Nav */}
+            <nav className="flex-1 pt-3 space-y-0.5 overflow-hidden px-2">
                 {navItems.map((item) => {
                     const Icon = item.icon;
                     const active = isActive(item.href);
@@ -95,28 +106,46 @@ export default function DashboardSidebar() {
                             href={item.href}
                             onClick={() => setMobileOpen(false)}
                             title={!showLabels ? item.label : undefined}
-                            className={`group flex items-center rounded-xl text-sm font-medium transition-all duration-150
-                                ${showLabels ? 'gap-3 px-3 py-2.5' : 'justify-center px-0 py-2.5'}
-                                ${active
-                                    ? 'bg-linear-to-r from-indigo-600/80 to-purple-600/60 text-white shadow-md shadow-indigo-500/20 border border-indigo-500/30'
-                                    : 'text-zinc-400 hover:text-white hover:bg-white/5'
-                                }`}
+                            className={`flex items-center rounded-lg text-sm font-medium transition-all duration-150
+                                ${showLabels ? 'gap-3 px-3 py-2' : 'justify-center px-0 py-2'}`}
+                            style={active
+                                ? { background: 'rgba(255,255,255,0.07)', color: '#f9fafb' }
+                                : { color: '#6b7280' }
+                            }
+                            onMouseEnter={e => {
+                                if (!active) {
+                                    (e.currentTarget as HTMLElement).style.background = 'rgba(255,255,255,0.04)';
+                                    (e.currentTarget as HTMLElement).style.color = '#d1d5db';
+                                }
+                            }}
+                            onMouseLeave={e => {
+                                if (!active) {
+                                    (e.currentTarget as HTMLElement).style.background = 'transparent';
+                                    (e.currentTarget as HTMLElement).style.color = '#6b7280';
+                                }
+                            }}
                         >
-                            <Icon className={`w-5 h-5 shrink-0 transition-colors ${active ? 'text-indigo-200' : 'text-zinc-500 group-hover:text-zinc-300'}`} />
+                            <Icon className="w-4 h-4 shrink-0" />
                             {showLabels && <span className="flex-1 whitespace-nowrap">{item.label}</span>}
+                            {active && showLabels && (
+                                <div className="w-1 h-1 rounded-full shrink-0" style={{ background: '#10b981' }} />
+                            )}
                         </Link>
                     );
                 })}
             </nav>
 
             {/* New Interview CTA */}
-            <div className={`px-2 py-2 shrink-0 ${showLabels ? '' : ''}`}>
+            <div className="px-2 py-2 shrink-0">
                 <Link
                     href="/interviews/create"
                     onClick={() => setMobileOpen(false)}
                     title={!showLabels ? 'New Interview' : undefined}
-                    className={`flex items-center gap-2 w-full py-2.5 rounded-xl bg-linear-to-r from-indigo-600 to-purple-600 text-white text-sm font-semibold hover:from-indigo-500 hover:to-purple-500 transition-all shadow-lg shadow-indigo-500/25 border border-indigo-500/30
-                        ${showLabels ? 'justify-center px-3' : 'justify-center px-0'}`}
+                    className={`flex items-center gap-2 w-full py-2 rounded-lg text-sm font-medium transition-all duration-150
+                        ${showLabels ? 'justify-start px-3' : 'justify-center px-0'}`}
+                    style={{ background: '#10b981', color: '#fff' }}
+                    onMouseEnter={e => ((e.currentTarget as HTMLElement).style.background = '#059669')}
+                    onMouseLeave={e => ((e.currentTarget as HTMLElement).style.background = '#10b981')}
                 >
                     <Plus className="w-4 h-4 shrink-0" />
                     {showLabels && <span className="whitespace-nowrap">New Interview</span>}
@@ -124,14 +153,23 @@ export default function DashboardSidebar() {
             </div>
 
             {/* Logout */}
-            <div className={`px-2 pb-4 pt-2 border-t border-white/10 shrink-0`}>
+            <div className="px-2 pb-4 pt-1 shrink-0" style={{ borderTop: '1px solid rgba(255,255,255,0.06)' }}>
                 <button
                     onClick={logout}
                     title={!showLabels ? 'Logout' : undefined}
-                    className={`flex items-center w-full rounded-xl text-sm font-medium text-zinc-400 hover:text-red-400 hover:bg-red-500/10 transition-all duration-150
-                        ${showLabels ? 'gap-3 px-3 py-2.5' : 'justify-center px-0 py-2.5'}`}
+                    className={`flex items-center w-full rounded-lg text-sm font-medium transition-all duration-150
+                        ${showLabels ? 'gap-3 px-3 py-2' : 'justify-center px-0 py-2'}`}
+                    style={{ color: '#6b7280' }}
+                    onMouseEnter={e => {
+                        (e.currentTarget as HTMLElement).style.color = '#f87171';
+                        (e.currentTarget as HTMLElement).style.background = 'rgba(239,68,68,0.06)';
+                    }}
+                    onMouseLeave={e => {
+                        (e.currentTarget as HTMLElement).style.color = '#6b7280';
+                        (e.currentTarget as HTMLElement).style.background = 'transparent';
+                    }}
                 >
-                    <LogOut className="w-5 h-5 shrink-0" />
+                    <LogOut className="w-4 h-4 shrink-0" />
                     {showLabels && <span className="whitespace-nowrap">Logout</span>}
                 </button>
             </div>
@@ -140,42 +178,52 @@ export default function DashboardSidebar() {
 
     return (
         <>
-            {/* ── Mobile toggle ─────────────────────────────── */}
+            {/* Mobile toggle */}
             <button
                 onClick={() => setMobileOpen(true)}
-                className="fixed top-4 left-4 z-50 lg:hidden w-10 h-10 bg-zinc-900 border border-zinc-700 rounded-xl flex items-center justify-center text-zinc-400 hover:text-white transition-colors shadow-lg"
+                className="fixed top-4 left-4 z-50 lg:hidden w-9 h-9 rounded-lg flex items-center justify-center transition-colors"
+                style={{ background: '#111', border: '1px solid rgba(255,255,255,0.08)', color: '#9ca3af' }}
             >
-                <Menu className="w-5 h-5" />
+                <Menu className="w-4 h-4" />
             </button>
 
-            {/* ── Mobile overlay ────────────────────────────── */}
+            {/* Mobile overlay */}
             {mobileOpen && (
                 <div
-                    className="fixed inset-0 z-40 bg-black/60 backdrop-blur-sm lg:hidden"
+                    className="fixed inset-0 z-40 backdrop-blur-sm lg:hidden"
+                    style={{ background: 'rgba(0,0,0,0.5)' }}
                     onClick={() => setMobileOpen(false)}
                 />
             )}
 
-            {/* ── Mobile drawer (full width, with labels) ───── */}
+            {/* Mobile drawer */}
             <aside
-                className={`fixed top-0 left-0 z-50 h-full w-64 bg-zinc-950 border-r border-white/10 transform transition-transform duration-300 ease-out lg:hidden
+                className={`fixed top-0 left-0 z-50 h-full w-60 transform transition-transform duration-300 ease-out lg:hidden
                     ${mobileOpen ? 'translate-x-0' : '-translate-x-full'}`}
+                style={{ background: '#0d0d0d', borderRight: '1px solid rgba(255,255,255,0.06)' }}
             >
                 <button
                     onClick={() => setMobileOpen(false)}
-                    className="absolute top-4 right-4 w-8 h-8 flex items-center justify-center rounded-lg text-zinc-400 hover:text-white hover:bg-white/10 transition-colors z-10"
+                    className="absolute top-4 right-4 w-7 h-7 flex items-center justify-center rounded-md transition-colors z-10"
+                    style={{ color: '#6b7280' }}
+                    onMouseEnter={e => ((e.currentTarget as HTMLElement).style.color = '#f9fafb')}
+                    onMouseLeave={e => ((e.currentTarget as HTMLElement).style.color = '#6b7280')}
                 >
                     <X className="w-4 h-4" />
                 </button>
                 <NavContent showLabels={true} />
             </aside>
 
-            {/* ── Desktop sidebar: icon-only, expands on hover ─ */}
+            {/* Desktop sidebar */}
             <aside
                 onMouseEnter={() => setExpanded(true)}
                 onMouseLeave={() => setExpanded(false)}
-                className={`hidden lg:flex flex-col fixed top-0 left-0 h-full bg-zinc-950 border-r border-white/10 z-30 transition-all duration-200 ease-out overflow-hidden
-                    ${expanded ? 'w-64 shadow-2xl shadow-black/40' : 'w-[60px]'}`}
+                className={`hidden lg:flex flex-col fixed top-0 left-0 h-full z-30 transition-all duration-200 ease-out overflow-hidden
+                    ${expanded ? 'w-56' : 'w-[52px]'}`}
+                style={{
+                    background: '#0d0d0d',
+                    borderRight: '1px solid rgba(255,255,255,0.06)',
+                }}
             >
                 <NavContent showLabels={expanded} />
             </aside>
