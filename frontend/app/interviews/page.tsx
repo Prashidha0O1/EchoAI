@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
 import { interviewApi } from '@/lib/api';
 import DashboardLayout from '@/components/DashboardLayout';
+import Link from 'next/link';
 import {
     Plus,
     Clock,
@@ -15,6 +16,7 @@ import {
     AlertCircle,
     Mic,
     Loader2,
+    BarChart2,
 } from 'lucide-react';
 
 interface Interview {
@@ -240,15 +242,16 @@ export default function InterviewsPage() {
                                         </button>
                                     )}
                                     {interview.status === 'completed' && (
-                                        <button
-                                            onClick={() => router.push(`/interview/${interview.id}`)}
+                                        <Link
+                                            href={`/interviews/${interview.id}/report`}
                                             className="flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium transition-colors"
-                                            style={{ background: 'rgba(255,255,255,0.05)', color: '#9ca3af', border: '1px solid rgba(255,255,255,0.08)' }}
-                                            onMouseEnter={e => ((e.currentTarget as HTMLElement).style.color = '#e5e7eb')}
-                                            onMouseLeave={e => ((e.currentTarget as HTMLElement).style.color = '#9ca3af')}
+                                            style={{ background: 'rgba(16,185,129,0.08)', color: '#10b981', border: '1px solid rgba(16,185,129,0.2)', textDecoration: 'none' }}
+                                            onMouseEnter={e => ((e.currentTarget as HTMLElement).style.background = 'rgba(16,185,129,0.14)')}
+                                            onMouseLeave={e => ((e.currentTarget as HTMLElement).style.background = 'rgba(16,185,129,0.08)')}
                                         >
-                                            View
-                                        </button>
+                                            <BarChart2 className="w-3.5 h-3.5" />
+                                            Report
+                                        </Link>
                                     )}
                                     <button
                                         onClick={() => handleDeleteInterview(interview.id)}

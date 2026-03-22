@@ -298,4 +298,43 @@ export const questionGeneratorApi = {
     },
 };
 
-export type { User, UserProfile, Interview, InterviewQuestion, GenerateQuestionsResponse, LoginResponse, ATSResult };
+// Report API
+interface PerformanceMetrics {
+    communication: number;
+    technical_knowledge: number;
+    problem_solving: number;
+    confidence: number;
+    relevance: number;
+}
+
+interface ReportTag {
+    id: number;
+    report_id: number;
+    tag_name: string;
+    tag_category: 'strength' | 'weakness' | 'neutral';
+}
+
+export interface Report {
+    id: number;
+    interview_id: number;
+    report_name: string | null;
+    overall_score: number | null;
+    performance_metrics: PerformanceMetrics | null;
+    strengths: string[] | null;
+    improvements: string[] | null;
+    summary: string | null;
+    generated_at: string;
+    tags: ReportTag[];
+}
+
+export const reportApi = {
+    get: async (interviewId: number): Promise<ApiResponse<Report>> => {
+        return apiRequest<Report>(`/interviews/${interviewId}/report`);
+    },
+
+    generate: async (interviewId: number): Promise<ApiResponse<Report>> => {
+        return apiRequest<Report>(`/interviews/${interviewId}/report`, { method: 'POST' });
+    },
+};
+
+export type { User, UserProfile, Interview, InterviewQuestion, GenerateQuestionsResponse, LoginResponse, ATSResult, PerformanceMetrics, ReportTag };

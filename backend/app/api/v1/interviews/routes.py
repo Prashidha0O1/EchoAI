@@ -6,8 +6,9 @@ from datetime import datetime, timezone
 
 from app.db.session import get_db
 from app.db import models, schemas
-from app.db.repositories import InterviewRepository, MessageRepository, ReportRepository
+from app.db.repositories import InterviewRepository, MessageRepository, ReportRepository, ReportTagRepository
 from app.core import security
+from app.services.feedback_service import get_feedback_service
 
 router = APIRouter(prefix="/interviews", tags=["Interviews"])
 
@@ -187,9 +188,73 @@ async def get_interview_report(
         raise HTTPException(status_code=404, detail="Interview not found")
     if interview.user_id != current_user.id and not current_user.is_admin:
         raise HTTPException(status_code=403, detail="Not authorized")
-    
+
     report = ReportRepository.get_by_interview(db, interview_id=interview_id)
     if not report:
         raise HTTPException(status_code=404, detail="Report not generated yet")
-    
+
+    return report
+
+
+@router.post("/{interview_id}/report", response_model=schemas.ReportOut, status_code=status.HTTP_201_CREATED)
+async def generate_interview_report(
+    interview_id: int,
+    current_user: models.User = Depends(security.get_current_user),
+    db: Session = Depends(get_db)
+):
+    """Generate (or regenerate) the AI feedback report for a completed interview"""
+    interview = InterviewRepository.get(db, interview_id=interview_id)
+    if not interview:
+        raise HTTPException(status_code=404, detail="Interview not found")
+    if interview.user_id != current_user.id and not current_user.is_admin:
+        raise HTTPException(status_code=403, detail="Not authorized")
+    if interview.status != "completed":
+        raise HTTPException(status_code=400, detail="Interview must be completed before generating a report")
+
+    # Build transcript from stored messages
+    messages = MessageRepository.get_interview_messages(db, interview_id=interview_id)
+    if not messages:
+        raise HTTPException(status_code=400, detail="No transcript found for this interview")
+
+    transcript_lines = []
+    for msg in messages:
+        label = "Interviewer" if msg.sender == "ai" else "Candidate"
+        transcript_lines.append(f"{label}: {msg.content}")
+    transcript = "\n".join(transcript_lines)
+
+    # Generate feedback using Gemma 3
+    feedback_svc = get_feedback_service()
+    result = await feedback_svc.generate(
+        transcript=transcript,
+        role=interview.role or "Software Engineer",
+        interview_type=interview.interview_type or "technical",
+    )
+
+    # Delete existing report if regenerating
+    existing = ReportRepository.get_by_interview(db, interview_id=interview_id)
+    if existing:
+        db.delete(existing)
+        db.commit()
+
+    # Persist the new report
+    report_create = schemas.ReportCreate(
+        interview_id=interview_id,
+        report_name=f"Interview Report — {interview.role or 'General'}",
+        overall_score=result["overall_score"],
+        performance_metrics=result["performance_metrics"],
+        strengths=result["strengths"],
+        improvements=result["improvements"],
+        summary=result["summary"],
+    )
+    report = ReportRepository.create(db, report=report_create)
+
+    # Persist tags
+    for tag_data in result.get("tags", []):
+        tag_create = schemas.ReportTagCreate(
+            tag_name=tag_data.get("tag_name", ""),
+            tag_category=tag_data.get("tag_category", "neutral"),
+        )
+        ReportTagRepository.create(db, report_id=report.id, tag=tag_create)
+
+    db.refresh(report)
     return report

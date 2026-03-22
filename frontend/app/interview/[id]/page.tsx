@@ -124,7 +124,7 @@ export default function InterviewSessionPage() {
         setIsAIThinking(false);
         break;
       case 'interview_ended':
-        router.push('/dashboard');
+        router.push(`/interviews/${interviewId}/report`);
         break;
     }
   }, [router]);
@@ -172,7 +172,7 @@ export default function InterviewSessionPage() {
     setIsRecording(false);
     disconnect();
     const response = await interviewApi.end(interviewId);
-    if (response.data) router.push('/dashboard');
+    if (response.data) router.push(`/interviews/${interviewId}/report`);
     else setError(response.error || 'Failed to end interview');
   };
 
