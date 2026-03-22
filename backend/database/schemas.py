@@ -176,6 +176,16 @@ class MessageOut(MessageBase):
 
 # ============= Report Schemas =============
 
+class ReportTagOut(BaseModel):
+    """Schema for a single report tag"""
+    id: int
+    report_id: int
+    tag_name: str
+    tag_category: str
+
+    model_config = ConfigDict(from_attributes=True)
+
+
 class ReportOut(BaseModel):
     """Schema for report output"""
     id: int
@@ -187,6 +197,7 @@ class ReportOut(BaseModel):
     improvements: Optional[List[str]] = None
     summary: Optional[str] = None
     generated_at: datetime
+    tags: List[ReportTagOut] = []
 
     model_config = ConfigDict(from_attributes=True)
 

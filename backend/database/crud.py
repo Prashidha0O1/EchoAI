@@ -258,6 +258,50 @@ def get_interview_report(db: Session, interview_id: int) -> Optional[models.Repo
     )
 
 
+def create_interview_report(
+    db: Session,
+    interview_id: int,
+    report_name: Optional[str],
+    overall_score: Optional[float],
+    performance_metrics: Optional[dict],
+    strengths: Optional[list],
+    improvements: Optional[list],
+    summary: Optional[str],
+) -> models.Report:
+    """Create a new interview feedback report"""
+    db_report = models.Report(
+        interview_id=interview_id,
+        report_name=report_name,
+        overall_score=overall_score,
+        performance_metrics=performance_metrics,
+        strengths=strengths,
+        improvements=improvements,
+        summary=summary,
+    )
+    db.add(db_report)
+    db.commit()
+    db.refresh(db_report)
+    return db_report
+
+
+def create_report_tag(
+    db: Session,
+    report_id: int,
+    tag_name: str,
+    tag_category: str,
+) -> models.ReportTag:
+    """Add a tag to an existing report"""
+    db_tag = models.ReportTag(
+        report_id=report_id,
+        tag_name=tag_name,
+        tag_category=tag_category,
+    )
+    db.add(db_tag)
+    db.commit()
+    db.refresh(db_tag)
+    return db_tag
+
+
 def get_interview_messages(db: Session, interview_id: int) -> List[models.Message]:
     """Get all messages for an interview"""
     return db.query(models.Message)\

@@ -184,9 +184,75 @@ async def get_interview_report(
         raise HTTPException(status_code=404, detail="Interview not found")
     if interview.user_id != current_user.id and not current_user.is_admin:
         raise HTTPException(status_code=403, detail="Not authorized")
-    
+
     report = crud.get_interview_report(db, interview_id=interview_id)
     if not report:
         raise HTTPException(status_code=404, detail="Report not generated yet")
-    
+
+    return report
+
+
+@router.post("/{interview_id}/report", response_model=schemas.ReportOut, status_code=status.HTTP_201_CREATED)
+async def generate_interview_report(
+    interview_id: int,
+    current_user: models.User = Depends(auth.get_current_user),
+    db: Session = Depends(get_db)
+):
+    """Generate (or regenerate) the AI feedback report for a completed interview"""
+    interview = crud.get_interview(db, interview_id=interview_id)
+    if not interview:
+        raise HTTPException(status_code=404, detail="Interview not found")
+    if interview.user_id != current_user.id and not current_user.is_admin:
+        raise HTTPException(status_code=403, detail="Not authorized")
+    if interview.status != "completed":
+        raise HTTPException(status_code=400, detail="Interview must be completed before generating a report")
+
+    # Build transcript from stored messages
+    messages = crud.get_interview_messages(db, interview_id=interview_id)
+    if not messages:
+        raise HTTPException(status_code=400, detail="No transcript found for this interview")
+
+    transcript_lines = []
+    for msg in messages:
+        label = "Interviewer" if msg.sender == "ai" else "Candidate"
+        transcript_lines.append(f"{label}: {msg.content}")
+    transcript = "\n".join(transcript_lines)
+
+    # Generate feedback using Gemma 3
+    from app.services.feedback_service import get_feedback_service
+    feedback_svc = get_feedback_service()
+    result = await feedback_svc.generate(
+        transcript=transcript,
+        role=getattr(interview, "role", None) or "Software Engineer",
+        interview_type=interview.interview_type or "technical",
+    )
+
+    # Delete existing report if regenerating
+    existing = crud.get_interview_report(db, interview_id=interview_id)
+    if existing:
+        db.delete(existing)
+        db.commit()
+
+    # Persist the new report
+    report = crud.create_interview_report(
+        db,
+        interview_id=interview_id,
+        report_name=f"Interview Report — {getattr(interview, 'role', None) or 'General'}",
+        overall_score=result["overall_score"],
+        performance_metrics=result["performance_metrics"],
+        strengths=result["strengths"],
+        improvements=result["improvements"],
+        summary=result["summary"],
+    )
+
+    # Persist tags
+    for tag_data in result.get("tags", []):
+        crud.create_report_tag(
+            db,
+            report_id=report.id,
+            tag_name=tag_data.get("tag_name", ""),
+            tag_category=tag_data.get("tag_category", "neutral"),
+        )
+
+    db.refresh(report)
     return report
