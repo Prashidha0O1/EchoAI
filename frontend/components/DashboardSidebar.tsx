@@ -4,6 +4,7 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
+import Image from 'next/image';
 import {
     LayoutDashboard,
     FileText,
@@ -12,7 +13,6 @@ import {
     LogOut,
     Menu,
     X,
-    Mic2,
     Plus,
     ScanSearch,
 } from 'lucide-react';
@@ -43,22 +43,27 @@ export default function DashboardSidebar() {
         <div className="flex flex-col h-full overflow-hidden">
             {/* Logo */}
             <div
-                className={`flex items-center shrink-0 ${showLabels ? 'gap-3 px-5 py-5' : 'justify-center px-0 py-5'}`}
+                className={`flex items-center shrink-0 ${showLabels ? 'px-4 py-4' : 'justify-center px-0 py-4'}`}
                 style={{ borderBottom: '1px solid rgba(255,255,255,0.06)' }}
             >
-                <div
-                    className="w-8 h-8 shrink-0 rounded-lg flex items-center justify-center"
-                    style={{ background: '#10b981' }}
-                >
-                    <Mic2 className="w-4 h-4 text-white" />
-                </div>
-                {showLabels && (
-                    <span
-                        className="text-base font-semibold tracking-tight whitespace-nowrap"
-                        style={{ fontFamily: 'var(--font-space-grotesk)', color: '#f9fafb' }}
-                    >
-                        EchoAI
-                    </span>
+                {showLabels ? (
+                    <Image
+                        src="/EchoAI Logo.png"
+                        alt="EchoAI"
+                        width={110}
+                        height={36}
+                        className="object-contain"
+                        priority
+                    />
+                ) : (
+                    <Image
+                        src="/echoai small.png"
+                        alt="EchoAI"
+                        width={36}
+                        height={36}
+                        className="object-contain"
+                        priority
+                    />
                 )}
             </div>
 
