@@ -145,11 +145,14 @@ function VerificationModal({
 
                 {/* Header */}
                 <div className="text-center mb-6">
-                    <div className="w-16 h-16 rounded-2xl bg-linear-to-br from-indigo-500 to-purple-600 flex items-center justify-center mx-auto mb-4 shadow-lg shadow-indigo-500/30">
-                        <Mail className="w-8 h-8 text-white" />
+                    <div
+                        className="w-14 h-14 rounded-xl flex items-center justify-center mx-auto mb-4"
+                        style={{ background: 'rgba(16,185,129,0.1)', border: '1px solid rgba(16,185,129,0.2)' }}
+                    >
+                        <Mail className="w-7 h-7" style={{ color: '#10b981' }} />
                     </div>
-                    <h2 className="text-xl font-bold text-white mb-1">Verify Your Email</h2>
-                    <p className="text-sm text-zinc-400">
+                    <h2 className="text-lg font-semibold mb-1" style={{ color: '#f9fafb' }}>Verify Your Email</h2>
+                    <p className="text-sm" style={{ color: '#9ca3af' }}>
                         Enter the 6-digit code sent to{' '}
                         <span className="text-zinc-200 font-medium">{userEmail}</span>
                     </p>
@@ -205,7 +208,10 @@ function VerificationModal({
                             onChange={e => handleDigit(i, e.target.value)}
                             onKeyDown={e => handleKeyDown(i, e)}
                             autoFocus={i === 0}
-                            className="w-12 h-14 text-center text-2xl font-bold bg-zinc-800 border-2 border-zinc-700 rounded-xl focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 outline-none transition-all text-white caret-transparent"
+                            className="w-12 h-14 text-center text-2xl font-bold rounded-xl outline-none transition-all caret-transparent"
+                    style={{ background: '#1a1a1a', border: '2px solid rgba(255,255,255,0.1)', color: '#f9fafb' }}
+                    onFocus={e => (e.currentTarget.style.borderColor = '#10b981')}
+                    onBlur={e => (e.currentTarget.style.borderColor = 'rgba(255,255,255,0.1)')}
                         />
                     ))}
                 </div>
@@ -221,7 +227,12 @@ function VerificationModal({
                 <button
                     onClick={verify}
                     disabled={verifying || digits.join('').length !== 6}
-                    className="w-full flex items-center justify-center gap-2 py-3 rounded-xl bg-linear-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white text-sm font-semibold transition-all shadow-lg shadow-indigo-500/25 border border-indigo-500/30 disabled:opacity-50 disabled:cursor-not-allowed mb-3"
+                    className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-medium transition-all mb-3"
+                    style={{
+                        background: (verifying || digits.join('').length !== 6) ? '#1a1a1a' : '#10b981',
+                        color: (verifying || digits.join('').length !== 6) ? '#4b5563' : '#fff',
+                        cursor: (verifying || digits.join('').length !== 6) ? 'not-allowed' : 'pointer',
+                    }}
                 >
                     {verifying ? (
                         <><Loader2 className="w-4 h-4 animate-spin" />Verifying…</>
@@ -268,16 +279,16 @@ export default function EmailVerificationBanner() {
 
     return (
         <>
-            <div className="bg-linear-to-r from-indigo-600 to-purple-600 text-white">
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
+            <div style={{ background: 'rgba(245,158,11,0.08)', borderBottom: '1px solid rgba(245,158,11,0.15)' }}>
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-2.5">
                     <div className="flex items-center justify-between gap-4">
-                        <div className="flex items-center gap-3 min-w-0">
-                            <AlertCircle className="w-5 h-5 shrink-0" />
+                        <div className="flex items-center gap-2.5 min-w-0">
+                            <AlertCircle className="w-4 h-4 shrink-0" style={{ color: '#f59e0b' }} />
                             <div className="min-w-0">
-                                <p className="text-sm font-semibold truncate">
+                                <p className="text-sm font-medium truncate" style={{ color: '#fbbf24' }}>
                                     Verify your email to unlock all features
                                 </p>
-                                <p className="text-xs text-indigo-100 truncate">
+                                <p className="text-xs truncate" style={{ color: '#9ca3af' }}>
                                     {user.email}
                                 </p>
                             </div>
@@ -286,16 +297,22 @@ export default function EmailVerificationBanner() {
                         <div className="flex items-center gap-2 shrink-0">
                             <button
                                 onClick={() => setShowModal(true)}
-                                className="px-4 py-1.5 bg-white text-indigo-600 rounded-lg text-sm font-semibold hover:bg-indigo-50 transition-colors whitespace-nowrap"
+                                className="px-3 py-1 rounded-md text-xs font-medium transition-colors whitespace-nowrap"
+                                style={{ background: 'rgba(245,158,11,0.15)', color: '#fbbf24', border: '1px solid rgba(245,158,11,0.25)' }}
+                                onMouseEnter={e => ((e.currentTarget as HTMLElement).style.background = 'rgba(245,158,11,0.25)')}
+                                onMouseLeave={e => ((e.currentTarget as HTMLElement).style.background = 'rgba(245,158,11,0.15)')}
                             >
                                 Verify Email
                             </button>
                             <button
                                 onClick={handleDismiss}
-                                className="p-1.5 hover:bg-white/20 rounded-lg transition-colors"
+                                className="p-1 rounded-md transition-colors"
+                                style={{ color: '#6b7280' }}
+                                onMouseEnter={e => ((e.currentTarget as HTMLElement).style.color = '#9ca3af')}
+                                onMouseLeave={e => ((e.currentTarget as HTMLElement).style.color = '#6b7280')}
                                 aria-label="Dismiss"
                             >
-                                <X className="w-4 h-4" />
+                                <X className="w-3.5 h-3.5" />
                             </button>
                         </div>
                     </div>

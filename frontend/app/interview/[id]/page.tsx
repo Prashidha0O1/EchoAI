@@ -191,12 +191,15 @@ export default function InterviewSessionPage() {
   // Loading
   if (authLoading || isInitializing) {
     return (
-      <div className="min-h-screen bg-[#09090b] flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center" style={{ background: '#060a07' }}>
         <div className="text-center">
-          <div className="w-14 h-14 rounded-2xl bg-indigo-500/20 border border-indigo-500/30 flex items-center justify-center mx-auto mb-4">
-            <div className="w-7 h-7 border-2 border-indigo-400 border-t-transparent rounded-full animate-spin" />
+          <div
+            className="w-12 h-12 rounded-xl flex items-center justify-center mx-auto mb-3"
+            style={{ background: '#1a1a1a', border: '1px solid rgba(255,255,255,0.07)' }}
+          >
+            <div className="w-5 h-5 border-2 border-t-transparent rounded-full animate-spin" style={{ borderColor: 'rgba(255,255,255,0.2)', borderTopColor: '#10b981' }} />
           </div>
-          <p className="text-zinc-400 text-sm">Loading interview session...</p>
+          <p className="text-sm" style={{ color: '#6b7280' }}>Loading interview session…</p>
         </div>
       </div>
     );
@@ -206,16 +209,25 @@ export default function InterviewSessionPage() {
 
   if (error && !interview) {
     return (
-      <div className="min-h-screen bg-[#09090b] flex items-center justify-center p-4">
-        <div className="max-w-md w-full bg-zinc-900 rounded-2xl border border-zinc-800 p-8 text-center">
-          <div className="w-14 h-14 rounded-2xl bg-red-500/10 border border-red-500/30 flex items-center justify-center mx-auto mb-4">
-            <AlertCircle className="w-7 h-7 text-red-400" />
+      <div className="min-h-screen flex items-center justify-center p-4" style={{ background: '#060a07' }}>
+        <div
+          className="max-w-md w-full rounded-xl p-8 text-center"
+          style={{ background: '#111', border: '1px solid rgba(255,255,255,0.08)' }}
+        >
+          <div
+            className="w-12 h-12 rounded-xl flex items-center justify-center mx-auto mb-3"
+            style={{ background: 'rgba(248,113,113,0.08)', border: '1px solid rgba(248,113,113,0.2)' }}
+          >
+            <AlertCircle className="w-6 h-6" style={{ color: '#f87171' }} />
           </div>
-          <h2 className="text-xl font-semibold text-zinc-100 mb-2">Unable to Load Interview</h2>
-          <p className="text-zinc-400 text-sm mb-6">{error}</p>
+          <h2 className="text-lg font-semibold mb-2" style={{ color: '#f9fafb' }}>Unable to Load Interview</h2>
+          <p className="text-sm mb-5" style={{ color: '#6b7280' }}>{error}</p>
           <button
             onClick={() => router.push('/interviews')}
-            className="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl text-sm font-semibold transition-colors"
+            className="px-4 py-2 rounded-lg text-sm font-medium transition-colors"
+            style={{ background: '#10b981', color: '#fff' }}
+            onMouseEnter={e => ((e.currentTarget as HTMLElement).style.background = '#059669')}
+            onMouseLeave={e => ((e.currentTarget as HTMLElement).style.background = '#10b981')}
           >
             Back to Interviews
           </button>
@@ -225,10 +237,10 @@ export default function InterviewSessionPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#09090b] text-zinc-100 flex flex-col">
+    <div className="min-h-screen flex flex-col" style={{ background: '#060a07', color: '#f0fdf4' }}>
 
       {/* Top Bar */}
-      <header className="bg-zinc-950/80 backdrop-blur-md border-b border-white/10 sticky top-0 z-20">
+      <header className="sticky top-0 z-20 backdrop-blur-md" style={{ background: 'rgba(6,10,7,0.85)', borderBottom: '1px solid rgba(255,255,255,0.07)' }}>
         <div className="max-w-6xl mx-auto px-4 sm:px-6 py-3.5">
           <div className="flex items-center justify-between gap-3">
             <div className="flex items-center gap-3">
@@ -303,27 +315,31 @@ export default function InterviewSessionPage() {
         </div>
 
         {/* ── Audio Controls ── */}
-        <div className="rounded-2xl bg-zinc-900/60 border border-zinc-800 p-5">
+        <div
+          className="rounded-xl p-5"
+          style={{ background: '#111', border: '1px solid rgba(255,255,255,0.07)' }}
+        >
           <div className="flex items-center gap-4">
             {/* Big record button */}
             <button
               onClick={handleToggleRecording}
-              className={`w-14 h-14 rounded-2xl shrink-0 flex items-center justify-center transition-all duration-200 ${isRecording
-                ? 'bg-red-500 shadow-lg shadow-red-500/30 scale-95 hover:bg-red-600'
-                : 'bg-indigo-600 shadow-lg shadow-indigo-500/30 hover:bg-indigo-500 hover:scale-105'
-                }`}
+              className="w-14 h-14 rounded-xl shrink-0 flex items-center justify-center transition-all duration-200"
+              style={isRecording
+                ? { background: '#ef4444', boxShadow: '0 0 20px rgba(239,68,68,0.3)' }
+                : { background: '#10b981', boxShadow: '0 0 20px rgba(16,185,129,0.2)' }
+              }
             >
               {isRecording ? <MicOff className="w-6 h-6 text-white" /> : <Mic className="w-6 h-6 text-white" />}
             </button>
 
             <div className="flex-1">
-              <p className="text-sm font-semibold text-zinc-200">
+              <p className="text-sm font-medium" style={{ color: '#e5e7eb' }}>
                 {isRecording ? 'Recording — speak clearly' : 'Press to start speaking'}
               </p>
-              <p className="text-xs text-zinc-500 mt-0.5">
+              <p className="text-xs mt-0.5" style={{ color: '#6b7280' }}>
                 {isConnected
-                  ? isRecording ? 'Your audio is being livestreamed to the AI' : 'Microphone is off'
-                  : 'Waiting for connection...'}
+                  ? isRecording ? 'Your audio is being streamed to the AI' : 'Microphone is off'
+                  : 'Waiting for connection…'}
               </p>
             </div>
 
@@ -356,9 +372,9 @@ export default function InterviewSessionPage() {
 
         {/* Instructions on first load */}
         {messages.length === 0 && (
-          <div className="rounded-xl bg-zinc-900/40 border border-zinc-800/60 p-4">
-            <h3 className="text-xs font-semibold text-zinc-400 mb-2 uppercase tracking-wide">How it works</h3>
-            <ul className="text-xs text-zinc-500 space-y-1.5 list-disc list-inside">
+          <div className="rounded-xl p-4" style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)' }}>
+            <p className="text-xs font-medium uppercase tracking-wider mb-2.5" style={{ color: '#6b7280' }}>How it works</p>
+            <ul className="space-y-1.5 list-disc list-inside" style={{ color: '#6b7280', fontSize: '13px' }}>
               <li>Press the microphone button to start recording</li>
               <li>Speak your answer clearly — the AI transcribes in real time</li>
               <li>The AI interviewer will respond with questions based on your CV and job description</li>

@@ -92,8 +92,13 @@ export default function ProfilePage() {
 
                 {/* Page Header */}
                 <div>
-                    <h1 className="text-2xl font-bold text-white">My Profile</h1>
-                    <p className="text-zinc-500 text-sm mt-1">Manage your account information and CV</p>
+                    <h1
+                        className="text-xl font-semibold"
+                        style={{ color: '#f9fafb', fontFamily: 'var(--font-space-grotesk)' }}
+                    >
+                        My Profile
+                    </h1>
+                    <p className="text-sm mt-0.5" style={{ color: '#6b7280' }}>Manage your account information and CV</p>
                 </div>
 
                 {/* Email Verification Gate Banner */}
@@ -122,13 +127,25 @@ export default function ProfilePage() {
                 )}
 
                 {/* Identity Card */}
-                <div className="rounded-2xl bg-zinc-900/60 border border-zinc-800 overflow-hidden">
-                    {/* Cover gradient */}
-                    <div className="h-24 bg-gradient-to-r from-indigo-600/40 via-purple-600/30 to-pink-600/20" />
+                <div
+                    className="rounded-xl overflow-hidden"
+                    style={{ background: '#111', border: '1px solid rgba(255,255,255,0.07)' }}
+                >
+                    {/* Cover — subtle neutral gradient */}
+                    <div className="h-20" style={{ background: 'linear-gradient(135deg, #141414 0%, #1a1a1a 100%)' }} />
                     <div className="px-6 pb-6">
                         {/* Avatar */}
-                        <div className="relative -mt-10 mb-4 w-fit">
-                            <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white text-2xl font-bold border-4 border-zinc-900 shadow-xl">
+                        <div className="relative -mt-9 mb-4 w-fit">
+                            <div
+                                className="w-18 h-18 rounded-xl flex items-center justify-center text-lg font-bold"
+                                style={{
+                                    width: '72px', height: '72px',
+                                    background: '#1f2937',
+                                    color: '#9ca3af',
+                                    border: '3px solid #111',
+                                    boxShadow: '0 4px 16px rgba(0,0,0,0.4)',
+                                }}
+                            >
                                 {(user?.first_name?.[0] || user?.username?.[0] || 'U').toUpperCase()}
                             </div>
                             {isVerified && (
@@ -164,10 +181,16 @@ export default function ProfilePage() {
                 </div>
 
                 {/* CV / Resume Section */}
-                <div className={`rounded-2xl bg-zinc-900/60 border p-6 transition-all ${isVerified ? 'border-zinc-800' : 'border-zinc-800/50 opacity-60 pointer-events-none select-none'}`}>
+                <div
+                    className={`rounded-xl p-6 transition-all ${!isVerified ? 'opacity-60 pointer-events-none select-none' : ''}`}
+                    style={{ background: '#111', border: '1px solid rgba(255,255,255,0.07)' }}
+                >
                     <div className="flex items-center gap-2 mb-5">
-                        <div className="w-8 h-8 rounded-lg bg-indigo-500/20 flex items-center justify-center">
-                            <FileText className="w-4 h-4 text-indigo-400" />
+                        <div
+                            className="w-8 h-8 rounded-lg flex items-center justify-center"
+                            style={{ background: 'rgba(255,255,255,0.06)' }}
+                        >
+                            <FileText className="w-4 h-4" style={{ color: '#9ca3af' }} />
                         </div>
                         <h2 className="font-semibold text-white">CV / Resume</h2>
                         {!isVerified && <Lock className="w-4 h-4 text-zinc-500 ml-1" />}
@@ -180,7 +203,7 @@ export default function ProfilePage() {
                         </div>
                     ) : loadingProfile ? (
                         <div className="flex items-center justify-center py-6">
-                            <div className="w-6 h-6 border-2 border-indigo-500 border-t-transparent rounded-full animate-spin" />
+                            <div className="w-5 h-5 border-2 border-t-transparent rounded-full animate-spin" style={{ borderColor: 'rgba(255,255,255,0.12)', borderTopColor: '#10b981' }} />
                         </div>
                     ) : profile?.cv_file_path ? (
                         <div className="space-y-4">
@@ -210,7 +233,13 @@ export default function ProfilePage() {
                     ) : (
                         <div>
                             <label className="block w-full">
-                                <div className={`border-2 border-dashed rounded-xl p-8 text-center cursor-pointer transition-all ${cvFile ? 'border-indigo-500/60 bg-indigo-500/5' : 'border-zinc-700 hover:border-zinc-600 hover:bg-zinc-800/30'}`}>
+                                <div
+                                    className="border-2 border-dashed rounded-xl p-8 text-center cursor-pointer transition-all"
+                                    style={{
+                                        borderColor: cvFile ? 'rgba(16,185,129,0.3)' : 'rgba(255,255,255,0.08)',
+                                        background: cvFile ? 'rgba(16,185,129,0.04)' : 'transparent',
+                                    }}
+                                >
                                     <Upload className="w-8 h-8 text-zinc-500 mx-auto mb-3" />
                                     <p className="text-sm font-medium text-zinc-300">
                                         {cvFile ? cvFile.name : 'Click to upload your CV'}
@@ -228,7 +257,10 @@ export default function ProfilePage() {
                                 <button
                                     onClick={handleCvUpload}
                                     disabled={uploading}
-                                    className="mt-3 w-full py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-semibold transition-colors disabled:opacity-60"
+                                    className="mt-3 w-full py-2.5 rounded-lg text-sm font-medium transition-colors"
+                                    style={{ background: uploading ? '#1a1a1a' : '#10b981', color: uploading ? '#6b7280' : '#fff' }}
+                                    onMouseEnter={e => { if (!uploading) (e.currentTarget as HTMLElement).style.background = '#059669'; }}
+                                    onMouseLeave={e => { if (!uploading) (e.currentTarget as HTMLElement).style.background = '#10b981'; }}
                                 >
                                     {uploading ? 'Uploading...' : 'Upload CV'}
                                 </button>
@@ -245,15 +277,19 @@ export default function ProfilePage() {
                 </div>
 
                 {/* Account Stats */}
-                <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
                     {[
-                        { label: 'Email Verified', value: isVerified ? 'Yes' : 'No', color: isVerified ? 'text-emerald-400' : 'text-amber-400' },
-                        { label: 'Admin', value: user?.is_admin ? 'Yes' : 'No', color: 'text-zinc-300' },
-                        { label: 'Account Active', value: user?.is_active ? 'Yes' : 'No', color: user?.is_active ? 'text-emerald-400' : 'text-red-400' },
+                        { label: 'Email Verified', value: isVerified ? 'Yes' : 'No', color: isVerified ? '#10b981' : '#f59e0b' },
+                        { label: 'Admin', value: user?.is_admin ? 'Yes' : 'No', color: '#9ca3af' },
+                        { label: 'Account Active', value: user?.is_active ? 'Yes' : 'No', color: user?.is_active ? '#10b981' : '#f87171' },
                     ].map((item) => (
-                        <div key={item.label} className="rounded-xl bg-zinc-900/60 border border-zinc-800 p-4">
-                            <p className="text-xs text-zinc-500 font-medium">{item.label}</p>
-                            <p className={`text-base font-semibold mt-1 ${item.color}`}>{item.value}</p>
+                        <div
+                            key={item.label}
+                            className="rounded-xl p-4"
+                            style={{ background: '#111', border: '1px solid rgba(255,255,255,0.07)' }}
+                        >
+                            <p className="text-xs font-medium" style={{ color: '#6b7280' }}>{item.label}</p>
+                            <p className="text-base font-semibold mt-1" style={{ color: item.color }}>{item.value}</p>
                         </div>
                     ))}
                 </div>
