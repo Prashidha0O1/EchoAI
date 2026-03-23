@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import Image from 'next/image';
 import { useAuth } from '@/context/AuthContext';
 import { usePathname } from 'next/navigation';
 
@@ -15,9 +16,8 @@ export default function Navbar() {
         <nav className="fixed top-0 left-0 right-0 z-50 border-b backdrop-blur-md" style={{ borderColor: 'rgba(16,185,129,0.1)', background: 'rgba(6,10,7,0.85)' }}>
             <div className="max-w-6xl mx-auto px-6">
                 <div className="flex items-center justify-between h-16">
-                    <Link href="/" className="flex items-center gap-2 text-xl font-semibold" style={{ fontFamily: 'var(--font-space-grotesk)', color: '#f0fdf4' }}>
-                        <span className="w-2 h-2 rounded-full inline-block" style={{ background: '#10b981' }} />
-                        EchoAI
+                    <Link href="/" className="flex items-center">
+                        <Image src="/EchoAI Logo.png" alt="EchoAI" width={110} height={36} className="object-contain" priority />
                     </Link>
 
                     <div className="flex items-center gap-4">

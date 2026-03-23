@@ -3,6 +3,7 @@
 import { motion, useScroll, useTransform } from 'framer-motion';
 import { ArrowRight, Sparkles, ChevronRight, Zap, UserCircle, MessageSquare, BarChart2, Brain, Captions, FileSearch, FilePen, Code2 } from 'lucide-react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { useRef } from 'react';
 
 /* ─── palette ───────────────────────────────────────────────────────── */
@@ -540,11 +541,8 @@ export default function Home() {
       {/* ═══════════════════════ FOOTER ══════════════════════════════════ */}
       <footer className="px-6 py-10" style={{ borderTop: `1px solid ${C.borderDim}` }}>
         <div className="max-w-6xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-4">
-          <div className="flex items-center gap-2">
-            <div className="w-2 h-2 rounded-full" style={{ background: C.accent }} />
-            <p className="text-sm font-semibold" style={{ color: C.dim, fontFamily: 'var(--font-space-grotesk)' }}>
-              EchoAI
-            </p>
+          <div className="flex items-center gap-3">
+            <Image src="/EchoAI Logo.png" alt="EchoAI" width={90} height={28} className="object-contain opacity-70" />
             <p className="text-sm" style={{ color: C.dim }}>© 2026</p>
           </div>
           <div className="flex gap-8 text-sm">
