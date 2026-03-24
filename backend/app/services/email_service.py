@@ -1,5 +1,5 @@
-"""Email service for sending verification codes and notifications"""
-import smtplib
+"""Email service for sending verification codes and notifications — async (aiosmtplib)"""
+import aiosmtplib
 import random
 import logging
 from email.mime.text import MIMEText
@@ -39,9 +39,9 @@ class EmailService:
         return datetime.now(timezone.utc) > expiry_time
     
     @staticmethod
-    def send_email(to_email: str, subject: str, html_body: str, text_body: Optional[str] = None) -> bool:
+    async def send_email(to_email: str, subject: str, html_body: str, text_body: Optional[str] = None) -> bool:
         """
-        Send an email via SMTP.
+        Send an email via SMTP (async).
         Returns True if sent successfully, False otherwise.
         """
         if not SMTP_USERNAME or not SMTP_PASSWORD:
@@ -59,17 +59,20 @@ class EmailService:
                 msg.attach(MIMEText(text_body, 'plain'))
             msg.attach(MIMEText(html_body, 'html'))
 
-            with smtplib.SMTP(SMTP_HOST, SMTP_PORT, timeout=10) as server:
-                server.ehlo()
-                server.starttls()
-                server.ehlo()
-                server.login(SMTP_USERNAME, SMTP_PASSWORD)
-                server.send_message(msg)
+            await aiosmtplib.send(
+                msg,
+                hostname=SMTP_HOST,
+                port=SMTP_PORT,
+                username=SMTP_USERNAME,
+                password=SMTP_PASSWORD,
+                start_tls=True,
+                timeout=10,
+            )
 
             logger.info(f"✅ Email sent successfully to {to_email}")
             return True
 
-        except smtplib.SMTPAuthenticationError as e:
+        except aiosmtplib.SMTPAuthenticationError as e:
             logger.error(
                 f"❌ SMTP Authentication failed for {SMTP_USERNAME}. "
                 "Make sure you are using a Gmail App Password "
@@ -77,7 +80,7 @@ class EmailService:
                 f"Error: {e}"
             )
             return False
-        except smtplib.SMTPException as e:
+        except aiosmtplib.SMTPException as e:
             logger.error(f"❌ SMTP error sending to {to_email}: {e}")
             return False
         except Exception as e:
@@ -228,19 +231,19 @@ This is an automated email. Please do not reply.
         return html, text
     
     @classmethod
-    def send_verification_code(cls, to_email: str, code: str, user_name: str = "User") -> bool:
+    async def send_verification_code(cls, to_email: str, code: str, user_name: str = "User") -> bool:
         """
-        Send verification code email
-        
+        Send verification code email (async).
+
         Args:
             to_email: Recipient email
             code: 6-digit verification code
             user_name: User's name for personalization
-        
+
         Returns:
             True if sent successfully
         """
         subject = f"Your EchoAI Verification Code: {code}"
         html_body, text_body = cls.get_verification_email_template(code, user_name)
-        
-        return cls.send_email(to_email, subject, html_body, text_body)
+
+        return await cls.send_email(to_email, subject, html_body, text_body)

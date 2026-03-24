@@ -2,6 +2,7 @@
 Feedback generation service using the fine-tuned Gemma 3 1B IT model.
 Analyses an interview transcript and produces structured performance scores.
 """
+import asyncio
 import json
 import logging
 import re
@@ -116,6 +117,37 @@ class FeedbackService:
     # Public API
     # ------------------------------------------------------------------
 
+    def _run_inference(self, prompt: str) -> str:
+        """
+        Sync method — runs blocking torch inference.
+        Called via asyncio.to_thread() so it never blocks the event loop.
+        """
+        import torch
+
+        generator = get_question_generator()
+        messages = [{"role": "user", "content": prompt}]
+        formatted = generator.tokenizer.apply_chat_template(
+            messages,
+            tokenize=False,
+            add_generation_prompt=True,
+        )
+        inputs = generator.tokenizer(formatted, return_tensors="pt").to(
+            generator.model.device
+        )
+        with torch.no_grad():
+            outputs = generator.model.generate(
+                **inputs,
+                max_new_tokens=512,
+                do_sample=False,
+                pad_token_id=(
+                    generator.tokenizer.pad_token_id
+                    or generator.tokenizer.eos_token_id
+                ),
+            )
+        input_length = inputs["input_ids"].shape[1]
+        generated_ids = outputs[0][input_length:]
+        return generator.tokenizer.decode(generated_ids, skip_special_tokens=True)
+
     async def generate(
         self,
         transcript: str,
@@ -123,7 +155,7 @@ class FeedbackService:
         interview_type: str = "technical",
     ) -> Dict[str, Any]:
         """
-        Generate interview feedback.
+        Generate interview feedback (async).
 
         Returns a dict matching the Report schema:
         overall_score, performance_metrics, strengths, improvements, summary, tags
@@ -135,36 +167,9 @@ class FeedbackService:
             return self._fallback_feedback(transcript, role)
 
         try:
-            import torch
-
             prompt = self._build_prompt(transcript, role, interview_type)
-            messages = [{"role": "user", "content": prompt}]
-            formatted = generator.tokenizer.apply_chat_template(
-                messages,
-                tokenize=False,
-                add_generation_prompt=True,
-            )
-
-            inputs = generator.tokenizer(formatted, return_tensors="pt").to(
-                generator.model.device
-            )
-
-            with torch.no_grad():
-                outputs = generator.model.generate(
-                    **inputs,
-                    max_new_tokens=512,
-                    do_sample=False,
-                    pad_token_id=(
-                        generator.tokenizer.pad_token_id
-                        or generator.tokenizer.eos_token_id
-                    ),
-                )
-
-            input_length = inputs["input_ids"].shape[1]
-            generated_ids = outputs[0][input_length:]
-            raw_output = generator.tokenizer.decode(
-                generated_ids, skip_special_tokens=True
-            )
+            # Offload blocking torch inference to the thread pool
+            raw_output = await asyncio.to_thread(self._run_inference, prompt)
 
             logger.info(f"Feedback raw output (first 300 chars): {raw_output[:300]}")
             result = self._parse_feedback(raw_output)

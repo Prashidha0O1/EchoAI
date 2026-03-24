@@ -55,10 +55,10 @@ async def send_verification_code(
 
     # Attempt to send email
     user_name = current_user.first_name or current_user.username
-    email_sent = EmailService.send_verification_code(
+    email_sent = await EmailService.send_verification_code(
         to_email=current_user.email,
         code=code,
-        user_name=user_name
+        user_name=user_name,
     )
 
     if email_sent:

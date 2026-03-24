@@ -1,4 +1,5 @@
 """Document parsing service for CV and Job Description extraction"""
+import asyncio
 import logging
 from typing import Dict, Optional
 import PyPDF2
@@ -57,10 +58,10 @@ class DocumentParser:
     def parse_document(file_path: str) -> str:
         """
         Parse a document based on its extension.
-        
+
         Args:
             file_path: Path to the document file
-            
+
         Returns:
             Extracted text content
         """
@@ -71,6 +72,15 @@ class DocumentParser:
         else:
             logger.warning(f"Unsupported file type: {file_path}")
             return ""
+
+    @staticmethod
+    async def parse_document_async(file_path: str) -> str:
+        """
+        Async wrapper around parse_document.
+        Offloads blocking file I/O and CPU parsing to the thread pool so the
+        event loop stays free while the document is being read.
+        """
+        return await asyncio.to_thread(DocumentParser.parse_document, file_path)
     
     @staticmethod
     def extract_cv_sections(text: str) -> Dict[str, str]:

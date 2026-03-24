@@ -1,8 +1,10 @@
 """ATS Resume Checker router — POST /ats/check"""
+import asyncio
+import logging
 import os
 import tempfile
-import logging
 
+import aiofiles
 from fastapi import APIRouter, Depends, File, Form, HTTPException, UploadFile
 
 from database import auth, models
@@ -30,7 +32,6 @@ async def check_ats_score(
 
     Returns a match **percentage** (0–100), missing keywords, recommendations, and feedback.
     """
-    # Validate file type
     _, ext = os.path.splitext(resume.filename or "")
     if ext.lower() not in ALLOWED_EXTENSIONS:
         raise HTTPException(
@@ -44,28 +45,32 @@ async def check_ats_score(
             detail="Job description must not be empty.",
         )
 
-    # Save upload to a temporary file so DocumentParser can read it by path
+    # Write upload to a temporary file so DocumentParser can read it by path
+    file_bytes = await resume.read()
     try:
-        with tempfile.NamedTemporaryFile(
-            delete=False, suffix=ext.lower()
-        ) as tmp:
-            tmp.write(await resume.read())
-            tmp_path = tmp.name
+        # NamedTemporaryFile is sync — run in thread pool
+        def _write_tmp() -> str:
+            with tempfile.NamedTemporaryFile(delete=False, suffix=ext.lower()) as tmp:
+                tmp.write(file_bytes)
+                return tmp.name
+
+        tmp_path = await asyncio.to_thread(_write_tmp)
     except Exception as exc:
         logger.error(f"Failed to save uploaded resume: {exc}")
         raise HTTPException(status_code=500, detail="Failed to process uploaded file.")
 
     try:
-        # Parse resume text from file
-        resume_text = DocumentParser.parse_document(tmp_path)
+        # Parse resume text — offloaded to thread pool inside parse_document_async
+        resume_text = await DocumentParser.parse_document_async(tmp_path)
         if not resume_text.strip():
             raise HTTPException(
                 status_code=422,
-                detail="Could not extract text from the uploaded resume. "
-                       "Ensure the file is not image-only or password-protected.",
+                detail=(
+                    "Could not extract text from the uploaded resume. "
+                    "Ensure the file is not image-only or password-protected."
+                ),
             )
 
-        # Run BERT inference
         ats = get_ats_service()
         if not ats.is_loaded:
             raise HTTPException(
@@ -73,8 +78,10 @@ async def check_ats_score(
                 detail="ATS model is not available. Please try again later.",
             )
 
-        result = ats.compute_ats_score(resume_text, job_description)
+        # Run BERT inference — offloaded to thread pool
+        result = await ats.compute_ats_score_async(resume_text, job_description)
         gaps = ats.analyze_resume_gaps(resume_text, job_description, result["percentage"])
+
         return {
             "percentage": result["percentage"],
             "resume_filename": resume.filename,
@@ -84,8 +91,7 @@ async def check_ats_score(
         }
 
     finally:
-        # Always clean up the temp file
         try:
-            os.unlink(tmp_path)
+            await asyncio.to_thread(os.unlink, tmp_path)
         except OSError:
             pass

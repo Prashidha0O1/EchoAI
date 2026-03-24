@@ -1,4 +1,5 @@
 """Resume PDF generation service"""
+import asyncio
 from typing import Dict, Any, List
 from io import BytesIO
 from reportlab.lib.pagesizes import letter, A4
@@ -175,13 +176,13 @@ class ResumeService:
         )
     
     @staticmethod
-    async def generate_pdf(resume: Any) -> bytes:
+    def _generate_pdf_sync(resume: Any) -> bytes:
         """
-        Generate PDF from resume data using ReportLab
-        
+        Synchronous ReportLab PDF build — runs in thread pool via generate_pdf().
+
         Args:
             resume: Resume model instance
-        
+
         Returns:
             PDF as bytes
         """
@@ -360,11 +361,20 @@ class ResumeService:
         
         # Build PDF
         doc.build(elements)
-        
+
         pdf_bytes = buffer.getvalue()
         buffer.close()
         return pdf_bytes
-    
+
+    @staticmethod
+    async def generate_pdf(resume: Any) -> bytes:
+        """
+        Async wrapper around _generate_pdf_sync.
+        Offloads blocking ReportLab PDF generation to the thread pool so the
+        event loop stays free while the document is being built.
+        """
+        return await asyncio.to_thread(ResumeService._generate_pdf_sync, resume)
+
     @staticmethod
     def _generate_modern_html(resume: Any) -> str:
         """Modern resume template with gradient header"""

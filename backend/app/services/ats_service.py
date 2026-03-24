@@ -1,4 +1,5 @@
 """ATS Resume Checker service using fine-tuned BERT model."""
+import asyncio
 import re
 import logging
 from pathlib import Path
@@ -286,6 +287,14 @@ class ATSService:
             "recommendations": recommendations,
             "feedback": feedback,
         }
+
+    async def compute_ats_score_async(self, resume_text: str, jd_text: str) -> dict:
+        """
+        Async wrapper around compute_ats_score.
+        Offloads blocking BERT inference to the thread pool so the event loop
+        stays free to handle other requests while scoring runs.
+        """
+        return await asyncio.to_thread(self.compute_ats_score, resume_text, jd_text)
 
     @property
     def is_loaded(self) -> bool:

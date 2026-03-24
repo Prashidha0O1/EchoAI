@@ -2,6 +2,7 @@
 Question generation service using the fine-tuned Gemma 3 1B IT model.
 Generates personalized interview questions from a candidate's CV and job description.
 """
+import asyncio
 import json
 import logging
 import os
@@ -274,6 +275,33 @@ class QuestionGeneratorService:
     # Public API
     # ------------------------------------------------------------------
 
+    def _run_inference(self, prompt: str) -> str:
+        """
+        Sync method — runs blocking torch inference.
+        Called via asyncio.to_thread() so it never blocks the event loop.
+        """
+        import torch
+
+        messages = [{"role": "user", "content": prompt}]
+        formatted = self.tokenizer.apply_chat_template(
+            messages,
+            tokenize=False,
+            add_generation_prompt=True,
+        )
+        inputs = self.tokenizer(formatted, return_tensors="pt").to(self.model.device)
+        with torch.no_grad():
+            outputs = self.model.generate(
+                **inputs,
+                max_new_tokens=600,
+                do_sample=False,
+                pad_token_id=(
+                    self.tokenizer.pad_token_id or self.tokenizer.eos_token_id
+                ),
+            )
+        input_length = inputs["input_ids"].shape[1]
+        generated_ids = outputs[0][input_length:]
+        return self.tokenizer.decode(generated_ids, skip_special_tokens=True)
+
     async def generate_questions(
         self,
         cv_text: str,
@@ -282,7 +310,7 @@ class QuestionGeneratorService:
         experience_level: str,
     ) -> List[Dict[str, Any]]:
         """
-        Generate personalised interview questions.
+        Generate personalised interview questions (async).
 
         Uses the fine-tuned Gemma 3 model when loaded; falls back to
         template questions otherwise.
@@ -292,39 +320,9 @@ class QuestionGeneratorService:
             return self._fallback_questions(role, experience_level)
 
         try:
-            import torch
-
             prompt = self._build_prompt(cv_text, jd_text, role, experience_level)
-
-            # Format with the IT chat template
-            messages = [{"role": "user", "content": prompt}]
-            formatted = self.tokenizer.apply_chat_template(
-                messages,
-                tokenize=False,
-                add_generation_prompt=True,
-            )
-
-            inputs = self.tokenizer(formatted, return_tensors="pt").to(
-                self.model.device
-            )
-
-            with torch.no_grad():
-                outputs = self.model.generate(
-                    **inputs,
-                    max_new_tokens=600,
-                    do_sample=False,
-                    pad_token_id=(
-                        self.tokenizer.pad_token_id
-                        or self.tokenizer.eos_token_id
-                    ),
-                )
-
-            # Decode only the newly generated tokens
-            input_length = inputs["input_ids"].shape[1]
-            generated_ids = outputs[0][input_length:]
-            raw_output = self.tokenizer.decode(
-                generated_ids, skip_special_tokens=True
-            )
+            # Offload blocking torch inference to the thread pool
+            raw_output = await asyncio.to_thread(self._run_inference, prompt)
 
             logger.info(f"Gemma 3 raw output (first 300 chars): {raw_output[:300]}")
 
