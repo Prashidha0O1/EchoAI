@@ -14,6 +14,7 @@ import {
     Plus,
     Sparkles,
     FileText,
+    MessageSquare,
 } from 'lucide-react';
 
 function StatusBadge({ status }: { status: string }) {
@@ -109,7 +110,7 @@ export default function Dashboard() {
                 </div>
 
                 {/* Quick Actions */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                     <Link
                         href="/interviews/create"
                         className="group flex items-center gap-4 p-4 rounded-xl transition-all duration-150"
@@ -124,10 +125,30 @@ export default function Dashboard() {
                             <Sparkles className="w-5 h-5" style={{ color: '#9ca3af' }} />
                         </div>
                         <div className="flex-1 min-w-0">
-                            <p className="text-sm font-medium" style={{ color: '#e5e7eb' }}>Start New Interview</p>
-                            <p className="text-xs mt-0.5" style={{ color: '#6b7280' }}>Practice with AI-powered questions</p>
+                            <p className="text-sm font-medium" style={{ color: '#e5e7eb' }}>Voice Interview</p>
+                            <p className="text-xs mt-0.5" style={{ color: '#6b7280' }}>Answer questions with your mic</p>
                         </div>
                         <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-0.5" style={{ color: '#6b7280' }} />
+                    </Link>
+
+                    <Link
+                        href="/interviews/create?mode=chat"
+                        className="group flex items-center gap-4 p-4 rounded-xl transition-all duration-150"
+                        style={{ background: '#111', border: '1px solid rgba(16,185,129,0.15)' }}
+                        onMouseEnter={e => (e.currentTarget as HTMLElement).style.borderColor = 'rgba(16,185,129,0.3)'}
+                        onMouseLeave={e => (e.currentTarget as HTMLElement).style.borderColor = 'rgba(16,185,129,0.15)'}
+                    >
+                        <div
+                            className="w-10 h-10 rounded-lg flex items-center justify-center shrink-0"
+                            style={{ background: 'rgba(16,185,129,0.08)' }}
+                        >
+                            <MessageSquare className="w-5 h-5" style={{ color: '#10b981' }} />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                            <p className="text-sm font-medium" style={{ color: '#e5e7eb' }}>Chat Interview</p>
+                            <p className="text-xs mt-0.5" style={{ color: '#6b7280' }}>Type your answers, no mic needed</p>
+                        </div>
+                        <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-0.5" style={{ color: '#10b981' }} />
                     </Link>
 
                     <Link

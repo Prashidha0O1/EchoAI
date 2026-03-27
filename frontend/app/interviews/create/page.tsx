@@ -1,7 +1,7 @@
 'use client';
 
 import { useRef, useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import {
     ArrowLeft,
     Briefcase,
@@ -12,6 +12,8 @@ import {
     Upload,
     User,
     X,
+    Mic,
+    MessageSquare,
 } from 'lucide-react';
 
 import { useAuth } from '@/context/AuthContext';
@@ -91,8 +93,12 @@ const inputStyle: React.CSSProperties = {
 
 export default function CreateInterviewPage() {
     const router = useRouter();
+    const searchParams = useSearchParams();
     const { user } = useAuth();
     const fileInputRef = useRef<HTMLInputElement>(null);
+
+    // Pre-select chat mode if coming from the dashboard chat card
+    const defaultMode = searchParams.get('mode') === 'chat' ? 'chat' : 'voice';
 
     const [jobDescription, setJobDescription] = useState('');
     const [role, setRole] = useState('');
@@ -101,6 +107,7 @@ export default function CreateInterviewPage() {
 
     const [isGenerating, setIsGenerating] = useState(false);
     const [isStarting, setIsStarting] = useState(false);
+    const [startingMode, setStartingMode] = useState<'voice' | 'chat' | null>(null);
     const [error, setError] = useState<string | null>(null);
     const [generatedData, setGeneratedData] = useState<GenerateQuestionsResponse | null>(null);
 
@@ -136,21 +143,28 @@ export default function CreateInterviewPage() {
         }
     };
 
-    const handleStartInterview = async () => {
+    const handleStartInterview = async (mode: 'voice' | 'chat' = defaultMode as 'voice' | 'chat') => {
         if (!generatedData) return;
         setError(null);
         setIsStarting(true);
+        setStartingMode(mode);
         try {
             const startResponse = await interviewApi.start(generatedData.session_id);
             if (startResponse.data) {
-                router.push(`/interview/${generatedData.session_id}`);
+                if (mode === 'chat') {
+                    router.push(`/chat-interview/${generatedData.session_id}`);
+                } else {
+                    router.push(`/interview/${generatedData.session_id}`);
+                }
             } else {
                 setError(startResponse.error ?? 'Failed to start the interview session.');
                 setIsStarting(false);
+                setStartingMode(null);
             }
         } catch {
             setError('An unexpected error occurred while starting the interview.');
             setIsStarting(false);
+            setStartingMode(null);
         }
     };
 
@@ -225,33 +239,78 @@ export default function CreateInterviewPage() {
                         ))}
                     </div>
 
+                    {/* Mode info banner */}
+                    <div
+                        className="rounded-lg p-4"
+                        style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)' }}
+                    >
+                        <p className="text-xs font-semibold mb-2.5 uppercase tracking-wider" style={{ color: '#6b7280' }}>Choose your interview mode</p>
+                        <div className="grid grid-cols-2 gap-2 text-xs" style={{ color: '#6b7280' }}>
+                            <div className="flex items-start gap-2">
+                                <Mic className="w-3.5 h-3.5 mt-0.5 shrink-0" style={{ color: '#9ca3af' }} />
+                                <span><span style={{ color: '#e5e7eb' }}>Voice</span> — answer out loud, AI reads questions via audio</span>
+                            </div>
+                            <div className="flex items-start gap-2">
+                                <MessageSquare className="w-3.5 h-3.5 mt-0.5 shrink-0" style={{ color: '#10b981' }} />
+                                <span><span style={{ color: '#e5e7eb' }}>Chat</span> — type answers, no microphone required</span>
+                            </div>
+                        </div>
+                    </div>
+
                     {/* Actions */}
-                    <div className="flex gap-3 pb-6">
+                    <div className="space-y-2.5 pb-6">
+                        {/* Mode buttons */}
+                        <div className="grid grid-cols-2 gap-3">
+                            <button
+                                type="button"
+                                onClick={() => handleStartInterview('voice')}
+                                disabled={isStarting}
+                                className="flex items-center justify-center gap-2 py-2.5 rounded-lg text-sm font-medium transition-colors"
+                                style={{
+                                    background: startingMode === 'voice' ? '#1a1a1a' : 'rgba(255,255,255,0.06)',
+                                    color: startingMode === 'voice' ? '#6b7280' : '#e5e7eb',
+                                    border: '1px solid rgba(255,255,255,0.1)',
+                                }}
+                                onMouseEnter={e => { if (!isStarting) (e.currentTarget as HTMLElement).style.background = 'rgba(255,255,255,0.1)'; }}
+                                onMouseLeave={e => { if (!isStarting) (e.currentTarget as HTMLElement).style.background = 'rgba(255,255,255,0.06)'; }}
+                            >
+                                {startingMode === 'voice' ? (
+                                    <><Loader2 className="w-4 h-4 animate-spin" />Starting…</>
+                                ) : (
+                                    <><Mic className="w-4 h-4" />Voice Interview</>
+                                )}
+                            </button>
+                            <button
+                                type="button"
+                                onClick={() => handleStartInterview('chat')}
+                                disabled={isStarting}
+                                className="flex items-center justify-center gap-2 py-2.5 rounded-lg text-sm font-medium transition-colors"
+                                style={{
+                                    background: startingMode === 'chat' ? '#1a1a1a' : '#10b981',
+                                    color: startingMode === 'chat' ? '#6b7280' : '#fff',
+                                }}
+                                onMouseEnter={e => { if (!isStarting) (e.currentTarget as HTMLElement).style.background = '#059669'; }}
+                                onMouseLeave={e => { if (!isStarting) (e.currentTarget as HTMLElement).style.background = '#10b981'; }}
+                            >
+                                {startingMode === 'chat' ? (
+                                    <><Loader2 className="w-4 h-4 animate-spin" />Starting…</>
+                                ) : (
+                                    <><MessageSquare className="w-4 h-4" />Chat Interview</>
+                                )}
+                            </button>
+                        </div>
+
+                        {/* Regenerate */}
                         <button
                             type="button"
                             onClick={() => setGeneratedData(null)}
                             disabled={isStarting}
-                            className="flex-1 py-2.5 rounded-lg text-sm font-medium transition-colors"
-                            style={{ background: '#1a1a1a', color: '#9ca3af', border: '1px solid rgba(255,255,255,0.08)' }}
-                            onMouseEnter={e => ((e.currentTarget as HTMLElement).style.color = '#e5e7eb')}
-                            onMouseLeave={e => ((e.currentTarget as HTMLElement).style.color = '#9ca3af')}
+                            className="w-full py-2 rounded-lg text-sm font-medium transition-colors"
+                            style={{ background: '#1a1a1a', color: '#6b7280', border: '1px solid rgba(255,255,255,0.06)' }}
+                            onMouseEnter={e => ((e.currentTarget as HTMLElement).style.color = '#9ca3af')}
+                            onMouseLeave={e => ((e.currentTarget as HTMLElement).style.color = '#6b7280')}
                         >
-                            Regenerate
-                        </button>
-                        <button
-                            type="button"
-                            onClick={handleStartInterview}
-                            disabled={isStarting}
-                            className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-lg text-sm font-medium transition-colors"
-                            style={{ background: isStarting ? '#1a1a1a' : '#10b981', color: isStarting ? '#6b7280' : '#fff' }}
-                            onMouseEnter={e => { if (!isStarting) (e.currentTarget as HTMLElement).style.background = '#059669'; }}
-                            onMouseLeave={e => { if (!isStarting) (e.currentTarget as HTMLElement).style.background = '#10b981'; }}
-                        >
-                            {isStarting ? (
-                                <><Loader2 className="w-4 h-4 animate-spin" />Starting…</>
-                            ) : (
-                                <><ChevronRight className="w-4 h-4" />Start Interview</>
-                            )}
+                            Regenerate Questions
                         </button>
                     </div>
                 </div>
@@ -441,8 +500,9 @@ export default function CreateInterviewPage() {
                                 {[
                                     'Your resume and job description are analysed by the Gemma 3 AI model',
                                     'Personalised questions (technical, behavioural, situational) are generated',
-                                    'You preview the questions before starting the live session',
-                                    'The AI reads each question aloud; you answer via voice in real time',
+                                    'You preview the questions, then choose your interview mode',
+                                    'Voice mode — the AI reads questions aloud and you answer with your microphone',
+                                    'Chat mode — questions appear as text and you type your answers (no mic needed)',
                                 ].map((text, i) => (
                                     <li key={i} className="flex items-start gap-2 text-xs" style={{ color: '#6b7280' }}>
                                         <span className="font-semibold mt-0.5 shrink-0" style={{ color: '#4b5563' }}>{i + 1}.</span>

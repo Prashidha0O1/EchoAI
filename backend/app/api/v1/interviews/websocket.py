@@ -390,3 +390,228 @@ async def websocket_interview_endpoint(
 
 # Need to import models here to avoid circular imports
 from app.db import models
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Chat-based (text-only) interview WebSocket
+# ─────────────────────────────────────────────────────────────────────────────
+
+class ChatInterviewSession:
+    """Manages a text-only interview WebSocket session (no STT / TTS)."""
+
+    def __init__(
+        self,
+        websocket: WebSocket,
+        interview_id: int,
+        user_id: int,
+        db: Session,
+    ):
+        self.websocket = websocket
+        self.interview_id = interview_id
+        self.user_id = user_id
+        self.db = db
+        self.llm_service: Optional[SimpleLLMService] = None
+        self.is_active = False
+
+    async def initialize(self) -> bool:
+        """Load interview context and send the opening question."""
+        try:
+            interview = InterviewRepository.get(self.db, self.interview_id)
+            if not interview:
+                await self.websocket.send_json({"type": "error", "message": "Interview not found"})
+                return False
+
+            if interview.user_id != self.user_id:
+                await self.websocket.send_json({"type": "error", "message": "Not authorized for this interview"})
+                return False
+
+            if interview.status != "in_progress":
+                await self.websocket.send_json({
+                    "type": "error",
+                    "message": f"Interview is {interview.status}, not in progress",
+                })
+                return False
+
+            # Load CV text
+            user = self.db.query(models.User).filter(models.User.id == self.user_id).first()
+            cv_text = (user.profile.cv_parsed_text if user and user.profile else None) or "No CV uploaded"
+            jd_text = interview.job_description or "No job description provided"
+
+            # Cache context & init LLM
+            if transcript_service:
+                await transcript_service.cache_interview_context(self.interview_id, cv_text, jd_text)
+            self.llm_service = SimpleLLMService(cv_text, jd_text)
+
+            # Send opening greeting as text
+            await self._send_ai_greeting()
+            self.is_active = True
+            logger.info(f"Chat interview session initialized: interview_id={self.interview_id}")
+            return True
+
+        except Exception as e:
+            logger.error(f"Error initializing chat session: {e}")
+            await self.websocket.send_json({"type": "error", "message": f"Failed to initialize session: {str(e)}"})
+            return False
+
+    async def _send_ai_greeting(self):
+        """Generate and send the first AI question."""
+        try:
+            greeting = await self.llm_service.generate_question([])
+            timestamp = datetime.now(timezone.utc).isoformat()
+
+            await self.websocket.send_json({"type": "ai_message", "text": greeting, "timestamp": timestamp})
+
+            if transcript_service:
+                await transcript_service.add_message(self.interview_id, "ai", greeting, timestamp)
+
+            seq = MessageRepository.get_next_sequence_number(self.db, self.interview_id)
+            MessageRepository.create(self.db, MessageCreate(
+                interview_id=self.interview_id,
+                sender="ai",
+                content=greeting,
+                sequence_number=seq,
+                audio_url=None,
+            ))
+            logger.info(f"Sent chat AI greeting for interview {self.interview_id}")
+        except Exception as e:
+            logger.error(f"Error sending chat AI greeting: {e}")
+
+    async def process_user_text(self, user_text: str):
+        """Handle an incoming text message from the user and reply with the next AI question."""
+        try:
+            user_text = user_text.strip()
+            if not user_text:
+                return
+
+            user_timestamp = datetime.now(timezone.utc).isoformat()
+
+            # Persist user message
+            if transcript_service:
+                await transcript_service.add_message(self.interview_id, "user", user_text, user_timestamp)
+            user_seq = MessageRepository.get_next_sequence_number(self.db, self.interview_id)
+            MessageRepository.create(self.db, MessageCreate(
+                interview_id=self.interview_id,
+                sender="user",
+                content=user_text,
+                sequence_number=user_seq,
+                audio_url=None,
+            ))
+
+            # Build conversation history and generate AI reply
+            messages = MessageRepository.get_interview_messages(self.db, self.interview_id)
+            conversation_history = [{"sender": m.sender, "content": m.content} for m in messages]
+            ai_text = await self.llm_service.generate_question(conversation_history)
+
+            ai_timestamp = datetime.now(timezone.utc).isoformat()
+
+            # Persist AI message
+            if transcript_service:
+                await transcript_service.add_message(self.interview_id, "ai", ai_text, ai_timestamp)
+            ai_seq = MessageRepository.get_next_sequence_number(self.db, self.interview_id)
+            MessageRepository.create(self.db, MessageCreate(
+                interview_id=self.interview_id,
+                sender="ai",
+                content=ai_text,
+                sequence_number=ai_seq,
+                audio_url=None,
+            ))
+
+            await self.websocket.send_json({"type": "ai_message", "text": ai_text, "timestamp": ai_timestamp})
+
+        except Exception as e:
+            logger.error(f"Error processing user text: {e}")
+            await self.websocket.send_json({"type": "error", "message": f"Error processing message: {str(e)}"})
+
+
+@router.websocket("/ws/chat-interview")
+async def websocket_chat_interview_endpoint(
+    websocket: WebSocket,
+    interview_id: int = Query(..., description="Interview session ID"),
+    token: str = Query(..., description="JWT authentication token"),
+):
+    """
+    WebSocket endpoint for text-only (chat) interview sessions.
+
+    Client → Server JSON:
+        { "type": "user_message", "text": "..." }
+        { "type": "ping" }
+        { "type": "end_interview" }
+
+    Server → Client JSON:
+        { "type": "connected", "interview_id": N }
+        { "type": "ai_message", "text": "...", "timestamp": "..." }
+        { "type": "interview_ended" }
+        { "type": "error", "message": "..." }
+        { "type": "pong" }
+    """
+    await websocket.accept()
+    logger.info(f"Chat WebSocket accepted: interview_id={interview_id}")
+
+    db: Optional[Session] = None
+    session: Optional[ChatInterviewSession] = None
+
+    try:
+        token_data = decode_token(token)
+        if not token_data:
+            await websocket.send_json({"type": "error", "message": "Invalid or expired token"})
+            await websocket.close()
+            return
+
+        db = SessionLocal()
+        session = ChatInterviewSession(
+            websocket=websocket,
+            interview_id=interview_id,
+            user_id=token_data.user_id,
+            db=db,
+        )
+
+        if not await session.initialize():
+            await websocket.close()
+            return
+
+        await websocket.send_json({"type": "connected", "interview_id": interview_id})
+
+        import json as _json
+
+        while session.is_active:
+            try:
+                message = await websocket.receive()
+
+                if "text" in message:
+                    data = _json.loads(message["text"])
+                    msg_type = data.get("type")
+
+                    if msg_type == "user_message":
+                        await session.process_user_text(data.get("text", ""))
+
+                    elif msg_type == "ping":
+                        await websocket.send_json({"type": "pong"})
+
+                    elif msg_type == "end_interview":
+                        logger.info(f"Chat interview {interview_id} ended by user")
+                        session.is_active = False
+                        await websocket.send_json({"type": "interview_ended", "message": "Interview session ended"})
+
+                elif "bytes" in message:
+                    # Binary frames are not expected in chat mode — ignore gracefully
+                    logger.warning("Received unexpected binary frame in chat interview session")
+
+            except WebSocketDisconnect:
+                logger.info(f"Chat client disconnected: interview_id={interview_id}")
+                break
+
+    except Exception as e:
+        logger.error(f"Chat WebSocket error: {e}")
+        try:
+            await websocket.send_json({"type": "error", "message": f"Session error: {str(e)}"})
+        except Exception:
+            pass
+
+    finally:
+        if db:
+            db.close()
+        try:
+            await websocket.close()
+        except Exception:
+            pass
+        logger.info(f"Chat WebSocket closed: interview_id={interview_id}")
