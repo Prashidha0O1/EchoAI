@@ -61,16 +61,18 @@ class QuestionGeneratorService:
             import torch
             from transformers import AutoModelForCausalLM, AutoTokenizer
 
-            logger.info(f"Loading Gemma 3 model from: {MODEL_DIR}")
+            device = "cuda" if torch.cuda.is_available() else "cpu"
+            logger.info(f"Loading Gemma 3 model from: {MODEL_DIR} on device: {device}")
 
             self.tokenizer = AutoTokenizer.from_pretrained(MODEL_DIR)
             self.model = AutoModelForCausalLM.from_pretrained(
                 MODEL_DIR,
-                dtype=torch.bfloat16,
+                torch_dtype=torch.bfloat16,
+                device_map="auto",
             )
             self.model.eval()
             self.is_loaded = True
-            logger.info("Gemma 3 question-generator loaded successfully.")
+            logger.info(f"Gemma 3 question-generator loaded successfully on {device}.")
 
         except Exception as exc:
             logger.error(

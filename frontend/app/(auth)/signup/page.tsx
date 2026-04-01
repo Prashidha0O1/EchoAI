@@ -7,6 +7,7 @@ import Input from '@/components/Input';
 import Button from '@/components/Button';
 import { Brain, Captions, FileSearch, Upload, CheckCircle2, X, ArrowRight } from 'lucide-react';
 import { motion } from 'framer-motion';
+import Image from 'next/image';
 
 const HIGHLIGHTS = [
   { icon: Brain,      text: 'AI Interview sessions tailored to your role' },
@@ -71,11 +72,8 @@ export default function SignupPage() {
         }} />
 
         {/* Logo */}
-        <div className="relative z-10 flex items-center gap-2">
-          <div className="w-2 h-2 rounded-full" style={{ background: '#10b981' }} />
-          <span className="text-lg font-semibold" style={{ fontFamily: 'var(--font-space-grotesk)', color: '#f0fdf4' }}>
-            EchoAI
-          </span>
+        <div className="relative z-10">
+          <Image src="/EchoAI Logo.png" alt="EchoAI" width={110} height={34} className="object-contain" />
         </div>
 
         {/* Copy */}
@@ -132,11 +130,8 @@ export default function SignupPage() {
           className="w-full max-w-lg"
         >
           {/* Mobile logo */}
-          <div className="flex items-center gap-2 mb-10 lg:hidden">
-            <div className="w-2 h-2 rounded-full" style={{ background: '#10b981' }} />
-            <span className="text-lg font-semibold" style={{ fontFamily: 'var(--font-space-grotesk)', color: '#f0fdf4' }}>
-              EchoAI
-            </span>
+          <div className="mb-10 lg:hidden">
+            <Image src="/EchoAI Logo.png" alt="EchoAI" width={110} height={34} className="object-contain" />
           </div>
 
           <h1 className="text-2xl font-bold mb-1" style={{ color: '#f0fdf4' }}>Create account</h1>

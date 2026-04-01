@@ -107,10 +107,14 @@ async function apiRequest<T>(
         (headers as Record<string, string>)['Authorization'] = `Bearer ${token}`;
     }
 
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 8000);
+
     try {
         const response = await fetch(`${API_BASE_URL}${endpoint}`, {
             ...options,
             headers,
+            signal: controller.signal,
         });
 
         if (!response.ok) {
@@ -142,8 +146,13 @@ async function apiRequest<T>(
         const data = await response.json();
         return { data };
     } catch (error) {
+        if (error instanceof DOMException && error.name === 'AbortError') {
+            return { error: 'Request timed out. Please try again.' };
+        }
         console.error('API Request Error:', error);
         return { error: 'Network error. Please try again.' };
+    } finally {
+        clearTimeout(timeoutId);
     }
 }
 
