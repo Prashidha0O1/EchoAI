@@ -7,7 +7,6 @@ import json
 import logging
 import os
 import re
-import tempfile
 from typing import Any, Dict, List, Optional
 
 logger = logging.getLogger(__name__)
@@ -39,10 +38,8 @@ class QuestionGeneratorService:
     interview questions from a candidate's CV, job description, role, and
     experience level.
 
-    The model is loaded once as a singleton.  If the model fails to load
-    (e.g. transformers / torch not installed, or the weights are on a slow
-    disk) the service gracefully falls back to a rich set of template
-    questions so the rest of the application still works.
+    The model is loaded once as a singleton.  All questions are generated
+    by the Gemma 3 model — there is no template fallback.
     """
 
     def __init__(self) -> None:
@@ -59,24 +56,29 @@ class QuestionGeneratorService:
         """Load the Gemma 3 model and tokenizer (lazy, non-fatal)."""
         try:
             import torch
-            from transformers import AutoModelForCausalLM, AutoTokenizer
+            from transformers import AutoTokenizer, Gemma3ForCausalLM
 
             device = "cuda" if torch.cuda.is_available() else "cpu"
             logger.info(f"Loading Gemma 3 model from: {MODEL_DIR} on device: {device}")
 
             self.tokenizer = AutoTokenizer.from_pretrained(MODEL_DIR)
-            self.model = AutoModelForCausalLM.from_pretrained(
+            self.model = Gemma3ForCausalLM.from_pretrained(
                 MODEL_DIR,
-                torch_dtype=torch.bfloat16,
-                device_map="auto",
+                torch_dtype=torch.float16,
+                device_map="cuda",
+                ignore_mismatched_sizes=True,
+                low_cpu_mem_usage=True,
             )
             self.model.eval()
             self.is_loaded = True
-            logger.info(f"Gemma 3 question-generator loaded successfully on {device}.")
+            logger.info(
+                f"Gemma 3 question-generator loaded successfully on {device} "
+                f"(dtype={next(self.model.parameters()).dtype})."
+            )
 
         except Exception as exc:
             logger.error(
-                f"Failed to load Gemma 3 model — falling back to templates. Error: {exc}"
+                f"Failed to load Gemma 3 model. Error: {exc}"
             )
             self.is_loaded = False
 
@@ -161,119 +163,6 @@ class QuestionGeneratorService:
         return validated
 
     # ------------------------------------------------------------------
-    # Fallback question templates
-    # ------------------------------------------------------------------
-
-    def _fallback_questions(
-        self, role: str, experience_level: str
-    ) -> List[Dict[str, Any]]:
-        """Return rich template questions when the model is unavailable."""
-        return [
-            {
-                "question": (
-                    f"Tell me about yourself and why you are interested "
-                    f"in the {role} role."
-                ),
-                "category": "behavioral",
-                "difficulty": "easy",
-                "keywords": ["background", "motivation", "fit"],
-                "ideal_answer": (
-                    "Candidate should give a concise professional summary and "
-                    "connect their experience to the role's requirements."
-                ),
-            },
-            {
-                "question": (
-                    "Walk me through your most significant project and "
-                    "your specific contributions."
-                ),
-                "category": "experience",
-                "difficulty": "medium",
-                "keywords": ["project", "contributions", "impact"],
-                "ideal_answer": (
-                    "Should follow the STAR format with a clear description "
-                    "of role, actions taken, and measurable outcome."
-                ),
-            },
-            {
-                "question": (
-                    "Describe a time you had to learn a new technology quickly. "
-                    "How did you approach it?"
-                ),
-                "category": "behavioral",
-                "difficulty": "medium",
-                "keywords": ["learning", "adaptability", "self-study"],
-                "ideal_answer": (
-                    "Should demonstrate a structured learning approach, "
-                    "resource selection, and a positive outcome."
-                ),
-            },
-            {
-                "question": (
-                    "How do you handle conflicting priorities and tight deadlines?"
-                ),
-                "category": "situational",
-                "difficulty": "medium",
-                "keywords": ["prioritization", "time-management", "communication"],
-                "ideal_answer": (
-                    "Should mention frameworks such as MoSCoW or Eisenhower matrix "
-                    "and proactive stakeholder communication."
-                ),
-            },
-            {
-                "question": (
-                    "Explain a complex technical concept from your work in simple terms "
-                    "as if speaking to a non-technical stakeholder."
-                ),
-                "category": "technical",
-                "difficulty": "medium",
-                "keywords": ["communication", "simplification", "technical depth"],
-                "ideal_answer": (
-                    "Should demonstrate ability to translate complexity into plain "
-                    "language with concrete analogies."
-                ),
-            },
-            {
-                "question": (
-                    "Describe your approach to debugging a production issue under pressure."
-                ),
-                "category": "technical",
-                "difficulty": "hard",
-                "keywords": ["debugging", "production", "problem-solving"],
-                "ideal_answer": (
-                    "Should cover isolating the issue, using logs/monitoring, "
-                    "rollback strategy, and a post-mortem to prevent recurrence."
-                ),
-            },
-            {
-                "question": (
-                    f"Where do you see yourself in three years and how does the "
-                    f"{role} position fit that path?"
-                ),
-                "category": "behavioral",
-                "difficulty": "easy",
-                "keywords": ["career goals", "growth", "alignment"],
-                "ideal_answer": (
-                    "Should show realistic career ambition aligned with the "
-                    "company's growth opportunities."
-                ),
-            },
-            {
-                "question": (
-                    "What questions do you have for us about the role, the team, "
-                    "or the company?"
-                ),
-                "category": "behavioral",
-                "difficulty": "easy",
-                "keywords": ["curiosity", "engagement", "preparation"],
-                "ideal_answer": (
-                    "Should ask meaningful, researched questions about team culture, "
-                    "success metrics, or technical challenges — not salary."
-                ),
-            },
-        ]
-
-    # ------------------------------------------------------------------
     # Public API
     # ------------------------------------------------------------------
 
@@ -314,26 +203,23 @@ class QuestionGeneratorService:
         """
         Generate personalised interview questions (async).
 
-        Uses the fine-tuned Gemma 3 model when loaded; falls back to
-        template questions otherwise.
+        Uses the fine-tuned Gemma 3 model. Raises an error if the model
+        is not loaded or generation fails — no silent fallback.
         """
         if not self.is_loaded:
-            logger.warning("Gemma 3 model not loaded — returning fallback questions.")
-            return self._fallback_questions(role, experience_level)
+            raise RuntimeError(
+                "Gemma 3 model is not loaded. Cannot generate questions."
+            )
 
-        try:
-            prompt = self._build_prompt(cv_text, jd_text, role, experience_level)
-            # Offload blocking torch inference to the thread pool
-            raw_output = await asyncio.to_thread(self._run_inference, prompt)
+        prompt = self._build_prompt(cv_text, jd_text, role, experience_level)
+        # Offload blocking torch inference to the thread pool
+        raw_output = await asyncio.to_thread(self._run_inference, prompt)
 
-            logger.info(f"Gemma 3 raw output (first 300 chars): {raw_output[:300]}")
+        logger.info(f"Gemma 3 raw output (first 300 chars): {raw_output[:300]}")
 
-            questions = self._parse_questions(raw_output)
-            if not questions:
-                raise ValueError("No valid questions parsed from model output")
+        questions = self._parse_questions(raw_output)
+        if not questions:
+            raise ValueError("Gemma 3 produced output but no valid questions could be parsed from it.")
 
-            return questions
-
-        except Exception as exc:
-            logger.error(f"Error during Gemma 3 generation: {exc}")
-            return self._fallback_questions(role, experience_level)
+        logger.info(f"Gemma 3 generated {len(questions)} questions successfully.")
+        return questions

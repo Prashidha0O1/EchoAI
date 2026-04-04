@@ -1,15 +1,14 @@
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect, Request
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import HTMLResponse
+from fastapi.responses import HTMLResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
-from speech_pipeline.stt.whisper_stt import WhisperSTT
-from speech_pipeline.tts.pyttsx3_tts import Pyttsx3TTS
 from speech_pipeline.webrtc import offer
 from database import models
 from database.database import engine
-from routers import auth_router, interviews_router, profile_router, verification_router, resumes_router, ats_router, question_generator_router
+from routers import auth_router, interviews_router, profile_router, verification_router, resumes_router, ats_router, question_generator_router, admin_router, leaderboard_router
 from app.api.v1.interviews.websocket import router as websocket_router
 from sqlalchemy import text
+import asyncio
 import logging
 import os
 
@@ -63,6 +62,51 @@ except Exception as e:
 # Create any brand-new tables (e.g. resumes) defined in models
 models.Base.metadata.create_all(bind=engine)
 
+
+def seed_admin_user():
+    """Create the hardcoded admin account if it does not already exist."""
+    from database.database import SessionLocal
+    from database import crud, auth as db_auth
+    db = SessionLocal()
+    try:
+        existing = crud.get_user_by_email(db, "admin@echo.ai")
+        if not existing:
+            admin = models.User(
+                username="admin",
+                email="admin@echo.ai",
+                hashed_password=db_auth.get_password_hash("nimda@123"),
+                first_name="EchoAI",
+                last_name="Admin",
+                is_admin=True,
+                is_active=True,
+                email_verified=True,
+            )
+            db.add(admin)
+            db.commit()
+            db.refresh(admin)
+            profile = models.UserProfile(user_id=admin.id)
+            db.add(profile)
+            db.commit()
+            logger.info("Admin user created: admin@echo.ai")
+        else:
+            # Idempotent: ensure flags are correct even if account pre-existed
+            if not existing.is_admin or not existing.email_verified:
+                existing.is_admin = True
+                existing.email_verified = True
+                db.commit()
+                logger.info("Admin user flags repaired.")
+    except Exception as e:
+        logger.error(f"Admin seed error (non-fatal): {e}")
+    finally:
+        db.close()
+
+
+try:
+    seed_admin_user()
+except Exception as e:
+    logger.error(f"Admin seed failed (non-fatal): {e}")
+
+
 # Create uploads directory
 UPLOAD_DIR = os.path.join(os.path.dirname(__file__), "uploads")
 os.makedirs(UPLOAD_DIR, exist_ok=True)
@@ -89,39 +133,64 @@ app.include_router(resumes_router)
 app.include_router(ats_router)
 app.include_router(question_generator_router)
 app.include_router(websocket_router)
+app.include_router(admin_router)
+app.include_router(leaderboard_router)
 
-# Initialize models
-logger.info("Initializing models...")
-try:
-    stt_service = WhisperSTT()
-    tts_service = Pyttsx3TTS()
-    logger.info("Models initialized successfully.")
-except Exception as e:
-    logger.error(f"Error initializing models: {e}")
-    stt_service = None
-    tts_service = None
+# Global exception handler — prevents unhandled errors from crashing the ASGI process
+@app.exception_handler(Exception)
+async def global_exception_handler(request: Request, exc: Exception):
+    logger.error("Unhandled exception on %s %s: %s", request.method, request.url.path, exc, exc_info=True)
+    return JSONResponse(status_code=500, content={"detail": "Internal server error"})
 
-# Pre-load ATS model (non-fatal if it fails)
-try:
-    from app.services.ats_service import get_ats_service
-    _ats = get_ats_service()
-    if _ats.is_loaded:
-        logger.info("ATS model pre-loaded successfully.")
-    else:
-        logger.warning("ATS model failed to load; /ats/check will return 503 until fixed.")
-except Exception as e:
-    logger.error(f"Error pre-loading ATS model: {e}")
 
-# Pre-load Gemma 3 question-generator model (non-fatal if it fails)
-try:
-    from app.services.question_generator_service import get_question_generator
-    _qgen = get_question_generator()
-    if _qgen.is_loaded:
-        logger.info("Gemma 3 question-generator model pre-loaded successfully.")
-    else:
-        logger.warning("Gemma 3 model failed to load; /generate-questions will use fallback template questions.")
-except Exception as e:
-    logger.error(f"Error pre-loading Gemma 3 model: {e}")
+# Global references — populated asynchronously at startup
+stt_service = None
+tts_service = None
+
+
+@app.on_event("startup")
+async def load_models():
+    """Fire-and-forget ML model loading so the server accepts requests immediately."""
+    global stt_service, tts_service
+
+    async def _load_stt_tts():
+        global stt_service, tts_service
+        try:
+            from speech_pipeline.stt.whisper_stt import WhisperSTT
+            from speech_pipeline.tts.pyttsx3_tts import Pyttsx3TTS
+            stt_service = await asyncio.to_thread(WhisperSTT)
+            tts_service = Pyttsx3TTS()
+            logger.info("STT/TTS models initialized successfully.")
+        except Exception as e:
+            logger.error(f"Error initializing STT/TTS models: {e}")
+
+    async def _load_ats():
+        try:
+            from app.services.ats_service import get_ats_service
+            _ats = await asyncio.to_thread(get_ats_service)
+            if _ats.is_loaded:
+                logger.info("ATS model pre-loaded successfully.")
+            else:
+                logger.warning("ATS model failed to load; /ats/check will return 503 until fixed.")
+        except Exception as e:
+            logger.error(f"Error pre-loading ATS model: {e}")
+
+    async def _load_qgen():
+        try:
+            from app.services.question_generator_service import get_question_generator
+            _qgen = await asyncio.to_thread(get_question_generator)
+            if _qgen.is_loaded:
+                logger.info("Gemma 3 question-generator model pre-loaded successfully.")
+            else:
+                logger.warning("Gemma 3 model failed to load; /generate-questions will use fallback template questions.")
+        except Exception as e:
+            logger.error(f"Error pre-loading Gemma 3 model: {e}")
+
+    async def _load_all():
+        await asyncio.gather(_load_stt_tts(), _load_ats(), _load_qgen())
+
+    logger.info("Loading ML models in background (server is accepting requests)...")
+    asyncio.create_task(_load_all())
 
 @app.get("/")
 def read_root():
@@ -133,8 +202,8 @@ def health_check():
     """Health check endpoint"""
     return {
         "status": "healthy",
-        "stt_service": "initialized" if stt_service else "failed",
-        "tts_service": "initialized" if tts_service else "failed"
+        "stt_service": "initialized" if stt_service else "loading",
+        "tts_service": "initialized" if tts_service else "loading",
     }
 
 @app.get("/info")

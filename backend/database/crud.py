@@ -98,16 +98,27 @@ def get_user_profile(db: Session, user_id: int) -> Optional[models.UserProfile]:
     return db.query(models.UserProfile).filter(models.UserProfile.user_id == user_id).first()
 
 
-def update_user_profile(db: Session, user_id: int, profile_update: schemas.UserProfileUpdate) -> Optional[models.UserProfile]:
-    """Update user profile"""
+def update_user_profile(
+    db: Session,
+    user_id: int,
+    profile_update: schemas.UserProfileUpdate,
+    **extra_fields,
+) -> Optional[models.UserProfile]:
+    """Update user profile.
+
+    ``extra_fields`` allows callers to set model columns that are not part of
+    the Pydantic schema (e.g. cv_file_path, cv_parsed_text, profile_picture).
+    """
     db_profile = get_user_profile(db, user_id)
     if not db_profile:
         return None
-    
+
     update_data = profile_update.model_dump(exclude_unset=True)
+    update_data.update(extra_fields)
+
     for field, value in update_data.items():
         setattr(db_profile, field, value)
-    
+
     db_profile.updated_at = datetime.now(timezone.utc)
     db.commit()
     db.refresh(db_profile)

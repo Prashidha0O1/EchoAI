@@ -72,6 +72,7 @@ interface Interview {
 export const setToken = (token: string) => {
     if (typeof window !== 'undefined') {
         localStorage.setItem('access_token', token);
+        document.cookie = `echo_auth_token=${token}; path=/; max-age=${60 * 60 * 24 * 7}; SameSite=Lax`;
     }
 };
 
@@ -85,13 +86,16 @@ export const getToken = (): string | null => {
 export const removeToken = () => {
     if (typeof window !== 'undefined') {
         localStorage.removeItem('access_token');
+        document.cookie = 'echo_auth_token=; path=/; max-age=0; SameSite=Lax';
+        document.cookie = 'echo_is_admin=; path=/; max-age=0; SameSite=Lax';
     }
 };
 
 // API request helper
 async function apiRequest<T>(
     endpoint: string,
-    options: RequestInit = {}
+    options: RequestInit = {},
+    timeoutMs: number = 15000
 ): Promise<ApiResponse<T>> {
     const token = getToken();
 
@@ -108,7 +112,8 @@ async function apiRequest<T>(
     }
 
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 8000);
+    // timeoutMs = 0 means no timeout (used for slow AI endpoints)
+    const timeoutId = timeoutMs > 0 ? setTimeout(() => controller.abort(), timeoutMs) : null;
 
     try {
         const response = await fetch(`${API_BASE_URL}${endpoint}`, {
@@ -152,7 +157,7 @@ async function apiRequest<T>(
         console.error('API Request Error:', error);
         return { error: 'Network error. Please try again.' };
     } finally {
-        clearTimeout(timeoutId);
+        if (timeoutId) clearTimeout(timeoutId);
     }
 }
 
@@ -167,7 +172,7 @@ export const authApi = {
             method: 'POST',
             headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
             body: formData.toString(),
-        });
+        }, 30000);
     },
 
     register: async (
@@ -282,7 +287,7 @@ export const atsApi = {
         return apiRequest<ATSResult>('/ats/check', {
             method: 'POST',
             body: formData,
-        });
+        }, 0);
     },
 };
 
@@ -303,7 +308,7 @@ export const questionGeneratorApi = {
         return apiRequest<GenerateQuestionsResponse>('/generate-questions', {
             method: 'POST',
             body: formData,
-        });
+        }, 0); // no timeout — AI model generation can take several minutes
     },
 };
 
@@ -342,8 +347,59 @@ export const reportApi = {
     },
 
     generate: async (interviewId: number): Promise<ApiResponse<Report>> => {
-        return apiRequest<Report>(`/interviews/${interviewId}/report`, { method: 'POST' });
+        return apiRequest<Report>(`/interviews/${interviewId}/report`, { method: 'POST' }, 0); // no timeout — AI feedback generation
     },
+};
+
+// Admin API
+export interface AdminStats {
+    total_users: number;
+    total_interviews: number;
+    total_completed: number;
+    platform_avg_score: number | null;
+}
+
+export interface AdminUser {
+    id: number;
+    username: string;
+    email: string;
+    first_name: string | null;
+    last_name: string | null;
+    is_admin: boolean;
+    email_verified: boolean;
+    created_at: string;
+    interview_count: number;
+    avg_score: number | null;
+    last_score: number | null;
+}
+
+export interface AdminChartPoint {
+    label: string;
+    count: number;
+}
+
+export const adminApi = {
+    getStats: (): Promise<ApiResponse<AdminStats>> => apiRequest<AdminStats>('/admin/stats'),
+    getUsers: (): Promise<ApiResponse<AdminUser[]>> => apiRequest<AdminUser[]>('/admin/users'),
+    getInterviewsPerDay: (): Promise<ApiResponse<AdminChartPoint[]>> => apiRequest<AdminChartPoint[]>('/admin/chart/interviews-per-day'),
+    getInterviewsByType: (): Promise<ApiResponse<AdminChartPoint[]>> => apiRequest<AdminChartPoint[]>('/admin/chart/interviews-by-type'),
+};
+
+// Leaderboard API
+export interface LeaderboardEntry {
+    rank: number;
+    user_id: number;
+    username: string;
+    first_name: string | null;
+    last_name: string | null;
+    last_score: number | null;
+    avg_score: number | null;
+    total_interviews: number;
+    last_interview_date: string | null;
+}
+
+export const leaderboardApi = {
+    get: (): Promise<ApiResponse<LeaderboardEntry[]>> => apiRequest<LeaderboardEntry[]>('/leaderboard'),
 };
 
 export type { User, UserProfile, Interview, InterviewQuestion, GenerateQuestionsResponse, LoginResponse, ATSResult, PerformanceMetrics, ReportTag };

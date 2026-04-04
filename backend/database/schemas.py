@@ -358,3 +358,49 @@ class HealthResponse(BaseModel):
     """Health check response"""
     status: str
     timestamp: datetime
+
+
+# ============= Admin Schemas =============
+
+class AdminStatsOut(BaseModel):
+    total_users: int
+    total_interviews: int
+    total_completed: int
+    platform_avg_score: Optional[float] = None
+
+
+class AdminUserOut(BaseModel):
+    id: int
+    username: str
+    email: str
+    first_name: Optional[str] = None
+    last_name: Optional[str] = None
+    is_admin: bool
+    email_verified: bool
+    created_at: datetime
+    interview_count: int
+    avg_score: Optional[float] = None
+    last_score: Optional[float] = None
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class AdminChartPoint(BaseModel):
+    label: str
+    count: int
+
+
+# ============= Leaderboard Schemas =============
+
+class LeaderboardEntry(BaseModel):
+    rank: int
+    user_id: int
+    username: str
+    first_name: Optional[str] = None
+    last_name: Optional[str] = None
+    last_score: Optional[float] = None
+    avg_score: Optional[float] = None
+    total_interviews: int
+    last_interview_date: Optional[datetime] = None
+
+    model_config = ConfigDict(from_attributes=True)

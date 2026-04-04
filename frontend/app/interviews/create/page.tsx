@@ -16,6 +16,7 @@ import {
     MessageSquare,
 } from 'lucide-react';
 
+import { toast } from 'sonner';
 import { useAuth } from '@/context/AuthContext';
 import { interviewApi, questionGeneratorApi } from '@/lib/api';
 import type { GenerateQuestionsResponse, InterviewQuestion } from '@/lib/api';
@@ -134,8 +135,15 @@ export default function CreateInterviewPage() {
         setIsGenerating(true);
         try {
             const response = await questionGeneratorApi.generate(jobDescription, role, experienceLevel, cvFile ?? undefined);
-            if (response.data) setGeneratedData(response.data);
-            else setError(response.error ?? 'Failed to generate questions. Please try again.');
+            if (response.data) {
+                setGeneratedData(response.data);
+                toast.success(`${response.data.total_questions} questions generated for ${response.data.role}!`, {
+                    description: 'Review them below, then start your interview.',
+                    duration: 4000,
+                });
+            } else {
+                setError(response.error ?? 'Failed to generate questions. Please try again.');
+            }
         } catch {
             setError('An unexpected error occurred.');
         } finally {

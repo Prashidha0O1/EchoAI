@@ -20,6 +20,7 @@ SMTP_PASSWORD = os.getenv("SMTP_PASSWORD", "")
 SMTP_FROM_EMAIL = os.getenv("SMTP_FROM_EMAIL", "noreply@echoai.com")
 SMTP_FROM_NAME = os.getenv("SMTP_FROM_NAME", "EchoAI")
 VERIFICATION_CODE_EXPIRE_MINUTES = int(os.getenv("VERIFICATION_CODE_EXPIRE_MINUTES", 10))
+FRONTEND_URL = os.getenv("FRONTEND_URL", "http://localhost:3000")
 
 
 class EmailService:
@@ -230,6 +231,84 @@ This is an automated email. Please do not reply.
         
         return html, text
     
+    @classmethod
+    async def send_password_reset_email(
+        cls,
+        to_email: str,
+        reset_token: str,
+        user_name: str = "User",
+    ) -> bool:
+        """Send a password reset email with a CTA button linking to the reset page."""
+        reset_url = f"{FRONTEND_URL}/reset-password?token={reset_token}"
+        subject = "Reset Your EchoAI Password"
+
+        html = f"""
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reset Your Password - EchoAI</title>
+</head>
+<body style="margin:0;padding:0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;background-color:#0a0a0a;">
+    <div style="max-width:600px;margin:0 auto;padding:40px 20px;">
+        <!-- Header -->
+        <div style="text-align:center;margin-bottom:40px;">
+            <div style="background:linear-gradient(135deg,#10b981 0%,#059669 100%);width:80px;height:80px;border-radius:20px;margin:0 auto 20px;display:flex;align-items:center;justify-content:center;">
+                <span style="font-size:36px;color:white;">🔐</span>
+            </div>
+            <h1 style="color:#f4f4f5;margin:0;font-size:28px;font-weight:700;">EchoAI</h1>
+            <p style="color:#a1a1aa;margin:8px 0 0 0;font-size:14px;">Your AI Interview Practice Platform</p>
+        </div>
+        <!-- Main Content -->
+        <div style="background-color:#18181b;border:1px solid #27272a;border-radius:16px;padding:40px;margin-bottom:24px;">
+            <h2 style="color:#f4f4f5;margin:0 0 16px 0;font-size:24px;font-weight:600;">Reset Your Password</h2>
+            <p style="color:#d4d4d8;margin:0 0 16px 0;font-size:16px;line-height:1.6;">Hi {user_name},</p>
+            <p style="color:#d4d4d8;margin:0 0 32px 0;font-size:16px;line-height:1.6;">
+                We received a request to reset the password for your EchoAI account.
+                Click the button below to choose a new password. This link will expire in <strong style="color:#f4f4f5;">1 hour</strong>.
+            </p>
+            <!-- CTA Button -->
+            <div style="text-align:center;margin:32px 0;">
+                <a href="{reset_url}"
+                   style="display:inline-block;background:linear-gradient(135deg,#10b981 0%,#059669 100%);color:#ffffff;text-decoration:none;padding:16px 40px;border-radius:12px;font-size:16px;font-weight:600;letter-spacing:0.5px;">
+                    Reset Password
+                </a>
+            </div>
+            <p style="color:#a1a1aa;margin:24px 0 0 0;font-size:13px;line-height:1.6;">
+                Or copy and paste this link into your browser:<br>
+                <span style="color:#10b981;word-break:break-all;">{reset_url}</span>
+            </p>
+            <hr style="border:none;border-top:1px solid #27272a;margin:32px 0;">
+            <p style="color:#71717a;margin:0;font-size:13px;line-height:1.6;">
+                If you didn't request a password reset, you can safely ignore this email — your password will not change.
+            </p>
+        </div>
+        <!-- Footer -->
+        <div style="text-align:center;padding:24px;">
+            <p style="color:#71717a;margin:0 0 8px 0;font-size:13px;">© 2026 EchoAI. All rights reserved.</p>
+            <p style="color:#71717a;margin:0;font-size:12px;">This is an automated email. Please do not reply.</p>
+        </div>
+    </div>
+</body>
+</html>"""
+
+        text = f"""EchoAI — Reset Your Password
+
+Hi {user_name},
+
+We received a request to reset the password for your EchoAI account.
+Click the link below to choose a new password. This link expires in 1 hour.
+
+{reset_url}
+
+If you didn't request a password reset, you can safely ignore this email.
+
+---
+© 2026 EchoAI. All rights reserved.
+"""
+        return await cls.send_email(to_email, subject, html, text)
+
     @classmethod
     async def send_verification_code(cls, to_email: str, code: str, user_name: str = "User") -> bool:
         """

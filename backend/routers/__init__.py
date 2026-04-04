@@ -6,6 +6,8 @@ from .verification import router as verification_router
 from .resumes import router as resumes_router
 from .ats import router as ats_router
 from .question_generator import router as question_generator_router
+from .admin import router as admin_router
+from .leaderboard import router as leaderboard_router
 
 __all__ = [
     "auth_router",
@@ -15,4 +17,6 @@ __all__ = [
     "resumes_router",
     "ats_router",
     "question_generator_router",
+    "admin_router",
+    "leaderboard_router",
 ]

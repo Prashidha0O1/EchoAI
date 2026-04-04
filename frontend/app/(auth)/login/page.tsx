@@ -31,7 +31,7 @@ export default function LoginPage() {
     try {
       const result = await login(email, password);
       if (result.success) {
-        router.push('/dashboard');
+        router.push(result.is_admin ? '/admin' : '/dashboard');
       } else {
         setError(result.error || 'Failed to sign in');
       }

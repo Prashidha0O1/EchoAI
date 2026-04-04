@@ -168,8 +168,11 @@ class FeedbackService:
 
         try:
             prompt = self._build_prompt(transcript, role, interview_type)
-            # Offload blocking torch inference to the thread pool
-            raw_output = await asyncio.to_thread(self._run_inference, prompt)
+            # Offload blocking torch inference to the thread pool, with timeout
+            raw_output = await asyncio.wait_for(
+                asyncio.to_thread(self._run_inference, prompt),
+                timeout=120,
+            )
 
             logger.info(f"Feedback raw output (first 300 chars): {raw_output[:300]}")
             result = self._parse_feedback(raw_output)

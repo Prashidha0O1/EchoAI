@@ -158,12 +158,34 @@ async def generate_questions(
         f"interview_id={interview.id}."
     )
     generator = get_question_generator()
-    questions = await generator.generate_questions(
-        cv_text=cv_text,
-        jd_text=job_description,
-        role=role,
-        experience_level=experience_level,
-    )
+    try:
+        questions = await asyncio.wait_for(
+            generator.generate_questions(
+                cv_text=cv_text,
+                jd_text=job_description,
+                role=role,
+                experience_level=experience_level,
+            ),
+            timeout=120,
+        )
+    except asyncio.TimeoutError:
+        logger.error("Question generation timed out after 120s.")
+        raise HTTPException(
+            status_code=504,
+            detail="Question generation timed out. Please try again.",
+        )
+    except RuntimeError as exc:
+        logger.error(f"Gemma 3 model not available: {exc}")
+        raise HTTPException(
+            status_code=503,
+            detail="AI model is not loaded. Please wait for the server to finish starting up and try again.",
+        )
+    except Exception as exc:
+        logger.error(f"Question generation failed: {exc}")
+        raise HTTPException(
+            status_code=500,
+            detail=f"Failed to generate questions: {str(exc)}",
+        )
 
     # ── 4. Persist generated questions ────────────────────────────────────
     try:

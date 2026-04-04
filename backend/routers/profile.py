@@ -1,5 +1,7 @@
 import asyncio
+import logging
 import os
+import tempfile
 
 import aiofiles
 from fastapi import APIRouter, Depends, File, HTTPException, UploadFile
@@ -7,6 +9,8 @@ from sqlalchemy.orm import Session
 
 from database.database import get_db
 from database import models, schemas, crud, auth
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/profile", tags=["User Profile"])
 
@@ -17,6 +21,60 @@ PROFILE_PIC_DIR = os.path.join(UPLOAD_DIR, "profile_pictures")
 
 os.makedirs(CV_UPLOAD_DIR, exist_ok=True)
 os.makedirs(PROFILE_PIC_DIR, exist_ok=True)
+
+
+def _extract_pdf_text_sync(file_bytes: bytes) -> str:
+    """Extract plain text from PDF bytes using PyMuPDF — runs in thread pool."""
+    try:
+        import fitz  # PyMuPDF
+
+        with tempfile.NamedTemporaryFile(suffix=".pdf", delete=False) as tmp:
+            tmp.write(file_bytes)
+            tmp_path = tmp.name
+        try:
+            doc = fitz.open(tmp_path)
+            pages_text = [page.get_text() for page in doc]
+            doc.close()
+            return "\n".join(pages_text).strip()
+        finally:
+            os.unlink(tmp_path)
+    except ImportError:
+        logger.warning("PyMuPDF (fitz) not installed — cannot parse PDF.")
+        return ""
+    except Exception as exc:
+        logger.error("PDF text extraction failed: %s", exc)
+        return ""
+
+
+async def _extract_text_from_cv(file_bytes: bytes, filename: str) -> str:
+    """Return plain text from an uploaded CV file (PDF, DOCX, or plain text)."""
+    lower = filename.lower()
+
+    if lower.endswith(".pdf"):
+        return await asyncio.to_thread(_extract_pdf_text_sync, file_bytes)
+
+    if lower.endswith((".docx", ".doc")):
+        try:
+            import fitz  # PyMuPDF handles DOCX too via open with filetype
+            with tempfile.NamedTemporaryFile(suffix=os.path.splitext(lower)[1], delete=False) as tmp:
+                tmp.write(file_bytes)
+                tmp_path = tmp.name
+            try:
+                doc = fitz.open(tmp_path)
+                pages_text = [page.get_text() for page in doc]
+                doc.close()
+                return "\n".join(pages_text).strip()
+            finally:
+                os.unlink(tmp_path)
+        except Exception as exc:
+            logger.warning("DOCX text extraction failed: %s", exc)
+            return ""
+
+    # Plain-text fallback (.txt, etc.)
+    try:
+        return file_bytes.decode("utf-8", errors="ignore").strip()
+    except Exception:
+        return ""
 
 
 @router.get("", response_model=schemas.UserProfileOut)
@@ -80,11 +138,17 @@ async def upload_cv(
     async with aiofiles.open(cv_path, "wb") as buffer:
         await buffer.write(content)
 
+    # Parse CV text so it can be reused for interview question generation
+    parsed_text = await _extract_text_from_cv(content, cv_file.filename)
+    if parsed_text:
+        logger.info("Parsed %d chars from uploaded CV '%s'.", len(parsed_text), cv_file.filename)
+
     profile = crud.update_user_profile(
         db,
         current_user.id,
         schemas.UserProfileUpdate(),
         cv_file_path=cv_path,
+        cv_parsed_text=parsed_text or None,
     )
 
     return profile

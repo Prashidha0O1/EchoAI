@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useCallback, useRef } from 'react';
 import { useParams, useRouter } from 'next/navigation';
+import { toast } from 'sonner';
 import { useAuth } from '@/context/AuthContext';
 import { useWebSocket, TranscriptMessage, WebSocketMessage } from '@/hooks/useWebSocket';
 import { interviewApi, getToken } from '@/lib/api';
@@ -167,13 +168,26 @@ export default function InterviewSessionPage() {
 
   const handleToggleRecording = () => setIsRecording(p => !p);
 
-  const handleEndInterview = async () => {
-    if (!window.confirm('End this interview session?')) return;
-    setIsRecording(false);
-    disconnect();
-    const response = await interviewApi.end(interviewId);
-    if (response.data) router.push(`/interviews/${interviewId}/report`);
-    else setError(response.error || 'Failed to end interview');
+  const handleEndInterview = () => {
+    toast('End this interview session?', {
+      description: 'Your answers will be saved and a report will be generated.',
+      action: {
+        label: 'End Interview',
+        onClick: async () => {
+          setIsRecording(false);
+          disconnect();
+          const response = await interviewApi.end(interviewId);
+          if (response.data) {
+            toast.success('Interview ended. Generating your report…');
+            router.push(`/interviews/${interviewId}/report`);
+          } else {
+            setError(response.error || 'Failed to end interview');
+          }
+        },
+      },
+      cancel: { label: 'Cancel', onClick: () => {} },
+      duration: 10000,
+    });
   };
 
   const handleDownloadTranscript = () => {

@@ -15,6 +15,7 @@ import {
     X,
     Plus,
     ScanSearch,
+    Trophy,
 } from 'lucide-react';
 
 const navItems = [
@@ -22,6 +23,7 @@ const navItems = [
     { label: 'Resume Builder', href: '/resumes', icon: FileText },
     { label: 'ATS Checker', href: '/ats', icon: ScanSearch },
     { label: 'Interviews', href: '/interviews', icon: Video },
+    { label: 'Leaderboard', href: '/leaderboard', icon: Trophy },
     { label: 'Profile', href: '/profile', icon: User },
 ];
 

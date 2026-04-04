@@ -39,6 +39,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         const response = await authApi.getCurrentUser();
         if (response.data) {
             setUser(response.data);
+            // Sync admin cookie for middleware route protection
+            if (typeof document !== 'undefined') {
+                document.cookie = response.data.is_admin
+                    ? `echo_is_admin=1; path=/; max-age=${60 * 60 * 24 * 7}; SameSite=Lax`
+                    : 'echo_is_admin=; path=/; max-age=0; SameSite=Lax';
+            }
         } else {
             removeToken();
             setUser(null);
@@ -60,7 +66,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             } else {
                 await refreshUser();
             }
-            return { success: true };
+            return { success: true, is_admin: response.data.user?.is_admin ?? false };
         }
         return { success: false, error: response.error };
     };

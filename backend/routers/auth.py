@@ -1,7 +1,10 @@
 import asyncio
+import logging
 import os
 from datetime import datetime, timezone
 from typing import Optional
+
+logger = logging.getLogger(__name__)
 
 import aiofiles
 from fastapi import APIRouter, Depends, File, Form, HTTPException, UploadFile, status
@@ -160,9 +163,17 @@ async def forgot_password(
     token = auth.generate_password_reset_token()
     await store_password_reset_token(request.email, token)
 
-    # TODO: Send email with reset link in production
+    from app.services.email_service import EmailService
+    email_sent = await EmailService.send_password_reset_email(
+        to_email=request.email,
+        reset_token=token,
+        user_name=user.first_name or user.username,
+    )
+    if not email_sent:
+        logger.warning(f"Password reset email failed to send to {request.email}")
+
     return {
-        "message": f"Password reset token: {token}",  # Remove in production
+        "message": "If an account exists with this email, a reset link has been sent.",
         "success": True,
     }
 

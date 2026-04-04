@@ -78,8 +78,18 @@ async def check_ats_score(
                 detail="ATS model is not available. Please try again later.",
             )
 
-        # Run BERT inference — offloaded to thread pool
-        result = await ats.compute_ats_score_async(resume_text, job_description)
+        # Run BERT inference — offloaded to thread pool, with timeout
+        try:
+            result = await asyncio.wait_for(
+                ats.compute_ats_score_async(resume_text, job_description),
+                timeout=60,
+            )
+        except asyncio.TimeoutError:
+            logger.warning("ATS scoring timed out after 60s.")
+            raise HTTPException(
+                status_code=504,
+                detail="ATS scoring timed out. Please try again.",
+            )
         gaps = ats.analyze_resume_gaps(resume_text, job_description, result["percentage"])
 
         return {

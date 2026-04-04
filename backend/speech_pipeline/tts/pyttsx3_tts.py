@@ -1,3 +1,4 @@
+import asyncio
 import pyttsx3
 import tempfile
 import os
@@ -7,14 +8,15 @@ class Pyttsx3TTS(TTSProvider):
     def __init__(self):
         pass
 
-    async def speak(self, text: str) -> bytes:
+    def _speak_sync(self, text: str) -> bytes:
+        """Synchronous TTS — called via asyncio.to_thread() to avoid blocking the event loop."""
         fd, output_file = tempfile.mkstemp(suffix=".wav")
         os.close(fd)
         try:
             engine = pyttsx3.init()
             engine.save_to_file(text, output_file)
             engine.runAndWait()
-            
+
             with open(output_file, "rb") as f:
                 audio_data = f.read()
             return audio_data
@@ -27,3 +29,6 @@ class Pyttsx3TTS(TTSProvider):
                     os.unlink(output_file)
                 except:
                     pass
+
+    async def speak(self, text: str) -> bytes:
+        return await asyncio.to_thread(self._speak_sync, text)

@@ -1,9 +1,9 @@
 'use client';
 
 import { motion, useScroll, useTransform } from 'framer-motion';
-import { ArrowRight, Sparkles, ChevronRight, Zap, UserCircle, MessageSquare, BarChart2, Brain, Captions, FileSearch, FilePen, Code2 } from 'lucide-react';
-import Link from 'next/link';
+import { ArrowRight, BarChart2, Brain, Captions, ChevronRight, Code2, FilePen, FileSearch, MessageSquare, Sparkles, UserCircle, Zap } from 'lucide-react';
 import Image from 'next/image';
+import Link from 'next/link';
 import { useRef } from 'react';
 
 /* ─── palette ───────────────────────────────────────────────────────── */
@@ -187,7 +187,7 @@ export default function Home() {
             className="flex flex-wrap gap-4 mb-20"
           >
             <Link
-              href="/register"
+              href="/signup"
               className="group inline-flex items-center gap-2.5 px-7 py-3.5 rounded-xl font-semibold text-sm transition-all duration-200"
               style={{ background: C.accent, color: '#022c22' }}
               onMouseEnter={e => {

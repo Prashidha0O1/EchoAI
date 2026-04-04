@@ -29,8 +29,17 @@ dependencies = [
     "reportlab>=4.4.10",
     "weasyprint>=68.1",
     "transformers>=4.40.0",
-    "torch",
+    "torch>=2.0.0",
     "accelerate>=1.13.0",
     "aiosmtplib>=3.0.0",
     "aiofiles>=24.1.0",
+    "pymupdf>=1.27.2.2",
 ]
+
+[tool.uv.sources]
+torch = { index = "pytorch-cu121" }
+
+[[tool.uv.index]]
+name = "pytorch-cu121"
+url = "https://download.pytorch.org/whl/cu121"
+explicit = true
