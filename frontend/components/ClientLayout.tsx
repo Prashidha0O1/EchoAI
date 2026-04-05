@@ -4,7 +4,7 @@ import { usePathname } from 'next/navigation';
 import Navbar from '@/components/Navbar';
 
 // Routes that use the sidebar — Navbar should be hidden on these
-const SIDEBAR_ROUTES = ['/dashboard', '/interviews', '/interview', '/ats', '/resumes', '/profile', '/leaderboard', '/admin'];
+const SIDEBAR_ROUTES = ['/dashboard', '/interviews', '/interview', '/ats', '/resumes', '/profile', '/leaderboard', '/admin', '/settings'];
 const AUTH_ROUTES = ['/login', '/signup', '/admin/login'];
 
 export default function ClientLayout({ children }: { children: React.ReactNode }) {

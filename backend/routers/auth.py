@@ -205,3 +205,37 @@ async def reset_password(
     await reset_login_attempts(email)
 
     return {"message": "Password has been reset successfully", "success": True}
+
+
+@router.post("/change-password", response_model=schemas.MessageResponse)
+async def change_password(
+    request: schemas.PasswordChangeRequest,
+    current_user: models.User = Depends(auth.get_current_user),
+    db: Session = Depends(get_db),
+):
+    """Change password for the currently authenticated user."""
+    # Verify old password
+    if not auth.verify_password(request.old_password, current_user.hashed_password):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Current password is incorrect.",
+        )
+
+    # Confirm new passwords match
+    if request.new_password != request.confirm_password:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="New password and confirm password do not match.",
+        )
+
+    # Ensure new password differs from old
+    if request.old_password == request.new_password:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="New password must be different from the current password.",
+        )
+
+    current_user.hashed_password = auth.get_password_hash(request.new_password)
+    db.commit()
+
+    return {"message": "Password changed successfully.", "success": True}

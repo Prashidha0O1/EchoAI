@@ -264,3 +264,81 @@ async def test_forgot_password_unknown_email(client):
     )
     assert resp.status_code == 200
     assert resp.json()["success"] is True
+
+
+# ===================== CHANGE PASSWORD =====================
+
+
+@pytest.mark.asyncio
+async def test_change_password_success(client, test_user):
+    """Change password with correct old password succeeds."""
+    _, _, headers = test_user
+    resp = await client.post(
+        "/auth/change-password",
+        json={
+            "old_password": "TestPass123!",
+            "new_password": "BrandNewPass1!",
+            "confirm_password": "BrandNewPass1!",
+        },
+        headers=headers,
+    )
+    assert resp.status_code == 200
+    assert resp.json()["success"] is True
+
+    # Verify new password works for login
+    login_resp = await client.post(
+        "/auth/login",
+        data={"username": "test@example.com", "password": "BrandNewPass1!"},
+    )
+    assert login_resp.status_code == 200
+
+
+@pytest.mark.asyncio
+async def test_change_password_wrong_old(client, test_user):
+    """Change password with incorrect old password returns 400."""
+    _, _, headers = test_user
+    resp = await client.post(
+        "/auth/change-password",
+        json={
+            "old_password": "WrongOldPass!",
+            "new_password": "NewPass123!",
+            "confirm_password": "NewPass123!",
+        },
+        headers=headers,
+    )
+    assert resp.status_code == 400
+    assert "incorrect" in resp.json()["detail"].lower()
+
+
+@pytest.mark.asyncio
+async def test_change_password_mismatch(client, test_user):
+    """New password and confirm password don't match returns 400."""
+    _, _, headers = test_user
+    resp = await client.post(
+        "/auth/change-password",
+        json={
+            "old_password": "TestPass123!",
+            "new_password": "NewPass123!",
+            "confirm_password": "DifferentPass!",
+        },
+        headers=headers,
+    )
+    assert resp.status_code == 400
+    assert "do not match" in resp.json()["detail"].lower()
+
+
+@pytest.mark.asyncio
+async def test_change_password_same_as_old(client, test_user):
+    """New password same as old password returns 400."""
+    _, _, headers = test_user
+    resp = await client.post(
+        "/auth/change-password",
+        json={
+            "old_password": "TestPass123!",
+            "new_password": "TestPass123!",
+            "confirm_password": "TestPass123!",
+        },
+        headers=headers,
+    )
+    assert resp.status_code == 400
+    assert "different" in resp.json()["detail"].lower()

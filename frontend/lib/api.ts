@@ -214,6 +214,17 @@ export const authApi = {
             body: JSON.stringify({ token, new_password: newPassword }),
         });
     },
+
+    changePassword: async (oldPassword: string, newPassword: string, confirmPassword: string): Promise<ApiResponse<{ message: string; success: boolean }>> => {
+        return apiRequest<{ message: string; success: boolean }>('/auth/change-password', {
+            method: 'POST',
+            body: JSON.stringify({
+                old_password: oldPassword,
+                new_password: newPassword,
+                confirm_password: confirmPassword,
+            }),
+        });
+    },
 };
 
 // Interview API
@@ -267,6 +278,13 @@ export const profileApi = {
 
     deleteCV: async (): Promise<ApiResponse<{ message: string }>> => {
         return apiRequest<{ message: string }>('/profile/cv', { method: 'DELETE' });
+    },
+
+    update: async (data: { phone?: string; bio?: string }): Promise<ApiResponse<UserProfile>> => {
+        return apiRequest<UserProfile>('/profile', {
+            method: 'PATCH',
+            body: JSON.stringify(data),
+        });
     },
 };
 

@@ -16,6 +16,7 @@ import {
     Plus,
     ScanSearch,
     Trophy,
+    Settings,
 } from 'lucide-react';
 
 const navItems = [
@@ -25,6 +26,7 @@ const navItems = [
     { label: 'Interviews', href: '/interviews', icon: Video },
     { label: 'Leaderboard', href: '/leaderboard', icon: Trophy },
     { label: 'Profile', href: '/profile', icon: User },
+    { label: 'Settings', href: '/settings', icon: Settings },
 ];
 
 export default function DashboardSidebar() {

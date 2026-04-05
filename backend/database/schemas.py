@@ -105,6 +105,13 @@ class PasswordResetConfirm(BaseModel):
     new_password: str = Field(..., min_length=8)
 
 
+class PasswordChangeRequest(BaseModel):
+    """Change password for authenticated user"""
+    old_password: str
+    new_password: str = Field(..., min_length=8)
+    confirm_password: str
+
+
 # ============= Interview Schemas =============
 
 class InterviewCreate(BaseModel):
