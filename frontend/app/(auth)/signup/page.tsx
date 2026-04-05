@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { useAuth } from '@/context/AuthContext';
 import Input from '@/components/Input';
 import Button from '@/components/Button';
-import { Brain, Captions, FileSearch, Upload, CheckCircle2, X, ArrowRight } from 'lucide-react';
+import { Brain, Captions, FileSearch, ArrowRight } from 'lucide-react';
 import { motion } from 'framer-motion';
 import Image from 'next/image';
 
@@ -19,17 +19,12 @@ export default function SignupPage() {
   const [formData, setFormData] = useState({
     username: '', email: '', password: '', firstName: '', lastName: '',
   });
-  const [cvFile, setCvFile]   = useState<File | null>(null);
   const [error, setError]     = useState('');
   const [loading, setLoading] = useState(false);
   const { register } = useAuth();
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) =>
     setFormData({ ...formData, [e.target.name]: e.target.value });
-
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files?.[0]) setCvFile(e.target.files[0]);
-  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -38,7 +33,7 @@ export default function SignupPage() {
     try {
       const result = await register(
         formData.username, formData.email, formData.password,
-        formData.firstName, formData.lastName, cvFile || undefined,
+        formData.firstName, formData.lastName,
       );
       if (!result.success && result.error && !result.error.toLowerCase().includes('please log in')) {
         setError(result.error);
@@ -51,7 +46,7 @@ export default function SignupPage() {
   };
 
   return (
-    <div className="flex" style={{ background: '#060a07', minHeight: 'calc(100vh - 4rem)' }}>
+    <div className="flex" style={{ background: '#060a07', minHeight: '100vh' }}>
 
       {/* ── Left panel ─────────────────────────────────────── */}
       <div
@@ -170,57 +165,6 @@ export default function SignupPage() {
 
             <Input label="Password" name="password" type="password" placeholder="Min. 8 characters"
               value={formData.password} onChange={handleChange} required />
-
-            {/* CV Upload */}
-            <div>
-              <p className="text-sm font-medium mb-2 ml-1" style={{ color: '#9ca3af' }}>
-                Upload CV{' '}
-                <span className="text-xs font-normal" style={{ color: '#374151' }}>(optional)</span>
-              </p>
-              <input
-                type="file" id="cv-upload" className="hidden"
-                accept=".pdf,.docx,.doc,.txt" onChange={handleFileChange}
-              />
-              <label
-                htmlFor="cv-upload"
-                className="flex items-center gap-4 w-full px-5 py-4 rounded-xl cursor-pointer transition-all duration-200"
-                style={{
-                  background: '#0c1510',
-                  border: `1px solid ${cvFile ? 'rgba(16,185,129,0.3)' : 'rgba(255,255,255,0.05)'}`,
-                }}
-                onMouseEnter={e => ((e.currentTarget as HTMLElement).style.borderColor = 'rgba(16,185,129,0.2)')}
-                onMouseLeave={e => ((e.currentTarget as HTMLElement).style.borderColor = cvFile ? 'rgba(16,185,129,0.3)' : 'rgba(255,255,255,0.05)')}
-              >
-                {cvFile ? (
-                  <>
-                    <CheckCircle2 className="w-5 h-5 shrink-0" style={{ color: '#10b981' }} />
-                    <span className="text-sm flex-1 truncate" style={{ color: '#f0fdf4' }}>{cvFile.name}</span>
-                    <button
-                      type="button"
-                      onClick={e => { e.preventDefault(); setCvFile(null); }}
-                      className="shrink-0 transition-colors"
-                      style={{ color: '#6b7280' }}
-                      onMouseEnter={e => ((e.currentTarget as HTMLElement).style.color = '#ef4444')}
-                      onMouseLeave={e => ((e.currentTarget as HTMLElement).style.color = '#6b7280')}
-                    >
-                      <X className="w-4 h-4" />
-                    </button>
-                  </>
-                ) : (
-                  <>
-                    <Upload className="w-5 h-5 shrink-0" style={{ color: '#6b7280' }} />
-                    <div>
-                      <span className="text-sm font-medium" style={{ color: '#10b981' }}>Click to upload</span>
-                      <span className="text-sm" style={{ color: '#6b7280' }}> or drag & drop</span>
-                      <p className="text-xs mt-0.5" style={{ color: '#374151' }}>PDF, DOCX, TXT — up to 5 MB</p>
-                    </div>
-                  </>
-                )}
-              </label>
-              <p className="text-xs mt-2 ml-1" style={{ color: '#374151' }}>
-                We use your CV to generate personalized interview questions.
-              </p>
-            </div>
 
             <Button type="submit" fullWidth isLoading={loading} className="mt-1 gap-2">
               {!loading && <ArrowRight className="w-4 h-4" />}

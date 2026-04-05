@@ -1,14 +1,14 @@
 'use client';
 
-import { useState } from 'react';
+import Button from '@/components/Button';
+import Input from '@/components/Input';
+import { useAuth } from '@/context/AuthContext';
+import { motion } from 'framer-motion';
+import { ArrowRight, Brain, Captions, FileSearch } from 'lucide-react';
+import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { useAuth } from '@/context/AuthContext';
-import Input from '@/components/Input';
-import Button from '@/components/Button';
-import { Brain, Captions, FileSearch, ArrowRight } from 'lucide-react';
-import { motion } from 'framer-motion';
-import Image from 'next/image';
+import { useState } from 'react';
 
 const HIGHLIGHTS = [
   { icon: Brain,       text: 'AI Interview — adaptive questions for your role' },
@@ -31,7 +31,8 @@ export default function LoginPage() {
     try {
       const result = await login(email, password);
       if (result.success) {
-        router.push(result.is_admin ? '/admin' : '/dashboard');
+        const isAdmin = (result as { is_admin?: boolean }).is_admin === true;
+        router.push(isAdmin ? '/admin' : '/dashboard');
       } else {
         setError(result.error || 'Failed to sign in');
       }
@@ -43,7 +44,7 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="flex" style={{ background: '#060a07', minHeight: 'calc(100vh - 4rem)' }}>
+    <div className="flex" style={{ background: '#060a07', minHeight: '100vh' }}>
 
       {/* ── Left panel ─────────────────────────────────────── */}
       <div
@@ -129,7 +130,7 @@ export default function LoginPage() {
 
           <h1 className="text-2xl font-bold mb-1" style={{ color: '#f0fdf4' }}>Sign in</h1>
           <p className="text-sm mb-8" style={{ color: '#6b7280' }}>
-            Don't have an account?{' '}
+            Don&apos;t have an account?{' '}
             <Link href="/signup" className="font-medium transition-colors" style={{ color: '#10b981' }}
               onMouseEnter={e => ((e.currentTarget as HTMLElement).style.color = '#34d399')}
               onMouseLeave={e => ((e.currentTarget as HTMLElement).style.color = '#10b981')}
