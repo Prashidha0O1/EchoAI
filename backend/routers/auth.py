@@ -145,6 +145,22 @@ async def get_current_user_info(
     return current_user
 
 
+@router.patch("/me", response_model=schemas.UserWithProfile)
+async def update_current_user(
+    update: schemas.UserUpdate,
+    current_user: models.User = Depends(auth.get_current_user),
+    db: Session = Depends(get_db),
+):
+    """Update first_name / last_name on the authenticated user."""
+    if update.first_name is not None:
+        current_user.first_name = update.first_name.strip() or None
+    if update.last_name is not None:
+        current_user.last_name = update.last_name.strip() or None
+    db.commit()
+    db.refresh(current_user)
+    return current_user
+
+
 @router.post("/forgot-password", response_model=schemas.MessageResponse)
 async def forgot_password(
     request: schemas.PasswordResetRequest,

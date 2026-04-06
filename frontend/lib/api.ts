@@ -225,6 +225,24 @@ export const authApi = {
             }),
         });
     },
+
+    updateMe: async (data: { first_name?: string; last_name?: string }): Promise<ApiResponse<User>> => {
+        return apiRequest<User>('/auth/me', {
+            method: 'PATCH',
+            body: JSON.stringify(data),
+        });
+    },
+};
+
+// Resolve a stored profile picture path to a fully-qualified URL the browser can fetch.
+export const resolveMediaUrl = (path: string | null | undefined): string | null => {
+    if (!path) return null;
+    if (path.startsWith('http://') || path.startsWith('https://')) return path;
+    if (path.startsWith('/uploads')) return `${API_BASE_URL}${path}`;
+    // Legacy filesystem path — extract filename and rebuild URL
+    const fname = path.replace(/\\/g, '/').split('/').pop();
+    if (!fname) return null;
+    return `${API_BASE_URL}/uploads/profile_pictures/${fname}`;
 };
 
 // Interview API
@@ -284,6 +302,15 @@ export const profileApi = {
         return apiRequest<UserProfile>('/profile', {
             method: 'PATCH',
             body: JSON.stringify(data),
+        });
+    },
+
+    uploadPicture: async (file: File): Promise<ApiResponse<UserProfile>> => {
+        const formData = new FormData();
+        formData.append('picture', file);
+        return apiRequest<UserProfile>('/profile/picture', {
+            method: 'POST',
+            body: formData,
         });
     },
 };

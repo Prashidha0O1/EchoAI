@@ -111,6 +111,9 @@ except Exception as e:
 UPLOAD_DIR = os.path.join(os.path.dirname(__file__), "uploads")
 os.makedirs(UPLOAD_DIR, exist_ok=True)
 
+# Mount uploads as static so the frontend can fetch profile pictures, CVs, etc.
+app.mount("/uploads", StaticFiles(directory=UPLOAD_DIR), name="uploads")
+
 # Add CORS middleware
 app.add_middleware(
     CORSMiddleware,

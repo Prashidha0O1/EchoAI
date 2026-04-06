@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/context/AuthContext';
-import { profileApi } from '@/lib/api';
+import { profileApi, authApi, resolveMediaUrl } from '@/lib/api';
 import DashboardLayout from '@/components/DashboardLayout';
 import {
     User,
@@ -37,7 +37,51 @@ export default function ProfilePage() {
     const [sendingCode, setSendingCode] = useState(false);
     const [verifyMsg, setVerifyMsg] = useState<string | null>(null);
 
+    // Editable name state
+    const [editingName, setEditingName] = useState(false);
+    const [firstName, setFirstName] = useState('');
+    const [lastName, setLastName] = useState('');
+    const [savingName, setSavingName] = useState(false);
+    const [savingPicture, setSavingPicture] = useState(false);
+
     const isVerified = user?.email_verified === true;
+
+    useEffect(() => {
+        if (user) {
+            setFirstName(user.first_name || '');
+            setLastName(user.last_name || '');
+        }
+    }, [user]);
+
+    const handleSaveName = async () => {
+        setSavingName(true);
+        const res = await authApi.updateMe({ first_name: firstName, last_name: lastName });
+        if (res.data) {
+            await refreshUser();
+            setEditingName(false);
+            setUploadMsg({ type: 'success', text: 'Name updated successfully!' });
+        } else {
+            setUploadMsg({ type: 'error', text: res.error || 'Failed to update name' });
+        }
+        setSavingName(false);
+    };
+
+    const handlePictureChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+        setSavingPicture(true);
+        setUploadMsg(null);
+        const res = await profileApi.uploadPicture(file);
+        if (res.data) {
+            setProfile(res.data);
+            await refreshUser();
+            setUploadMsg({ type: 'success', text: 'Profile picture updated!' });
+        } else {
+            setUploadMsg({ type: 'error', text: res.error || 'Failed to upload picture' });
+        }
+        setSavingPicture(false);
+        e.target.value = '';
+    };
 
     useEffect(() => {
         const load = async () => {
@@ -134,32 +178,117 @@ export default function ProfilePage() {
                     {/* Cover — subtle neutral gradient */}
                     <div className="h-20" style={{ background: 'linear-gradient(135deg, #141414 0%, #1a1a1a 100%)' }} />
                     <div className="px-6 pb-6">
-                        {/* Avatar */}
+                        {/* Avatar — clickable to upload */}
                         <div className="relative -mt-9 mb-4 w-fit">
-                            <div
-                                className="w-18 h-18 rounded-xl flex items-center justify-center text-lg font-bold"
-                                style={{
-                                    width: '72px', height: '72px',
-                                    background: '#1f2937',
-                                    color: '#9ca3af',
-                                    border: '3px solid #111',
-                                    boxShadow: '0 4px 16px rgba(0,0,0,0.4)',
-                                }}
+                            <label
+                                className="group block cursor-pointer"
+                                title="Click to change profile picture"
                             >
-                                {(user?.first_name?.[0] || user?.username?.[0] || 'U').toUpperCase()}
-                            </div>
+                                <div
+                                    className="rounded-xl flex items-center justify-center text-lg font-bold overflow-hidden relative"
+                                    style={{
+                                        width: '72px', height: '72px',
+                                        background: '#1f2937',
+                                        color: '#9ca3af',
+                                        border: '3px solid #111',
+                                        boxShadow: '0 4px 16px rgba(0,0,0,0.4)',
+                                    }}
+                                >
+                                    {resolveMediaUrl(profile?.profile_picture) ? (
+                                        // eslint-disable-next-line @next/next/no-img-element
+                                        <img
+                                            src={resolveMediaUrl(profile?.profile_picture)!}
+                                            alt="Profile"
+                                            className="w-full h-full object-cover"
+                                        />
+                                    ) : (
+                                        (user?.first_name?.[0] || user?.username?.[0] || 'U').toUpperCase()
+                                    )}
+                                    <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                                        {savingPicture ? (
+                                            <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                                        ) : (
+                                            <Camera className="w-5 h-5 text-white" />
+                                        )}
+                                    </div>
+                                </div>
+                                <input
+                                    type="file"
+                                    accept="image/*"
+                                    className="sr-only"
+                                    onChange={handlePictureChange}
+                                    disabled={savingPicture}
+                                />
+                            </label>
                             {isVerified && (
-                                <div className="absolute -bottom-1 -right-1 w-6 h-6 rounded-full bg-emerald-500 border-2 border-zinc-900 flex items-center justify-center">
+                                <div className="absolute -bottom-1 -right-1 w-6 h-6 rounded-full bg-emerald-500 border-2 border-zinc-900 flex items-center justify-center pointer-events-none">
                                     <CheckCircle2 className="w-3.5 h-3.5 text-white" />
                                 </div>
                             )}
                         </div>
+
+                        {/* Editable Full Name */}
+                        <div className="mb-5">
+                            {editingName ? (
+                                <div className="space-y-2">
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                                        <input
+                                            type="text"
+                                            placeholder="First name"
+                                            value={firstName}
+                                            onChange={(e) => setFirstName(e.target.value)}
+                                            className="px-3 py-2 rounded-lg bg-zinc-800 border border-zinc-700 text-sm text-white focus:outline-none focus:border-emerald-500"
+                                        />
+                                        <input
+                                            type="text"
+                                            placeholder="Last name"
+                                            value={lastName}
+                                            onChange={(e) => setLastName(e.target.value)}
+                                            className="px-3 py-2 rounded-lg bg-zinc-800 border border-zinc-700 text-sm text-white focus:outline-none focus:border-emerald-500"
+                                        />
+                                    </div>
+                                    <div className="flex gap-2">
+                                        <button
+                                            onClick={handleSaveName}
+                                            disabled={savingName}
+                                            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-white text-xs font-medium disabled:opacity-60"
+                                        >
+                                            <Save className="w-3.5 h-3.5" /> {savingName ? 'Saving...' : 'Save'}
+                                        </button>
+                                        <button
+                                            onClick={() => {
+                                                setEditingName(false);
+                                                setFirstName(user?.first_name || '');
+                                                setLastName(user?.last_name || '');
+                                            }}
+                                            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-zinc-300 text-xs font-medium"
+                                        >
+                                            <X className="w-3.5 h-3.5" /> Cancel
+                                        </button>
+                                    </div>
+                                </div>
+                            ) : (
+                                <div className="flex items-center gap-2">
+                                    <div>
+                                        <p className="text-xs text-zinc-500">Full Name</p>
+                                        <p className="text-base font-semibold text-white">
+                                            {user?.first_name
+                                                ? `${user.first_name} ${user.last_name || ''}`.trim()
+                                                : user?.username || '—'}
+                                        </p>
+                                    </div>
+                                    <button
+                                        onClick={() => setEditingName(true)}
+                                        className="ml-2 p-1.5 rounded-lg text-zinc-500 hover:text-emerald-400 hover:bg-emerald-500/10 transition-colors"
+                                        title="Edit name"
+                                    >
+                                        <Edit3 className="w-3.5 h-3.5" />
+                                    </button>
+                                </div>
+                            )}
+                        </div>
+
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                            <InfoRow icon={User} label="Full Name" value={
-                                user?.first_name
-                                    ? `${user.first_name} ${user.last_name || ''}`.trim()
-                                    : user?.username || '—'
-                            } />
                             <InfoRow icon={Mail} label="Email" value={user?.email || '—'} />
                             <InfoRow icon={User} label="Username" value={user?.username || '—'} />
                             <InfoRow icon={ShieldCheck} label="Account Status" value={
@@ -177,6 +306,23 @@ export default function ProfilePage() {
                                 value={user?.created_at ? new Date(user.created_at).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) : '—'}
                             />
                         </div>
+
+                        {/* Bio */}
+                        {profile?.bio && (
+                            <div className="mt-5 pt-5 border-t border-white/5">
+                                <div className="flex items-start gap-3">
+                                    <div className="w-8 h-8 rounded-lg bg-zinc-800 flex items-center justify-center shrink-0 mt-0.5">
+                                        <FileText className="w-4 h-4 text-zinc-400" />
+                                    </div>
+                                    <div className="flex-1">
+                                        <p className="text-xs text-zinc-500 font-medium">Bio</p>
+                                        <p className="text-sm text-zinc-200 mt-1 leading-relaxed whitespace-pre-line">
+                                            {profile.bio}
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
                     </div>
                 </div>
 

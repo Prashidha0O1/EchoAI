@@ -9,11 +9,12 @@ const PROTECTED_ROUTES = [
     '/resumes',
     '/profile',
     '/leaderboard',
+    '/settings',
 ];
 
 const ADMIN_ROUTES = ['/admin'];
 
-export function middleware(request: NextRequest) {
+export function proxy(request: NextRequest) {
     const { pathname } = request.nextUrl;
 
     const token = request.cookies.get('echo_auth_token')?.value;

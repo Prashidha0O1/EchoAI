@@ -177,11 +177,17 @@ async def upload_profile_picture(
 
     pic_filename = f"profile_{current_user.id}{file_extension}"
     pic_path = os.path.join(PROFILE_PIC_DIR, pic_filename)
+    pic_url = f"/uploads/profile_pictures/{pic_filename}"
 
-    # Remove old picture if exists
+    # Remove old picture if exists (handle both filesystem and URL forms)
     profile = crud.get_user_profile(db, current_user.id)
-    if profile and profile.profile_picture and os.path.exists(profile.profile_picture):
-        await asyncio.to_thread(os.remove, profile.profile_picture)
+    if profile and profile.profile_picture:
+        old = profile.profile_picture
+        old_fs = old if os.path.isabs(old) else os.path.join(
+            os.path.dirname(os.path.dirname(__file__)), old.lstrip("/")
+        )
+        if os.path.exists(old_fs):
+            await asyncio.to_thread(os.remove, old_fs)
 
     # Save new picture asynchronously
     async with aiofiles.open(pic_path, "wb") as buffer:
@@ -191,7 +197,7 @@ async def upload_profile_picture(
         db,
         current_user.id,
         schemas.UserProfileUpdate(),
-        profile_picture=pic_path,
+        profile_picture=pic_url,
     )
 
     return profile

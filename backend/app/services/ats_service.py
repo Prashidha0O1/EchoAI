@@ -57,7 +57,8 @@ class ATSService:
             self._model = BertForSequenceClassification.from_pretrained(
                 model_path, local_files_only=True
             )
-            self._model.to(self._device)
+            # Force float32 to avoid Half/Float dtype mismatch during inference
+            self._model.to(self._device).float()
             self._model.eval()
             self._num_labels = self._model.config.num_labels
             logger.info(
